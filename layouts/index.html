@@ -6,11 +6,6 @@
 {{ $latest := $posts.ByDate.Reverse }}
 
 <style>
-  .hero {
-    background: linear-gradient(135deg, #fff0f7 0%, #fde7f4 50%, #f7deef 100%);
-    border-color: #efcde2;
-    box-shadow: 0 12px 40px rgba(161, 58, 116, 0.10);
-  }
   .home-hero-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.65fr) minmax(300px, 0.95fr);
@@ -31,9 +26,9 @@
     min-height: 44px;
     padding: 0 16px;
     border-radius: 999px;
-    border: 1px solid #df9fc5;
-    background: rgba(255, 248, 252, 0.86);
-    color: #b04386;
+    border: 1px solid #cfe0d2;
+    background: rgba(255,255,255,0.72);
+    color: #6b59aa;
     font-weight: 700;
     font-size: 15px;
   }
@@ -49,33 +44,33 @@
     display: block;
   }
   .home-display-title .line-1 {
-    color: #4a2142;
+    color: #3a2e44;
     white-space: nowrap;
   }
   .home-display-title .line-2 {
     margin-top: 10px;
-    color: #b74f8b;
+    color: #775dc3;
     white-space: nowrap;
   }
   .home-hero-copy {
     max-width: 58ch;
     margin: 2px 0 0;
-    color: #7b5b73;
+    color: #68706e;
     font-size: 17px;
     line-height: 1.95;
   }
   .home-hero-right {
     border-radius: 28px;
-    background: rgba(255, 252, 254, 0.90);
-    border: 1px solid #efd7e7;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(213, 226, 216, 0.95);
     padding: 30px 34px;
-    box-shadow: 0 12px 40px rgba(161, 58, 116, 0.08);
+    box-shadow: var(--shadow);
   }
   .home-hero-right h2 {
     margin: 0 0 26px;
     font-size: 24px;
     letter-spacing: -0.03em;
-    color: #4a2142;
+    color: #3a2e44;
   }
   .home-position-list {
     display: grid;
@@ -84,16 +79,16 @@
   .home-position-item h3 {
     margin: 0 0 9px;
     font-size: 15px;
-    color: #b04386;
+    color: #6f8f74;
   }
   .home-position-item p {
     margin: 0;
-    color: #7b5b73;
+    color: #68706e;
     line-height: 1.92;
     font-size: 16px;
   }
   .home-position-item a {
-    color: #b04386;
+    color: #775dc3;
     font-weight: 700;
   }
   .home-tag-row {
@@ -105,9 +100,9 @@
   .home-tag-row .pill.subtle {
     min-height: 42px;
     padding: 0 16px;
-    background: rgba(255, 255, 255, 0.78);
-    border-color: #ebc5dc;
-    color: #934874;
+    background: rgba(255,255,255,0.84);
+    border-color: #d7e5d9;
+    color: #6d7474;
     font-weight: 700;
   }
   @media (max-width: 1220px) {
@@ -189,7 +184,6 @@
           <h3>豆瓣</h3>
           <p><a href="https://judge.feminism-nv.space/" target="_blank" rel="noopener">全女评审团</a>，查看作品评分、条目与评审内容。</p>
         </div>
-
       </div>
     </aside>
   </div>
