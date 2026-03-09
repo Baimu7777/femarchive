@@ -1,17 +1,18 @@
 {{- $pages := where site.RegularPages "Section" "posts" -}}
 {{- $pages = where $pages "Params.hidden" "ne" true -}}
-{{- $index := slice -}}
-{{- range $pages -}}
-  {{- $index = $index | append (dict
-    "title" .Title
-    "description" .Description
-    "summary" (.Summary | plainify)
-    "content" .Plain
-    "tags" .Params.tags
-    "categories" .Params.categories
-    "keywords" .Keywords
-    "url" .RelPermalink
-    "date" (.Date.Format "2006-01-02")
-  ) -}}
-{{- end -}}
-{{- $index | jsonify -}}
+[
+{{- range $index, $page := $pages.ByDate.Reverse }}
+  {{- if gt $index 0 }},{{ end }}
+  {
+    "title": {{ $page.Title | jsonify }},
+    "description": {{ $page.Description | default "" | jsonify }},
+    "date": {{ $page.Date.Format "2006-01-02" | jsonify }},
+    "permalink": {{ $page.RelPermalink | jsonify }},
+    "author": {{ $page.Params.author | default "编辑部" | jsonify }},
+    "categories": {{ $page.Params.categories | default (slice) | jsonify }},
+    "tags": {{ $page.Params.tags | default (slice) | jsonify }},
+    "keywords": {{ $page.Params.keywords | default (slice) | jsonify }},
+    "content": {{ $page.Plain | jsonify }}
+  }
+{{- end }}
+]

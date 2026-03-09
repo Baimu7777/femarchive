@@ -1,5 +1,5 @@
 ---
 title: "投稿"
-description: "通过外部表单提交文章、整理稿、转载线索或归档需求。"
-layout: "submit"
+description: "欢迎投稿、推荐收录与提供旧文线索。"
+layout: "single"
 ---

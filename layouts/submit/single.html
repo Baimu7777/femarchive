@@ -1,15 +1,25 @@
 {{ define "main" }}
-  <section class="container page-intro narrow">
-    <p class="eyebrow">投稿与线索提交</p>
-    <h1>{{ .Title }}</h1>
-    {{ with .Description }}<p>{{ . }}</p>{{ end }}
-  </section>
-
-  <section class="container section-block submit-block">
-    <div class="submit-card">
-      <p>本站当前采用外部表单接收投稿、转载申请、整理线索与归档需求。</p>
-      <p class="muted">{{ site.Params.contact_note }}</p>
-      <a class="button-primary" href="{{ site.Params.submission_url }}" target="_blank" rel="noopener">打开投稿表单</a>
+<section class="panel">
+  <div class="section-head">
+    <div>
+      <small>Submission</small>
+      <h2>{{ .Title }}</h2>
+      <p>{{ with .Description }}{{ . }}{{ else }}欢迎投稿、推荐收录与提供旧文线索。{{ end }}</p>
     </div>
-  </section>
+  </div>
+  <div class="grid-2">
+    <article class="category-card">
+      <div class="pill-row"><span class="pill">投稿范围</span></div>
+      <h3>欢迎提交什么内容？</h3>
+      <p>可以提交原创长文、组内讨论整理稿、建议转载文章、专题索引线索、旧文入口与 404 备份线索。</p>
+      <div class="pill-row soft-tags"><span class="pill subtle">原创投稿</span><span class="pill subtle">转载推荐</span><span class="pill subtle">旧文索引</span><span class="pill subtle">404 备份</span></div>
+    </article>
+    <article class="category-card">
+      <div class="pill-row"><span class="pill">Google Form</span></div>
+      <h3>前往投稿表单</h3>
+      <p>这里先放 Google 表单或 Google 表格跳转。上线前，把链接替换成你的真实地址即可。</p>
+      <div class="hero-actions"><a class="btn" href="{{ site.Params.submit_url }}" target="_blank" rel="noreferrer">打开投稿表单</a></div>
+    </article>
+  </div>
+</section>
 {{ end }}

@@ -2,23 +2,19 @@
 title: ""
 description: ""
 date: {{ .Date }}
-lastmod: {{ .Date }}
-slug: ""
 math: false
-license: "CC BY-NC-SA 4.0"
+license: "署名-非商业性使用"
 hidden: false
 comments: true
-draft: true
+draft: false
 featured: false
+author: ""
+keywords: []
 categories:
   -
 tags:
-  -
-keywords:
   -
 style:
   background: "#fb9968"
   color: "#FFC0CB"
 ---
-
-在这里开始写正文。

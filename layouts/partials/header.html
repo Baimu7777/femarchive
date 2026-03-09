@@ -1,13 +1,13 @@
-<header class="site-header">
-  <div class="container header-inner">
-    <a class="brand" href="{{ "/" | relURL }}">
-      <span class="brand-mark">♀</span>
-      <span class="brand-text">{{ site.Title }}</span>
-    </a>
-    <nav class="main-nav" aria-label="主导航">
-      {{ range site.Menus.main }}
-        <a href="{{ .URL | relURL }}" {{ if or ($.IsMenuCurrent "main" .) ($.HasMenuCurrent "main" .) }}class="active"{{ end }}>{{ .Name }}</a>
-      {{ end }}
-    </nav>
+<header class="topbar">
+  <div class="brand">
+    <small>{{ site.Params.archive_english }}</small>
+    <strong><a href='{{ "/" | relURL }}'>{{ site.Params.archive_name }}</a></strong>
   </div>
+  <nav class="nav">
+    {{ $current := . }}
+    {{ range site.Menus.main }}
+      {{ $active := or ($current.IsMenuCurrent "main" .) ($current.HasMenuCurrent "main" .) (eq $current.RelPermalink .URL) }}
+      <a class='nav-link{{ if $active }} active{{ end }}' href='{{ .URL }}'>{{ .Name }}</a>
+    {{ end }}
+  </nav>
 </header>

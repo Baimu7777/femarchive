@@ -1,71 +1,52 @@
-baseURL = "https://femarchive.vercel.app/"
+baseURL = "https://example.com/"
 languageCode = "zh-cn"
-title = "女权文库"
-defaultContentLanguage = "zh-cn"
+title = "女阅组文库 / Feminist Archive"
 enableRobotsTXT = true
-timeZone = "Asia/Shanghai"
-summaryLength = 26
+summaryLength = 120
+hasCJKLanguage = true
+
 [pagination]
-  pagerSize = 10
-
-[outputs]
-home = ["HTML", "RSS", "JSON"]
-section = ["HTML", "RSS"]
-taxonomy = ["HTML", "RSS"]
-term = ["HTML", "RSS"]
-
-[params]
-  description = "一个以文章为核心的女权文库站，用于原创长文、讨论整理、转载、归档与备份。"
-  slogan = "记录、整理、归档，让文字有去处。"
-  subtitle = "原创长文、讨论整理、转载、归档、备份"
-  submission_url = "https://docs.google.com/forms/d/e/your-form-id/viewform"
-  contact_note = "投稿入口可使用 Google 表单或 Google Spreadsheet。"
-
-[permalinks]
-  posts = "/posts/:slug/"
+  pagerSize = 9
 
 [taxonomies]
   category = "categories"
   tag = "tags"
 
-[menu]
-  [[menu.main]]
-    name = "主页"
-    url = "/"
-    weight = 1
-  [[menu.main]]
-    name = "全部文章"
-    url = "/posts/"
-    weight = 2
-  [[menu.main]]
-    name = "分类查看"
-    url = "/categories/"
-    weight = 3
-  [[menu.main]]
-    name = "搜索"
-    url = "/search/"
-    weight = 4
-  [[menu.main]]
-    name = "投稿"
-    url = "/submit/"
-    weight = 5
+[params]
+  slogan = "让重要的女性讨论不再只能靠顺藤摸瓜被找到。"
+  subtitle = "这里收录值得长期阅读、转引与归档的文章。它更接近文库与 blog，而不是即时发帖流：重点是保存、整理、检索与再次进入。"
+  archive_name = "女阅组文库 / Feminist Archive"
+  archive_english = "Feminist Archive"
+  submit_url = "https://forms.gle/your-google-form-link"
+
+[[menu.main]]
+  name = "主页"
+  pageRef = "/"
+  weight = 10
+[[menu.main]]
+  name = "全部文章"
+  pageRef = "/posts"
+  weight = 20
+[[menu.main]]
+  name = "分类查看"
+  pageRef = "/categories"
+  weight = 30
+[[menu.main]]
+  name = "搜索"
+  pageRef = "/search"
+  weight = 40
+[[menu.main]]
+  name = "投稿"
+  pageRef = "/submit"
+  weight = 50
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+  section = ["HTML", "RSS"]
+  taxonomy = ["HTML", "RSS"]
+  term = ["HTML", "RSS"]
 
 [markup]
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true
-  [markup.tableOfContents]
-    startLevel = 2
-    endLevel = 4
-    ordered = false
-
-[related]
-  threshold = 20
-  includeNewer = true
-  toLower = true
-  [[related.indices]]
-    name = "tags"
-    weight = 100
-  [[related.indices]]
-    name = "categories"
-    weight = 80

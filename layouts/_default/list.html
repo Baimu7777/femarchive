@@ -1,32 +1,12 @@
 {{ define "main" }}
-  <section class="container page-intro">
-    <p class="eyebrow">{{ if eq .Kind "taxonomy" }}分类{{ else if eq .Kind "term" }}标签{{ else }}文章{{ end }}</p>
-    <h1>{{ .Title }}</h1>
-    {{ with .Description }}<p>{{ . }}</p>{{ end }}
-  </section>
-
-  <section class="container section-block">
-    {{ if eq .Section "posts" }}
-      {{ $pages := where .RegularPages "Params.hidden" "ne" true }}
-      {{ $paginator := .Paginate ($pages.ByDate.Reverse) }}
-      <div class="card-grid">
-        {{ range $paginator.Pages }}
-          {{ partial "article-card.html" . }}
-        {{ end }}
-      </div>
-      {{ if gt $paginator.TotalPages 1 }}
-        <nav class="pagination" aria-label="分页">
-          {{ with $paginator.Prev }}<a href="{{ .URL }}">← 上一页</a>{{ end }}
-          <span>第 {{ $paginator.PageNumber }} / {{ $paginator.TotalPages }} 页</span>
-          {{ with $paginator.Next }}<a href="{{ .URL }}">下一页 →</a>{{ end }}
-        </nav>
-      {{ end }}
-    {{ else }}
-      <div class="card-grid">
-        {{ range where .Pages "Params.hidden" "ne" true }}
-          {{ partial "article-card.html" . }}
-        {{ end }}
-      </div>
-    {{ end }}
-  </section>
+<section class="panel">
+  <div class="section-head">
+    <div>
+      <small>{{ if .IsSection }}Section{{ else }}Category{{ end }}</small>
+      <h2>{{ .Title }}</h2>
+      <p>{{ with .Description }}{{ . }}{{ else }}按时间浏览当前列表。{{ end }}</p>
+    </div>
+  </div>
+  {{ if gt (len .Pages) 0 }}<div class="article-grid">{{ range .Pages.ByDate.Reverse }}{{ partial "post-card.html" . }}{{ end }}</div>{{ else }}<div class="empty">这里暂时还没有内容。</div>{{ end }}
+</section>
 {{ end }}

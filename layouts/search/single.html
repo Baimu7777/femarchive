@@ -1,15 +1,18 @@
 {{ define "main" }}
-  <section class="container page-intro narrow">
-    <p class="eyebrow">全文搜索</p>
-    <h1>{{ .Title }}</h1>
-    {{ with .Description }}<p>{{ . }}</p>{{ end }}
-  </section>
-
-  <section class="container section-block search-block">
-    <label class="search-label" for="search-input">输入标题、标签、关键词或正文片段</label>
-    <input id="search-input" class="search-input" type="search" placeholder="例如：归档 / 转载 / 平台 / 讨论整理">
-    <div id="search-meta" class="search-meta"></div>
-    <div id="search-results" class="search-results"></div>
-  </section>
-  <script src="{{ "/js/search.js" | relURL }}" defer></script>
+<section class="panel">
+  <div class="section-head">
+    <div>
+      <small>Search</small>
+      <h2>{{ .Title }}</h2>
+      <p>{{ with .Description }}{{ . }}{{ else }}支持按标题、摘要、分类与标签检索。{{ end }}</p>
+    </div>
+  </div>
+  <div class="toolbar">
+    <input class="input" id="search-input" placeholder="输入关键词，例如：转载、平台、归档" />
+    <select class="select" id="search-category"><option value="">全部分类</option></select>
+    <select class="select" id="search-tag"><option value="">全部标签</option></select>
+  </div>
+  <div id="search-results"></div>
+</section>
 {{ end }}
+{{ define "pageScript" }}<script src='{{ "js/filter-pages.js" | relURL }}'></script>{{ end }}

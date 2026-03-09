@@ -1,5 +1,5 @@
 ---
 title: "搜索"
-description: "搜索文章标题、标签、关键词与正文内容。"
-layout: "search"
+description: "支持按标题、摘要、分类、标签与关键词检索。"
+layout: "single"
 ---

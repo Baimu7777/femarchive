@@ -1,6 +1,11 @@
-<footer class="site-footer">
-  <div class="container footer-inner">
-    <p>{{ site.Title }} · {{ site.Params.description }}</p>
-    <p class="muted">Powered by Hugo · 内容由 Markdown 驱动</p>
+<footer class="footer-panel">
+  <div>
+    <div class="eyebrow">关于文库</div>
+    <h3>为女性写作、女性讨论与女性经验保留稳定的入口。</h3>
+    <p>文库以文章、专题、归档与索引为核心，优先保存那些值得被长期查找、阅读和传阅的内容。</p>
+  </div>
+  <div class="hero-actions footer-actions">
+    <a class="btn" href='{{ "/posts/" | relURL }}'>浏览全部文章</a>
+    <a class="btn-secondary" href='{{ "/submit/" | relURL }}'>投稿</a>
   </div>
 </footer>

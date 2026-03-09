@@ -1,0 +1,18 @@
+{{ define "main" }}
+<section class="panel">
+  <div class="section-head">
+    <div>
+      <small>All Articles</small>
+      <h2>{{ .Title }}</h2>
+      <p>{{ with .Description }}{{ . }}{{ else }}按时间浏览全部文章，也可以按分类和标签筛选。{{ end }}</p>
+    </div>
+  </div>
+  <div class="toolbar">
+    <input class="input" id="article-search" placeholder="搜索标题、摘要、标签" />
+    <select class="select" id="article-category"><option value="">全部分类</option></select>
+    <select class="select" id="article-tag"><option value="">全部标签</option></select>
+  </div>
+  <div id="articles-list"></div>
+</section>
+{{ end }}
+{{ define "pageScript" }}<script src='{{ "js/filter-pages.js" | relURL }}'></script>{{ end }}

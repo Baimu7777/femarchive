@@ -1,41 +1,26 @@
 {{ define "main" }}
-  {{ $posts := where site.RegularPages "Section" "posts" }}
-  {{ $posts = where $posts "Params.hidden" "ne" true }}
-  {{ $featured := where $posts "Params.featured" true }}
-  <section class="hero container">
-    <div class="hero-card">
-      <p class="eyebrow">{{ site.Title }}</p>
-      <h1>{{ site.Params.slogan }}</h1>
-      <p class="hero-text">{{ site.Params.subtitle }}</p>
+{{ $posts := where site.RegularPages "Section" "posts" }}
+{{ $posts = where $posts "Params.hidden" "ne" true }}
+{{ $featured := where $posts "Params.featured" true }}
+{{ $featured = $featured.ByDate.Reverse }}
+{{ $latest := $posts.ByDate.Reverse }}
+<section class="hero">
+  <div>
+    <div class="eyebrow">{{ site.Params.archive_english }}</div>
+    <h1>{{ site.Params.slogan }}</h1>
+    <p>{{ site.Params.subtitle }}</p>
+    <div class="hero-actions">
+      <a class="btn" href='{{ "/posts/" | relURL }}'>浏览全部文章</a>
+      <a class="btn-secondary" href='{{ "/submit/" | relURL }}'>前往投稿</a>
     </div>
-  </section>
-
-  <section class="container section-block">
-    <div class="section-head">
-      <h2>精选文章</h2>
-    </div>
-    <div class="card-grid">
-      {{ range first 3 (cond (gt (len $featured) 0) $featured ($posts.ByDate.Reverse)) }}
-        {{ partial "article-card.html" . }}
-      {{ end }}
-    </div>
-  </section>
-
-  <section class="container section-block">
-    <div class="section-head section-head-inline">
-      <h2>最近更新</h2>
-      <a href="{{ "/posts/" | relURL }}">查看全部</a>
-    </div>
-    <div class="list-stack">
-      {{ range first 6 ($posts.ByDate.Reverse) }}
-        <article class="list-row">
-          <div>
-            <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
-            {{ with .Description }}<p>{{ . }}</p>{{ end }}
-          </div>
-          <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006-01-02" }}</time>
-        </article>
-      {{ end }}
-    </div>
-  </section>
+  </div>
+</section>
+<section class="panel">
+  <div class="section-head"><div><small>Featured</small><h2>精选文章</h2></div></div>
+  <div class="article-grid">{{ range first 3 (cond (gt (len $featured) 0) $featured $latest) }}{{ partial "post-card.html" . }}{{ end }}</div>
+</section>
+<section class="panel">
+  <div class="section-head"><div><small>Latest</small><h2>最近更新</h2></div></div>
+  <div class="latest-grid">{{ range first 6 $latest }}{{ partial "post-mini-card.html" . }}{{ end }}</div>
+</section>
 {{ end }}

@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="{{ site.LanguageCode }}">
-  <head>
-    {{ partial "head.html" . }}
-  </head>
-  <body>
+<head>
+  {{ partial "head.html" . }}
+</head>
+<body>
+  <div class="shell">
     {{ partial "header.html" . }}
-    <main class="page-shell">
+    <main>
       {{ block "main" . }}{{ end }}
     </main>
     {{ partial "footer.html" . }}
-  </body>
+  </div>
+  <script src='{{ "js/site.js" | relURL }}'></script>
+  {{ block "pageScript" . }}{{ end }}
+</body>
 </html>

@@ -1,8 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
-<meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ site.Params.description }}{{ end }}">
-{{ with .Params.keywords }}<meta name="keywords" content="{{ delimit . ", " }}">{{ end }}
-{{ $css := resources.Get "css/main.css" | minify | fingerprint }}
-<link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
-<link rel="alternate" type="application/rss+xml" title="{{ site.Title }}" href="{{ "index.xml" | relURL }}">
+<title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} - {{ site.Title }}{{ end }}</title>
+{{ with .Params.description }}<meta name="description" content="{{ . }}">{{ else }}{{ with site.Params.subtitle }}<meta name="description" content="{{ . }}">{{ end }}{{ end }}
+{{ $style := resources.Get "css/main.css" | minify | fingerprint }}
+<link rel="stylesheet" href="{{ $style.RelPermalink }}">
+{{ if .OutputFormats.Get "rss" }}<link rel="alternate" type="application/rss+xml" href="{{ (.OutputFormats.Get "rss").RelPermalink }}">{{ end }}

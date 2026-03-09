@@ -1,12 +1,12 @@
 {{ define "main" }}
-<section class="panel"><div class="section-head"><div><small>Terms</small><h2>{{ .Title }}</h2><p>{{ with .Description }}{{ . }}{{ else }}按主题浏览。{{ end }}</p></div></div>
+<section class="panel"><div class="section-head"><div><small>Categories</small><h2>{{ .Title }}</h2><p>{{ with .Description }}{{ . }}{{ else }}按收录方向浏览文章。{{ end }}</p></div></div>
 <div class="category-grid">
 {{ range .Data.Terms.Alphabetical }}
   <article class="category-card">
     <div class="pill-row"><span class="pill">#{{ .Page.Title }}</span><span class="pill subtle">{{ .Count }} 篇</span></div>
     <h3>{{ .Page.Title }}</h3>
     <p>{{ partial "taxonomy-description.html" .Page.Title }}</p>
-    <div class="card-footer"><span>按主题浏览</span><a class="text-link" href="{{ .Page.RelPermalink }}">查看此类 →</a></div>
+    <div class="card-footer"><span>按分类浏览</span><a class="text-link" href="{{ .Page.RelPermalink }}">查看此类 →</a></div>
   </article>
 {{ end }}
 </div></section>

@@ -1,67 +1,35 @@
 {{ define "main" }}
-  <section class="container article-shell">
-    <article class="article-main">
-      <header class="article-hero"{{ with .Params.style }} style="background: {{ .background }}; color: {{ .color }};"{{ end }}>
-        <p class="eyebrow">{{ with .Params.categories }}{{ delimit . " / " }}{{ else }}文章{{ end }}</p>
-        <h1>{{ .Title }}</h1>
-        {{ with .Description }}<p class="article-desc">{{ . }}</p>{{ end }}
-        <div class="article-meta-line">
-          <time datetime="{{ .Date.Format "2006-01-02" }}">发布于 {{ .Date.Format "2006-01-02" }}</time>
-          {{ if ne .Lastmod .Date }}<span>更新于 {{ .Lastmod.Format "2006-01-02" }}</span>{{ end }}
-        </div>
-      </header>
-
-      <div class="article-content prose">
-        {{ .Content }}
-      </div>
-    </article>
-
-    <aside class="article-sidebar">
-      <div class="sidebar-box sticky-box">
-        <h2>文章信息</h2>
-        <dl class="meta-list">
-          <div><dt>日期</dt><dd>{{ .Date.Format "2006-01-02" }}</dd></div>
-          <div><dt>字数</dt><dd>{{ .WordCount }}</dd></div>
-          <div><dt>阅读时间</dt><dd>{{ .ReadingTime }} 分钟</dd></div>
-          {{ with .Params.license }}<div><dt>授权</dt><dd>{{ . }}</dd></div>{{ end }}
-        </dl>
-        {{ with .Params.categories }}
-          <div class="sidebar-tags">
-            <h3>分类</h3>
-            <div class="term-list">
-              {{ range . }}<a class="pill" href="{{ . | urlize | printf "/categories/%s/" | relURL }}">{{ . }}</a>{{ end }}
-            </div>
-          </div>
-        {{ end }}
-        {{ with .Params.tags }}
-          <div class="sidebar-tags">
-            <h3>标签</h3>
-            <div class="term-list">
-              {{ range . }}<a class="pill" href="{{ . | urlize | printf "/tags/%s/" | relURL }}">{{ . }}</a>{{ end }}
-            </div>
-          </div>
-        {{ end }}
-      </div>
-
-      {{ with .TableOfContents }}
-        <div class="sidebar-box toc-box">
-          <h2>目录</h2>
-          <div class="toc-wrap">{{ . }}</div>
-        </div>
-      {{ end }}
-
-      {{ with first 4 (site.RegularPages.Related .) }}
-        <div class="sidebar-box">
-          <h2>相关文章</h2>
-          <ul class="related-list">
-            {{ range . }}
-              {{ if and (eq .Section "posts") (ne .RelPermalink $.RelPermalink) }}
-                <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
-              {{ end }}
-            {{ end }}
-          </ul>
-        </div>
-      {{ end }}
-    </aside>
+<article class="post-layout">
+  <section class="post-main">
+    <div class="post-hero"{{ with .Params.style.background }} style="--post-accent: {{ . }};"{{ end }}>
+      <div class="pill-row">{{ range .Params.categories }}<a class="pill subtle" href='{{ printf "/categories/%s/" (. | urlize) | relURL }}'>#{{ . }}</a>{{ end }}</div>
+      <h1>{{ .Title }}</h1>
+      {{ with .Description }}<p class="post-description">{{ . }}</p>{{ end }}
+      <div class="meta-line"><span>{{ .Date.Format "2006.01.02" }}</span>{{ with .Params.author }}<span>· {{ . }}</span>{{ end }}{{ with .Params.license }}<span>· {{ . }}</span>{{ end }}</div>
+    </div>
+    <div class="post-body prose">{{ .Content }}</div>
   </section>
+  <aside class="post-sidebar">
+    <div class="sidebar-card">
+      <h3>文章信息</h3>
+      <dl class="meta-list">
+        <div><dt>发布时间</dt><dd>{{ .Date.Format "2006-01-02" }}</dd></div>
+        {{ with .Params.author }}<div><dt>作者</dt><dd>{{ . }}</dd></div>{{ end }}
+        {{ with .Params.categories }}<div><dt>分类</dt><dd>{{ delimit . " / " }}</dd></div>{{ end }}
+        {{ with .Params.tags }}<div><dt>标签</dt><dd>{{ delimit . " / " }}</dd></div>{{ end }}
+      </dl>
+    </div>
+    {{ with .Params.tags }}
+    <div class="sidebar-card">
+      <h3>相关文章</h3>
+      <div class="related-links">
+        {{ $page := $ }}
+        {{ range first 8 (where (where site.RegularPages "Section" "posts") "RelPermalink" "ne" $page.RelPermalink) }}
+          {{ if intersect .Params.tags $page.Params.tags }}<a href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}
+        {{ end }}
+      </div>
+    </div>
+    {{ end }}
+  </aside>
+</article>
 {{ end }}

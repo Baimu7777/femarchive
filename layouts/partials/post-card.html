@@ -1,0 +1,11 @@
+{{ $post := . }}
+<article class="article-card">
+  <div class="pill-row">
+    {{ with index $post.Params.categories 0 }}<span class="pill">#{{ . }}</span>{{ end }}
+    <span class="pill subtle">{{ with $post.Params.author }}{{ . }}{{ else }}编辑部{{ end }}</span>
+  </div>
+  <h3><a class="post-title-link" href="{{ $post.RelPermalink }}">{{ $post.Title }}</a></h3>
+  {{ with $post.Description }}<p>{{ . }}</p>{{ end }}
+  {{ with $post.Params.tags }}<div class="pill-row soft-tags">{{ range first 3 . }}<span class="pill subtle">#{{ . }}</span>{{ end }}</div>{{ end }}
+  <div class="card-footer"><span>{{ $post.Date.Format "2006.01.02" }} · {{ with $post.Params.author }}{{ . }}{{ else }}编辑部{{ end }}</span><a class="text-link" href="{{ $post.RelPermalink }}">阅读全文 →</a></div>
+</article>
