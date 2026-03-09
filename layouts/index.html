@@ -5,20 +5,64 @@
 {{ $featured = $featured.ByDate.Reverse }}
 {{ $latest := $posts.ByDate.Reverse }}
 <section class="hero">
-  <div>
-    <div class="eyebrow">{{ site.Params.archive_english }}</div>
-    <h1>{{ site.Params.slogan }}</h1>
-    <p>{{ site.Params.subtitle }}</p>
-    <div class="hero-actions">
-      <a class="btn" href='{{ "/posts/" | relURL }}'>浏览全部文章</a>
-      <a class="btn-secondary" href='{{ "/submit/" | relURL }}'>前往投稿</a>
+  <div class="grid-2">
+    <div>
+      <div class="pill subtle" style="margin-bottom: 18px; width: fit-content;">主页 / Home</div>
+      <h1 style="max-width: 16ch;">给女性讨论、女性写作和女性经验留一个不会轻易消失的地方。</h1>
+      <p>
+        这里以文库与 blog 为核心，集中保存原创长文、讨论整理、专题索引、转载归档与备份内容。
+        同时也放置其她女性项目的入口，方便检索、阅读与继续传播。
+      </p>
+      <div class="hero-actions">
+        <a class="btn" href='{{ "/posts/" | relURL }}'>浏览全部文章</a>
+        <a class="btn-secondary" href="https://judge.feminism-nv.space/" target="_blank" rel="noreferrer">查看全女评审团</a>
+      </div>
+      <div class="pill-row" style="margin-top: 30px;">
+        <span class="pill subtle">#思考</span>
+        <span class="pill subtle">#归档</span>
+        <span class="pill subtle">#平台</span>
+        <span class="pill subtle">#理论</span>
+        <span class="pill subtle">#备份</span>
+        <span class="pill subtle">#讨论</span>
+        <span class="pill subtle">#整理</span>
+        <span class="pill subtle">#读书</span>
+        <span class="pill subtle">#转载</span>
+      </div>
     </div>
+
+    <aside class="article-card" style="justify-content: flex-start; gap: 24px;">
+      <div>
+        <h3>站点定位</h3>
+      </div>
+      <div>
+        <div class="eyebrow" style="margin-bottom: 6px;">形式</div>
+        <p>偏 blog / 文库，不做传统论坛发帖流。</p>
+      </div>
+      <div>
+        <div class="eyebrow" style="margin-bottom: 6px;">目标</div>
+        <p>集中保存讨论，降低资料散失与检索困难带来的阅读门槛。</p>
+      </div>
+      <div>
+        <div class="eyebrow" style="margin-bottom: 6px;">站内内容</div>
+        <p>以原创长文、讨论整理、转载归档、专题索引与备份为主。</p>
+      </div>
+      <div>
+        <div class="eyebrow" style="margin-bottom: 6px;">站外入口</div>
+        <p>首页同步放置全女评审团打分网站等相关女性项目链接，方便互相导流与查找。</p>
+      </div>
+      <div>
+        <div class="eyebrow" style="margin-bottom: 6px;">评论</div>
+        <p>文章页可开启评论，首页保持简洁，不堆叠过多功能区块。</p>
+      </div>
+    </aside>
   </div>
 </section>
+
 <section class="panel">
   <div class="section-head"><div><small>Featured</small><h2>精选文章</h2></div></div>
   <div class="article-grid">{{ range first 3 (cond (gt (len $featured) 0) $featured $latest) }}{{ partial "post-card.html" . }}{{ end }}</div>
 </section>
+
 <section class="panel">
   <div class="section-head"><div><small>Latest</small><h2>最近更新</h2></div></div>
   <div class="latest-grid">{{ range first 6 $latest }}{{ partial "post-mini-card.html" . }}{{ end }}</div>
