@@ -4,4 +4,7 @@
 {{ with .Params.description }}<meta name="description" content="{{ . }}">{{ else }}{{ with site.Params.subtitle }}<meta name="description" content="{{ . }}">{{ end }}{{ end }}
 {{ $style := resources.Get "css/main.css" | minify | fingerprint }}
 <link rel="stylesheet" href="{{ $style.RelPermalink }}">
+{{ if and .IsPage (eq .Section "posts") (.Params.comments) site.Params.waline.enable site.Params.waline.serverURL }}
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v3/dist/waline.css">
+{{ end }}
 {{ if .OutputFormats.Get "rss" }}<link rel="alternate" type="application/rss+xml" href="{{ (.OutputFormats.Get "rss").RelPermalink }}">{{ end }}

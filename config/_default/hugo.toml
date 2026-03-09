@@ -50,3 +50,10 @@ hasCJKLanguage = true
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true
+
+[params.waline]
+  enable = true
+  serverURL = "https://your-waline-server.vercel.app"
+  lang = "zh-CN"
+  pageview = false
+  comment = true

@@ -8,6 +8,19 @@
       <div class="meta-line"><span>{{ .Date.Format "2006.01.02" }}</span>{{ with .Params.author }}<span>· {{ . }}</span>{{ end }}{{ with .Params.license }}<span>· {{ . }}</span>{{ end }}</div>
     </div>
     <div class="post-body prose">{{ .Content }}</div>
+
+    {{ if and (.Params.comments) site.Params.waline.enable site.Params.waline.serverURL }}
+    <section class="comments-panel panel">
+      <div class="comments-head">
+        <div>
+          <div class="eyebrow">评论区</div>
+          <h2>留言与补充</h2>
+          <p>欢迎补充资料、纠错或继续讨论。首位注册用户会成为 Waline 管理员。</p>
+        </div>
+      </div>
+      <div id="waline"></div>
+    </section>
+    {{ end }}
   </section>
   <aside class="post-sidebar">
     <div class="sidebar-card">
@@ -32,4 +45,34 @@
     {{ end }}
   </aside>
 </article>
+{{ end }}
+
+{{ define "pageScript" }}
+  {{ if and .IsPage (eq .Section "posts") (.Params.comments) site.Params.waline.enable site.Params.waline.serverURL }}
+  <script type="module">
+    import { init } from 'https://unpkg.com/@waline/client@v3/dist/waline.js';
+
+    init({
+      el: '#waline',
+      serverURL: '{{ site.Params.waline.serverURL }}',
+      lang: '{{ with site.Params.waline.lang }}{{ . }}{{ else }}zh-CN{{ end }}',
+      path: '{{ .RelPermalink }}',
+      pageview: {{ if site.Params.waline.pageview }}true{{ else }}false{{ end }},
+      comment: {{ if site.Params.waline.comment }}true{{ else }}false{{ end }},
+      locale: {
+        placeholder: '写下你的补充、勘误或想法……',
+        sofa: '还没有评论，来做第一个留言的人。',
+        submit: '发布评论',
+        comment: '评论',
+        refresh: '刷新',
+        more: '加载更多',
+        login: '登录',
+        nick: '昵称',
+        mail: '邮箱',
+        link: '网址',
+        optional: '可选'
+      }
+    });
+  </script>
+  {{ end }}
 {{ end }}

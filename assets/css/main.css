@@ -93,3 +93,11 @@ main { display: grid; gap: 22px; }
 .footer-actions { margin-top: 0; justify-content: flex-end; }
 @media (max-width: 1024px) { .article-grid,.category-grid,.grid-2,.latest-grid,.toolbar,.post-layout,.footer-panel { grid-template-columns: 1fr; } .footer-panel,.topbar { flex-direction: column; align-items: flex-start; } .nav { justify-content: flex-start; } }
 @media (max-width: 720px) { .shell { width: min(100vw - 18px, 1200px); margin: 10px auto 18px; } .topbar,.hero,.panel,.footer-panel,.post-main,.sidebar-card { padding: 20px; } .hero h1 { max-width: 100%; font-size: 36px; } .article-card h3,.category-card h3,.mini-card h4 { font-size: 20px; } .card-footer { flex-direction: column; align-items: flex-start; } }
+
+
+.comments-panel { margin-top: 26px; }
+.comments-head { margin-bottom: 18px; }
+.comments-head h2 { margin: 6px 0 8px; font-size: clamp(26px, 2.8vw, 34px); letter-spacing: -0.03em; }
+.comments-head p { margin: 0; color: var(--muted); }
+#waline { margin-top: 8px; }
+#waline .wl-content pre { white-space: pre-wrap; }

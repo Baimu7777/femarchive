@@ -9,7 +9,9 @@
     <main>
       {{ block "main" . }}{{ end }}
     </main>
-    {{ partial "footer.html" . }}
+    {{ if not (and .IsPage (eq .Section "posts")) }}
+      {{ partial "footer.html" . }}
+    {{ end }}
   </div>
   <script src='{{ "js/site.js" | relURL }}'></script>
   {{ block "pageScript" . }}{{ end }}
