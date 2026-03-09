@@ -1,4 +1,4 @@
-baseURL = "https://example.com/"
+baseURL = "https://femarchive.vercel.app/"
 languageCode = "zh-cn"
 title = "女权文库"
 defaultContentLanguage = "zh-cn"
