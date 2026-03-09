@@ -6,6 +6,11 @@
 {{ $latest := $posts.ByDate.Reverse }}
 
 <style>
+  .hero {
+    background: linear-gradient(135deg, #fff0f7 0%, #fde7f4 50%, #f7deef 100%);
+    border-color: #efcde2;
+    box-shadow: 0 12px 40px rgba(161, 58, 116, 0.10);
+  }
   .home-hero-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.65fr) minmax(300px, 0.95fr);
@@ -26,8 +31,8 @@
     min-height: 44px;
     padding: 0 16px;
     border-radius: 999px;
-    border: 1px solid #e5a8ca;
-    background: rgba(255,255,255,0.46);
+    border: 1px solid #df9fc5;
+    background: rgba(255, 248, 252, 0.86);
     color: #b04386;
     font-weight: 700;
     font-size: 15px;
@@ -49,22 +54,22 @@
   }
   .home-display-title .line-2 {
     margin-top: 10px;
-    color: #b04386;
+    color: #b74f8b;
     white-space: nowrap;
   }
   .home-hero-copy {
     max-width: 58ch;
     margin: 2px 0 0;
-    color: #6e5f78;
+    color: #7b5b73;
     font-size: 17px;
     line-height: 1.95;
   }
   .home-hero-right {
     border-radius: 28px;
-    background: rgba(255,255,255,0.9);
-    border: 1px solid rgba(231, 222, 237, 0.92);
+    background: rgba(255, 252, 254, 0.90);
+    border: 1px solid #efd7e7;
     padding: 30px 34px;
-    box-shadow: var(--shadow);
+    box-shadow: 0 12px 40px rgba(161, 58, 116, 0.08);
   }
   .home-hero-right h2 {
     margin: 0 0 26px;
@@ -79,16 +84,16 @@
   .home-position-item h3 {
     margin: 0 0 9px;
     font-size: 15px;
-    color: #a3377b;
+    color: #b04386;
   }
   .home-position-item p {
     margin: 0;
-    color: #6e5f78;
+    color: #7b5b73;
     line-height: 1.92;
     font-size: 16px;
   }
   .home-position-item a {
-    color: #a3377b;
+    color: #b04386;
     font-weight: 700;
   }
   .home-tag-row {
@@ -100,8 +105,8 @@
   .home-tag-row .pill.subtle {
     min-height: 42px;
     padding: 0 16px;
-    background: rgba(255,255,255,0.58);
-    border-color: #e8c8dc;
+    background: rgba(255, 255, 255, 0.78);
+    border-color: #ebc5dc;
     color: #934874;
     font-weight: 700;
   }
