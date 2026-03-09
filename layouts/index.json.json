@@ -1,0 +1,17 @@
+{{- $pages := where site.RegularPages "Section" "posts" -}}
+{{- $pages = where $pages "Params.hidden" "ne" true -}}
+{{- $index := slice -}}
+{{- range $pages -}}
+  {{- $index = $index | append (dict
+    "title" .Title
+    "description" .Description
+    "summary" (.Summary | plainify)
+    "content" .Plain
+    "tags" .Params.tags
+    "categories" .Params.categories
+    "keywords" .Keywords
+    "url" .RelPermalink
+    "date" (.Date.Format "2006-01-02")
+  ) -}}
+{{- end -}}
+{{- $index | jsonify -}}

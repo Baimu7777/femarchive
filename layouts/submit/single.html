@@ -1,0 +1,15 @@
+{{ define "main" }}
+  <section class="container page-intro narrow">
+    <p class="eyebrow">投稿与线索提交</p>
+    <h1>{{ .Title }}</h1>
+    {{ with .Description }}<p>{{ . }}</p>{{ end }}
+  </section>
+
+  <section class="container section-block submit-block">
+    <div class="submit-card">
+      <p>本站当前采用外部表单接收投稿、转载申请、整理线索与归档需求。</p>
+      <p class="muted">{{ site.Params.contact_note }}</p>
+      <a class="button-primary" href="{{ site.Params.submission_url }}" target="_blank" rel="noopener">打开投稿表单</a>
+    </div>
+  </section>
+{{ end }}

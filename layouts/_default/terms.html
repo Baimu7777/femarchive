@@ -1,0 +1,24 @@
+{{ define "main" }}
+  <section class="container page-intro">
+    <p class="eyebrow">浏览</p>
+    <h1>{{ .Title }}</h1>
+    {{ with .Description }}<p>{{ . }}</p>{{ end }}
+  </section>
+
+  <section class="container section-block">
+    <div class="term-grid">
+      {{ range .Data.Terms.Alphabetical }}
+        <a class="term-card" href="{{ .Page.RelPermalink }}">
+          <strong>{{ .Page.Title }}</strong>
+          <span>{{ .Count }} 篇</span>
+        </a>
+      {{ end }}
+    </div>
+
+    {{ if eq .Type "categories" }}
+      <div class="minor-link-block">
+        <a href="{{ "/tags/" | relURL }}">查看标签 →</a>
+      </div>
+    {{ end }}
+  </section>
+{{ end }}

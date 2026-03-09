@@ -1,0 +1,13 @@
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="{{ "/" | relURL }}">
+      <span class="brand-mark">♀</span>
+      <span class="brand-text">{{ site.Title }}</span>
+    </a>
+    <nav class="main-nav" aria-label="主导航">
+      {{ range site.Menus.main }}
+        <a href="{{ .URL | relURL }}" {{ if or ($.IsMenuCurrent "main" .) ($.HasMenuCurrent "main" .) }}class="active"{{ end }}>{{ .Name }}</a>
+      {{ end }}
+    </nav>
+  </div>
+</header>

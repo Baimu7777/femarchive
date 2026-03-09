@@ -1,0 +1,15 @@
+{{ define "main" }}
+  <section class="container page-intro narrow">
+    <p class="eyebrow">全文搜索</p>
+    <h1>{{ .Title }}</h1>
+    {{ with .Description }}<p>{{ . }}</p>{{ end }}
+  </section>
+
+  <section class="container section-block search-block">
+    <label class="search-label" for="search-input">输入标题、标签、关键词或正文片段</label>
+    <input id="search-input" class="search-input" type="search" placeholder="例如：归档 / 转载 / 平台 / 讨论整理">
+    <div id="search-meta" class="search-meta"></div>
+    <div id="search-results" class="search-results"></div>
+  </section>
+  <script src="{{ "/js/search.js" | relURL }}" defer></script>
+{{ end }}
