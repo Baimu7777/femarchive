@@ -7,21 +7,23 @@
       {{ with .Description }}<p class="post-description">{{ . }}</p>{{ end }}
       <div class="meta-line"><span>{{ .Date.Format "2006.01.02" }}</span>{{ with .Params.author }}<span>· {{ . }}</span>{{ end }}{{ with .Params.license }}<span>· {{ . }}</span>{{ end }}</div>
     </div>
+
     <div class="post-body prose">{{ .Content }}</div>
 
-    {{ if and (.Params.comments) site.Params.waline.enable site.Params.waline.serverURL }}
+    {{ if .Params.comments }}
     <section class="comments-panel panel">
       <div class="comments-head">
         <div>
           <div class="eyebrow">评论区</div>
           <h2>留言与补充</h2>
-          <p>欢迎补充资料、纠错或继续讨论。首位注册用户会成为 Waline 管理员。</p>
+          <p>欢迎补充资料、纠错或继续讨论。</p>
         </div>
       </div>
       <div id="waline"></div>
     </section>
     {{ end }}
   </section>
+
   <aside class="post-sidebar">
     <div class="sidebar-card">
       <h3>文章信息</h3>
@@ -32,6 +34,7 @@
         {{ with .Params.tags }}<div><dt>标签</dt><dd>{{ delimit . " / " }}</dd></div>{{ end }}
       </dl>
     </div>
+
     {{ with .Params.tags }}
     <div class="sidebar-card">
       <h3>相关文章</h3>
@@ -48,17 +51,17 @@
 {{ end }}
 
 {{ define "pageScript" }}
-  {{ if and .IsPage (eq .Section "posts") (.Params.comments) site.Params.waline.enable site.Params.waline.serverURL }}
+  {{ if .Params.comments }}
   <script type="module">
     import { init } from 'https://unpkg.com/@waline/client@v3/dist/waline.js';
 
     init({
       el: '#waline',
-      serverURL: '{{ site.Params.waline.serverURL }}',
-      lang: '{{ with site.Params.waline.lang }}{{ . }}{{ else }}zh-CN{{ end }}',
+      serverURL: 'https://waline-g4cngilya-baimu7777s-projects.vercel.app/',
+      lang: 'zh-CN',
       path: '{{ .RelPermalink }}',
-      pageview: {{ if site.Params.waline.pageview }}true{{ else }}false{{ end }},
-      comment: {{ if site.Params.waline.comment }}true{{ else }}false{{ end }},
+      pageview: true,
+      comment: true,
       locale: {
         placeholder: '写下你的补充、勘误或想法……',
         sofa: '还没有评论，来做第一个留言的人。',
