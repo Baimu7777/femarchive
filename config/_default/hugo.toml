@@ -1,5 +1,5 @@
-baseURL = "https://example.com/"
-languageCode = "zh-cn"
+baseURL = "https://femarchive.vercel.app"
+languageCode = "zh-CN"
 title = "女阅组文库 / Feminist Archive"
 enableRobotsTXT = true
 summaryLength = 120
@@ -13,28 +13,32 @@ hasCJKLanguage = true
   tag = "tags"
 
 [params]
-  slogan = "让女性写作、女性讨论与女性经验拥有更稳定的留存空间。"
+  slogan = "让重要的女性讨论被更稳定地保存，也更容易被找到。"
   subtitle = "这里收录值得长期阅读、转引与归档的文章。它更接近文库与 blog，而不是即时发帖流：重点是保存、整理、检索与再次进入。"
   archive_name = "女阅组文库 / Feminist Archive"
   archive_english = "Feminist Archive"
-  submit_url = "https://forms.gle/your-google-form-link"
+  submit_url = "https://你的-google-form-链接"
 
 [[menu.main]]
   name = "主页"
   pageRef = "/"
   weight = 10
+
 [[menu.main]]
   name = "全部文章"
   pageRef = "/posts"
   weight = 20
+
 [[menu.main]]
   name = "分类查看"
   pageRef = "/categories"
   weight = 30
+
 [[menu.main]]
   name = "搜索"
   pageRef = "/search"
   weight = 40
+
 [[menu.main]]
   name = "投稿"
   pageRef = "/submit"
@@ -53,7 +57,7 @@ hasCJKLanguage = true
 
 [params.waline]
   enable = true
-  serverURL = "https://your-waline-server.vercel.app"
+  serverURL = "https://waline-g4cngilya-baimu7777s-projects.vercel.app/"
   lang = "zh-CN"
   pageview = false
   comment = true
