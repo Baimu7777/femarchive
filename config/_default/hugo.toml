@@ -57,7 +57,7 @@ hasCJKLanguage = true
 
 [params.waline]
   enable = true
-  serverURL = "https://waline-g4cngilya-baimu7777s-projects.vercel.app/"
+  serverURL = "https://waline-one-mu-78.vercel.app"
   lang = "zh-CN"
   pageview = false
   comment = true
