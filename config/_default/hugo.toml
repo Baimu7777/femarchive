@@ -5,7 +5,8 @@ defaultContentLanguage = "zh-cn"
 enableRobotsTXT = true
 timeZone = "Asia/Shanghai"
 summaryLength = 26
-paginate = 10
+[pagination]
+  pagerSize = 10
 
 [outputs]
 home = ["HTML", "RSS", "JSON"]

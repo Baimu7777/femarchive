@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>为什么要做一个长期可维护的文库站 · 女权文库</title>
+<meta name="description" content="关于文库、归档与长期维护的一篇站务说明。">
+<meta name="keywords" content="文库, 博客, Hugo">
+
+<link rel="stylesheet" href="/css/main.min.79720e39a5ef045740153fdaa4ea8f51df9b6ad53eff5cd7387a8b9772b87067.css" integrity="sha256-eXIOOaXvBFdAFT/apOqPUd&#43;batU&#43;/1zXOHqLl3K4cGc=">
+<link rel="alternate" type="application/rss+xml" title="女权文库" href="/index.xml">
+
+  </head>
+  <body>
+    <header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark">♀</span>
+      <span class="brand-text">女权文库</span>
+    </a>
+    <nav class="main-nav" aria-label="主导航">
+      
+        <a href="/" >主页</a>
+      
+        <a href="/posts/" >全部文章</a>
+      
+        <a href="/categories/" >分类查看</a>
+      
+        <a href="/search/" >搜索</a>
+      
+        <a href="/submit/" >投稿</a>
+      
+    </nav>
+  </div>
+</header>
+
+    <main class="page-shell">
+      
+  <section class="container article-shell">
+    <article class="article-main">
+      <header class="article-hero" style="background: #f7e8ff; color: #5d2e86;">
+        <p class="eyebrow">思考</p>
+        <h1>为什么要做一个长期可维护的文库站</h1>
+        <p class="article-desc">关于文库、归档与长期维护的一篇站务说明。</p>
+        <div class="article-meta-line">
+          <time datetime="2025-07-29">发布于 2025-07-29</time>
+          
+        </div>
+      </header>
+
+      <div class="article-content prose">
+        <h2 id="作为文库而不是论坛">作为文库，而不是论坛</h2>
+<p>这个站点以文章为核心，重点放在<strong>可检索、可归档、可长期维护</strong>的文本内容上。它适合放原创长文、讨论整理、转载、备份与资料归档，而不是即时互动或灌水式讨论。</p>
+<h2 id="为什么改成-hugo">为什么改成 Hugo</h2>
+<p>纯静态 HTML 手写页面，在文章数量变多之后会出现几个问题：</p>
+<ol>
+<li>新增文章时需要重复维护列表页、文章页、分类页；</li>
+<li>文章结构容易失去统一；</li>
+<li>搜索、分类、标签等能力难以长期维护；</li>
+<li>改版时需要大面积手动同步。</li>
+</ol>
+<p>Hugo 的好处是把文章内容交给 Markdown，把页面结构交给模板。以后新增内容时，主要维护 <code>content/posts/*.md</code> 即可。</p>
+<h2 id="以后怎样更新">以后怎样更新</h2>
+<p>最常见的工作流是：</p>
+<ul>
+<li>新建一篇 Markdown；</li>
+<li>在 front matter 里写好标题、摘要、日期、分类、标签；</li>
+<li>把正文写完；</li>
+<li>重新构建站点。</li>
+</ul>
+<p>文章页、列表页、分类页、标签页、搜索索引都会自动更新。</p>
+
+      </div>
+    </article>
+
+    <aside class="article-sidebar">
+      <div class="sidebar-box sticky-box">
+        <h2>文章信息</h2>
+        <dl class="meta-list">
+          <div><dt>日期</dt><dd>2025-07-29</dd></div>
+          <div><dt>字数</dt><dd>27</dd></div>
+          <div><dt>阅读时间</dt><dd>1 分钟</dd></div>
+          <div><dt>授权</dt><dd>CC BY-NC-SA 4.0</dd></div>
+        </dl>
+        
+          <div class="sidebar-tags">
+            <h3>分类</h3>
+            <div class="term-list">
+              <a class="pill" href="/categories/%E6%80%9D%E8%80%83/">思考</a>
+            </div>
+          </div>
+        
+        
+          <div class="sidebar-tags">
+            <h3>标签</h3>
+            <div class="term-list">
+              <a class="pill" href="/tags/%E5%BD%92%E6%A1%A3/">归档</a><a class="pill" href="/tags/%E5%A4%87%E4%BB%BD/">备份</a><a class="pill" href="/tags/%E6%95%B4%E7%90%86/">整理</a>
+            </div>
+          </div>
+        
+      </div>
+
+      
+        <div class="sidebar-box toc-box">
+          <h2>目录</h2>
+          <div class="toc-wrap"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#作为文库而不是论坛">作为文库，而不是论坛</a></li>
+    <li><a href="#为什么改成-hugo">为什么改成 Hugo</a></li>
+    <li><a href="#以后怎样更新">以后怎样更新</a></li>
+  </ul>
+</nav></div>
+        </div>
+      
+
+      
+        <div class="sidebar-box">
+          <h2>相关文章</h2>
+          <ul class="related-list">
+            
+              
+                <li><a href="/posts/platform-repost-backup/">平台、转载与备份：发布时需要提前想清楚什么</a></li>
+              
+            
+              
+                <li><a href="/posts/discussion-to-archive/">讨论整理的写法：从碎片到可引用文本</a></li>
+              
+            
+          </ul>
+        </div>
+      
+    </aside>
+  </section>
+
+    </main>
+    <footer class="site-footer">
+  <div class="container footer-inner">
+    <p>女权文库 · 一个以文章为核心的女权文库站，用于原创长文、讨论整理、转载、归档与备份。</p>
+    <p class="muted">Powered by Hugo · 内容由 Markdown 驱动</p>
+  </div>
+</footer>
+
+  </body>
+</html>

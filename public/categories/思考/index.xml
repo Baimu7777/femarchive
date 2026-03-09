@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>思考 on 女权文库</title>
+    <link>https://example.com/categories/%E6%80%9D%E8%80%83/</link>
+    <description>Recent content in 思考 on 女权文库</description>
+    <generator>Hugo</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Tue, 29 Jul 2025 18:12:41 +0800</lastBuildDate>
+    <atom:link href="https://example.com/categories/%E6%80%9D%E8%80%83/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>为什么要做一个长期可维护的文库站</title>
+      <link>https://example.com/posts/why-a-library-site/</link>
+      <pubDate>Tue, 29 Jul 2025 18:12:41 +0800</pubDate>
+      <guid>https://example.com/posts/why-a-library-site/</guid>
+      <description>&lt;h2 id=&#34;作为文库而不是论坛&#34;&gt;作为文库，而不是论坛&lt;/h2&gt;&#xA;&lt;p&gt;这个站点以文章为核心，重点放在&lt;strong&gt;可检索、可归档、可长期维护&lt;/strong&gt;的文本内容上。它适合放原创长文、讨论整理、转载、备份与资料归档，而不是即时互动或灌水式讨论。&lt;/p&gt;&#xA;&lt;h2 id=&#34;为什么改成-hugo&#34;&gt;为什么改成 Hugo&lt;/h2&gt;&#xA;&lt;p&gt;纯静态 HTML 手写页面，在文章数量变多之后会出现几个问题：&lt;/p&gt;&#xA;&lt;ol&gt;&#xA;&lt;li&gt;新增文章时需要重复维护列表页、文章页、分类页；&lt;/li&gt;&#xA;&lt;li&gt;文章结构容易失去统一；&lt;/li&gt;&#xA;&lt;li&gt;搜索、分类、标签等能力难以长期维护；&lt;/li&gt;&#xA;&lt;li&gt;改版时需要大面积手动同步。&lt;/li&gt;&#xA;&lt;/ol&gt;&#xA;&lt;p&gt;Hugo 的好处是把文章内容交给 Markdown，把页面结构交给模板。以后新增内容时，主要维护 &lt;code&gt;content/posts/*.md&lt;/code&gt; 即可。&lt;/p&gt;&#xA;&lt;h2 id=&#34;以后怎样更新&#34;&gt;以后怎样更新&lt;/h2&gt;&#xA;&lt;p&gt;最常见的工作流是：&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;新建一篇 Markdown；&lt;/li&gt;&#xA;&lt;li&gt;在 front matter 里写好标题、摘要、日期、分类、标签；&lt;/li&gt;&#xA;&lt;li&gt;把正文写完；&lt;/li&gt;&#xA;&lt;li&gt;重新构建站点。&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;文章页、列表页、分类页、标签页、搜索索引都会自动更新。&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
