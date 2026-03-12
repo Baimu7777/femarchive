@@ -3,13 +3,20 @@
   {{ $newsPages := first 4 (sort (where .Site.RegularPages "Section" "eq" "news") "Date" "desc") }}
   {{ $figurePages := first 1 (sort (where .Site.RegularPages "Section" "eq" "figures") "Date" "desc") }}
   {{ $figureSection := .Site.GetPage "section" "figures" }}
+  {{ $motto := .Site.Params.motto | default "我们的身体共振于同一个潮汐，我们的斗争同样永不止息。" }}
+  {{ $mottoParts := split $motto "，" }}
 
   <main class="home-page">
-    <div class="shell home-shell">
-      <section class="section-card home-motto-card" aria-label="文库宣言">
-        <p class="home-motto-card__text">{{ .Site.Params.motto | default "我们的身体共振于同一个潮汐，我们的斗争同样永不止息。" }}</p>
-      </section>
+    <div class="home-ambient-quote" aria-hidden="true">
+      {{ if ge (len $mottoParts) 2 }}
+        <span class="home-ambient-quote__line">{{ index $mottoParts 0 }}</span>
+        <span class="home-ambient-quote__line">{{ delimit (after 1 $mottoParts) "，" }}</span>
+      {{ else }}
+        <span class="home-ambient-quote__line">{{ $motto }}</span>
+      {{ end }}
+    </div>
 
+    <div class="shell home-shell">
       <section class="home-grid">
         <div class="home-main">
           <section class="section-card section-card--latest">
