@@ -1,13 +1,14 @@
 {{- $page := .page -}}
-{{- $sectionLabel := cond (eq $page.Section "news") "新闻" (cond (eq $page.Section "figures") "女性人物" "文章") -}}
 {{- $categories := default (slice) $page.Params.categories -}}
 {{- $tags := default (slice) $page.Params.tags -}}
 <article class="archive-card{{ with .class }} {{ . }}{{ end }}" data-filter-item data-filter-text="{{ printf "%s %s %s %s %s" $page.Title ($page.Description | default "") (delimit $categories " ") (delimit $tags " ") ($page.Summary | plainify) | plainify | htmlEscape }}">
   <div class="archive-card__head">
-    <div class="archive-chip-row">
-      {{ range first 2 $categories }}<span class="chip chip--filled">#{{ . }}</span>{{ end }}
-      <span class="chip">{{ $sectionLabel }}</span>
-    </div>
+    {{ if gt (len $categories) 0 }}
+      <div class="archive-chip-row">
+        {{ range first 2 $categories }}<span class="chip chip--category">{{ . }}</span>{{ end }}
+      </div>
+    {{ end }}
+
     <div class="archive-card__meta">
       <span>{{ $page.Date.Format "2006.01.02" }}</span>
       <span>{{ $page.Params.author | default site.Params.author.name | default "编辑部" }}</span>
@@ -19,7 +20,7 @@
 
   <div class="archive-card__foot">
     <div class="archive-chip-row archive-chip-row--bottom">
-      {{ range first 3 $tags }}<span class="chip">#{{ . }}</span>{{ end }}
+      {{ range first 3 $tags }}<span class="chip chip--tag">#{{ . }}</span>{{ end }}
     </div>
     <a class="archive-card__more" href="{{ $page.RelPermalink }}">阅读全文 →</a>
   </div>

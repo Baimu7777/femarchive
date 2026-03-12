@@ -1,18 +1,28 @@
 {{ define "main" }}
+  {{ $categories := .Params.categories | default (slice) }}
+  {{ $tags := .Params.tags | default (slice) }}
+  {{ $author := .Params.author | default site.Params.author.name | default "编辑部" }}
+
   <main class="article-page">
-    <div class="shell article-shell">
+    <div class="shell article-layout">
       <article class="article-main">
         <header class="article-hero">
-          <div class="archive-chip-row">
-            {{ with .Params.categories }}<span class="chip chip--filled">#{{ index . 0 }}</span>{{ end }}
-            <span class="chip">{{ cond (eq .Section "news") "新闻" (cond (eq .Section "figures") "女性人物" "文章") }}</span>
-          </div>
-          <h1>{{ .Title }}</h1>
-          {{ with .Description }}<p class="article-hero__desc">{{ . }}</p>{{ end }}
+          {{ if or (gt (len $categories) 0) (gt (len $tags) 0) }}
+            <div class="archive-chip-row article-chip-row">
+              {{ range $categories }}<span class="chip chip--category">{{ . }}</span>{{ end }}
+              {{ range $tags }}<span class="chip chip--tag">#{{ . }}</span>{{ end }}
+            </div>
+          {{ end }}
+
+          <h1 class="article-hero__title">{{ .Title }}</h1>
+
+          {{ with .Description }}
+            <p class="article-hero__desc">{{ . }}</p>
+          {{ end }}
+
           <div class="article-hero__meta">
             <span>{{ .Date.Format "2006.01.02" }}</span>
-            <span>{{ .Params.author | default site.Params.author.name | default "编辑部" }}</span>
-            <span>{{ .Params.license | default "该作品版权归原作者所有。" }}</span>
+            {{ with $author }}<span>{{ . }}</span>{{ end }}
           </div>
         </header>
 

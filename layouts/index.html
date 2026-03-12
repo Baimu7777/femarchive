@@ -41,7 +41,7 @@
                   </p>
                   {{ with .Params.categories }}
                     <div class="entry-card__tags">
-                      {{ range first 2 . }}<span class="chip chip--filled">#{{ . }}</span>{{ end }}
+                      {{ range first 2 . }}<span class="chip chip--category">{{ . }}</span>{{ end }}
                     </div>
                   {{ end }}
                 </article>
@@ -111,7 +111,6 @@
               </article>
             {{ else }}
               <article class="woman-card">
-                <span class="woman-card__badge">女性人物</span>
                 <h3 class="woman-card__name">这里放每周女性人物</h3>
                 <p class="woman-card__summary">把人物内容放进 content/figures 后，这里会自动显示最新一位。</p>
               </article>
