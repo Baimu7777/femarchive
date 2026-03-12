@@ -110,6 +110,24 @@ a {
   font-weight: 700;
 }
 
+.site-brand__motto-box {
+  display: inline-flex;
+  margin-top: 14px;
+  padding: 14px 18px;
+  border: 1px solid #d6e5d4;
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(245, 251, 245, 0.98) 0%, rgba(235, 244, 235, 0.96) 100%);
+  box-shadow: 0 10px 22px rgba(127, 158, 130, 0.08);
+}
+
+.site-brand__motto {
+  margin: 0;
+  color: #3f5444;
+  font-size: clamp(1rem, 1.15vw, 1.18rem);
+  line-height: 1.65;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
 
 .site-nav {
   display: flex;
@@ -234,21 +252,6 @@ a {
 .archive-shell {
   display: grid;
   gap: 20px;
-}
-
-.home-motto-card {
-  padding: 22px 30px;
-  border-radius: 28px;
-  background: linear-gradient(180deg, rgba(245, 251, 245, 0.98) 0%, rgba(236, 245, 236, 0.96) 100%);
-}
-
-.home-motto-card__text {
-  margin: 0;
-  color: #3f5444;
-  font-size: clamp(1.26rem, 1.55vw, 1.62rem);
-  line-height: 1.7;
-  font-weight: 800;
-  letter-spacing: 0.01em;
 }
 
 
@@ -1055,14 +1058,16 @@ a {
     padding-right: 16px;
   }
 
-  .home-motto-card {
-    padding: 18px 16px;
-    border-radius: 22px;
+  .site-brand__motto-box {
+    display: flex;
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 18px;
   }
 
-  .home-motto-card__text {
-    font-size: 1.12rem;
-    line-height: 1.72;
+  .site-brand__motto {
+    font-size: 1rem;
+    line-height: 1.7;
   }
 
   .footer-bar,

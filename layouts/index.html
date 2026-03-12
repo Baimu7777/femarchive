@@ -7,12 +7,8 @@
 
   <main class="home-page">
     <div class="shell home-shell">
-      <section class="home-strip" aria-label="文库信息">
-        <div class="home-strip__left">
-          <span class="home-strip__label">立场</span>
-          <span class="home-strip__text">{{ .Site.Params.infoLeft | default "认可并践行 12BT，包括反性缘部分" }}</span>
-        </div>
-        <div class="home-strip__right">{{ .Site.Params.infoRight | default "豆瓣小组：全女评审团 · 书影音与评分" }}</div>
+      <section class="section-card home-motto-card" aria-label="文库宣言">
+        <p class="home-motto-card__text">{{ .Site.Params.motto | default "我们的身体共振于同一个潮汐，我们的斗争同样永不止息。" }}</p>
       </section>
 
       <section class="home-grid">
@@ -112,7 +108,6 @@
 
             {{ range $figurePages }}
               <article class="woman-card">
-                
                 <h3 class="woman-card__name"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
                 <p class="woman-card__summary">
                   {{ with .Description }}{{ . | plainify | truncate 96 }}{{ else }}{{ .Summary | plainify | truncate 96 }}{{ end }}
@@ -128,8 +123,6 @@
           </section>
         </aside>
       </section>
-
-      
     </div>
   </main>
 {{ end }}

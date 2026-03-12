@@ -85,6 +85,7 @@ a {
 
 .site-brand {
   min-width: 0;
+  max-width: 620px;
 }
 
 .site-brand__title {
@@ -105,11 +106,19 @@ a {
 
 .site-brand__stance {
   margin: 10px 0 0;
-  color: #506451;
-  font-size: 0.96rem;
+  color: #4c6150;
+  font-size: 0.92rem;
   font-weight: 700;
+  line-height: 1.55;
 }
 
+.site-brand__manifesto {
+  margin: 6px 0 0;
+  max-width: 34em;
+  color: #869687;
+  font-size: 0.86rem;
+  line-height: 1.72;
+}
 
 .site-nav {
   display: flex;
@@ -236,21 +245,36 @@ a {
   gap: 20px;
 }
 
-.home-motto-card {
-  padding: 22px 30px;
-  border-radius: 28px;
-  background: linear-gradient(180deg, rgba(245, 251, 245, 0.98) 0%, rgba(236, 245, 236, 0.96) 100%);
+.home-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 24px;
+  border: 1px solid var(--line-soft);
+  border-radius: 24px;
+  background: var(--bg-strip);
+  box-shadow: var(--shadow-soft);
 }
 
-.home-motto-card__text {
-  margin: 0;
-  color: #3f5444;
-  font-size: clamp(1.26rem, 1.55vw, 1.62rem);
-  line-height: 1.7;
+.home-strip__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.home-strip__label {
+  color: var(--accent-deep);
   font-weight: 800;
-  letter-spacing: 0.01em;
 }
 
+.home-strip__text,
+.home-strip__right {
+  color: #465a49;
+  font-size: 0.96rem;
+  font-weight: 700;
+}
 
 .home-grid {
   display: grid;
@@ -961,10 +985,10 @@ a {
 
 .footer-bar {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 14px 28px;
   flex-wrap: wrap;
+  gap: 14px 24px;
   padding: 20px 24px;
   border: 1px solid var(--line-soft);
   border-radius: 24px;
@@ -974,27 +998,28 @@ a {
   box-shadow: var(--shadow-soft);
 }
 
-.footer-bar__about,
-.footer-bar__group {
-  display: flex;
-  align-items: center;
-  gap: 4px 6px;
-  flex-wrap: wrap;
-}
-
 .footer-bar strong {
   color: var(--accent-deep);
-  margin-right: 2px;
+  margin-right: 6px;
 }
 
-.footer-bar__group a {
+.footer-bar__main {
+  flex: 1 1 620px;
+}
+
+.footer-bar__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
   color: var(--accent-deep);
-  font-weight: 800;
-  text-decoration: none;
+  font-weight: 700;
 }
 
-.footer-bar__group a:hover {
+.footer-bar__meta a {
+  color: var(--accent-deep);
   text-decoration: underline;
+  text-underline-offset: 0.16em;
 }
 
 /* responsive */
@@ -1003,6 +1028,10 @@ a {
   .site-header__inner {
     grid-template-columns: 1fr;
     align-items: stretch;
+  }
+
+  .site-brand {
+    max-width: none;
   }
 
   .site-nav {
@@ -1055,19 +1084,13 @@ a {
     padding-right: 16px;
   }
 
-  .home-motto-card {
-    padding: 18px 16px;
-    border-radius: 22px;
+  .site-brand__stance,
+  .site-brand__manifesto {
+    max-width: none;
   }
 
-  .home-motto-card__text {
-    font-size: 1.12rem;
-    line-height: 1.72;
-  }
-
-  .footer-bar,
-  .footer-bar__about,
-  .footer-bar__group {
+  .home-strip {
+    flex-direction: column;
     align-items: flex-start;
   }
 

@@ -3,6 +3,7 @@
     <div class="site-brand">
       <a class="site-brand__title" href="{{ "/" | relLangURL }}">{{ .Site.Title | default "女阅组文库 / Feminist Archive" }}</a>
       <p class="site-brand__subtitle">{{ .Site.Params.slogan | default "姦如磐石" }}</p>
+      <p class="site-brand__stance">{{ .Site.Params.stance | default .Site.Params.infoLeft | default "认可并践行 12BT，包括反性缘部分" }}</p>
     </div>
 
     <nav class="site-nav" aria-label="主导航">
