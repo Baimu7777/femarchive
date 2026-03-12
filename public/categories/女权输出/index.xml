@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>女权输出 on 女阅组文库 / Feminist Archive</title>
+    <link>http://localhost:1313/categories/%E5%A5%B3%E6%9D%83%E8%BE%93%E5%87%BA/</link>
+    <description>Recent content in 女权输出 on 女阅组文库 / Feminist Archive</description>
+    <generator>Hugo</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Mon, 09 Mar 2026 07:30:00 +0800</lastBuildDate>
+    <atom:link href="http://localhost:1313/categories/%E5%A5%B3%E6%9D%83%E8%BE%93%E5%87%BA/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>秋瑾</title>
+      <link>http://localhost:1313/figures/qiu-jin/</link>
+      <pubDate>Mon, 09 Mar 2026 07:30:00 +0800</pubDate>
+      <guid>http://localhost:1313/figures/qiu-jin/</guid>
+      <description>&lt;p&gt;秋瑾（1875—1907）是中国近代重要的女性人物之一。她既留下了诗文，也参与了更直接的社会与政治行动，因此不适合只被压缩成一个单一的烈士符号。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>女作家作品再版整理：哪些书重新回到读者视野</title>
+      <link>http://localhost:1313/news/writer-reprint-roundup/</link>
+      <pubDate>Sat, 07 Mar 2026 15:10:00 +0800</pubDate>
+      <guid>http://localhost:1313/news/writer-reprint-roundup/</guid>
+      <description>&lt;p&gt;这条新闻适合用于“摘录 + 短评 + 延伸链接”的页面结构。&lt;/p&gt;&#xA;&lt;p&gt;编者可以在正文中补充：这次再版为什么重要、作者在中文语境里常被怎样误读、适合从哪一本到哪一本到顺序进入。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>李·米勒</title>
+      <link>http://localhost:1313/figures/lee-miller/</link>
+      <pubDate>Tue, 03 Mar 2026 11:00:00 +0800</pubDate>
+      <guid>http://localhost:1313/figures/lee-miller/</guid>
+      <description>&lt;p&gt;人物页不需要一开始就写成百科。先给出基础简介、推荐阅读与为什么值得现在重读，已经足够成为一个有效入口。&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

@@ -1,19 +1,15 @@
 <!DOCTYPE html>
-<html lang="{{ site.LanguageCode }}">
+<html lang="zh-CN">
 <head>
   {{ partial "head.html" . }}
 </head>
-<body>
-  <div class="shell">
-    {{ partial "header.html" . }}
-    <main>
-      {{ block "main" . }}{{ end }}
-    </main>
-    {{ if not (and .IsPage (eq .Section "posts")) }}
-      {{ partial "footer.html" . }}
-    {{ end }}
-  </div>
-  <script src='{{ "js/site.js" | relURL }}'></script>
-  {{ block "pageScript" . }}{{ end }}
+<body class="body-kind-{{ .Kind }} body-section-{{ .Section }}">
+  {{ partial "header.html" . }}
+  <main class="site-main">
+    {{ block "main" . }}{{ end }}
+  </main>
+  {{ partial "footer.html" . }}
+  <script src="{{ "/js/site.js" | relLangURL }}" defer></script>
+  {{ block "scripts" . }}{{ end }}
 </body>
 </html>

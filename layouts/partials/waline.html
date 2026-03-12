@@ -1,0 +1,24 @@
+{{ if and site.Params.comments.enable (.Params.comments | default true) }}
+<section class="comment-panel">
+  <p class="comment-panel__eyebrow">评论区</p>
+  <h2>留言与补充</h2>
+  <p class="comment-panel__desc">欢迎补充资料、纠错或继续讨论。</p>
+  <div id="waline"></div>
+</section>
+<script type="module">
+  import { init } from 'https://unpkg.com/@waline/client@v3/dist/waline.js';
+
+  init({
+    el: '#waline',
+    serverURL: '{{ site.Params.comments.serverURL }}',
+    lang: '{{ site.Params.comments.lang | default "zh-CN" }}',
+    path: '{{ .RelPermalink }}',
+    pageview: {{ if site.Params.comments.pageview }}true{{ else }}false{{ end }},
+    reaction: {{ if site.Params.comments.reaction }}true{{ else }}false{{ end }},
+    emoji: {{ site.Params.comments.emoji | jsonify }},
+    locale: {
+      placeholder: '欢迎补充资料、继续讨论，或留下勘误。'
+    }
+  });
+</script>
+{{ end }}

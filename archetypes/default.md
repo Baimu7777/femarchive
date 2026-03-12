@@ -1,20 +1,16 @@
 ---
-title: ""
+title: "{{ replace .Name "-" " " | title }}"
 description: ""
 date: {{ .Date }}
-math: false
-license: "署名-非商业性使用"
-hidden: false
-comments: true
 draft: false
-featured: false
-author: ""
-keywords: []
+comments: true
+author: "编辑部"
 categories:
   -
 tags:
   -
-style:
-  background: "#fb9968"
-  color: "#FFC0CB"
+original_url: ""
+license: "该作品版权归原作者所有。"
 ---
+
+在这里开始写正文。

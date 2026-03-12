@@ -1,18 +1,18 @@
-{{- $pages := where site.RegularPages "Section" "posts" -}}
-{{- $pages = where $pages "Params.hidden" "ne" true -}}
+{{- $pages := where site.RegularPages.ByDate.Reverse "Section" "in" (slice "posts" "news") -}}
 [
-{{- range $index, $page := $pages.ByDate.Reverse }}
-  {{- if gt $index 0 }},{{ end }}
+{{- range $index, $page := $pages -}}
+  {{- if $index }},{{ end }}
   {
     "title": {{ $page.Title | jsonify }},
-    "description": {{ $page.Description | default "" | jsonify }},
+    "url": {{ $page.RelPermalink | jsonify }},
+    "section": {{ $page.Section | jsonify }},
+    "type": {{ cond (eq $page.Section "news") "新闻" "文章" | jsonify }},
     "date": {{ $page.Date.Format "2006-01-02" | jsonify }},
-    "permalink": {{ $page.RelPermalink | jsonify }},
-    "author": {{ $page.Params.author | default "编辑部" | jsonify }},
-    "categories": {{ $page.Params.categories | default (slice) | jsonify }},
-    "tags": {{ $page.Params.tags | default (slice) | jsonify }},
-    "keywords": {{ $page.Params.keywords | default (slice) | jsonify }},
-    "content": {{ $page.Plain | jsonify }}
+    "description": {{ ($page.Description | default "") | plainify | jsonify }},
+    "summary": {{ ($page.Summary | plainify) | jsonify }},
+    "content": {{ $page.Plain | jsonify }},
+    "categories": {{ default (slice) $page.Params.categories | jsonify }},
+    "tags": {{ default (slice) $page.Params.tags | jsonify }}
   }
 {{- end }}
 ]

@@ -1,0 +1,36 @@
+{{ define "main" }}
+  <main class="archive-page">
+    <div class="shell archive-shell">
+      <section class="archive-panel search-shell" data-search-page data-index-url="{{ "/index.json" | relLangURL }}">
+        <div class="archive-heading">
+          <span class="archive-heading__kicker">SEARCH</span>
+          <h1 class="archive-heading__title">{{ .Title }}</h1>
+          <p class="archive-heading__desc">{{ with .Description }}{{ . }}{{ else }}同时检索全部文章与新闻内容。{{ end }}</p>
+        </div>
+
+        <section class="search-panel">
+          <form id="searchForm" class="search-page-form">
+            <label class="sr-only" for="searchQuery">搜索全部文章与新闻</label>
+            <input id="searchQuery" name="q" type="search" placeholder="搜索标题、摘要、正文、标签">
+            <button type="submit">搜索</button>
+          </form>
+
+          <div class="search-scopes" role="tablist" aria-label="搜索范围">
+            <button type="button" class="scope-pill is-active" data-search-scope="all">全部</button>
+            <button type="button" class="scope-pill" data-search-scope="posts">文章</button>
+            <button type="button" class="scope-pill" data-search-scope="news">新闻</button>
+          </div>
+
+          <p id="searchMeta" class="search-meta">输入关键词后开始检索。</p>
+        </section>
+
+        <div id="searchResults" class="archive-grid"></div>
+        <p id="searchEmpty" class="empty-state" hidden>没有找到匹配内容。</p>
+      </section>
+    </div>
+  </main>
+{{ end }}
+
+{{ define "scripts" }}
+  <script src="{{ "/js/search.js" | relLangURL }}" defer></script>
+{{ end }}

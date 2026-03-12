@@ -1,12 +1,53 @@
 {{ define "main" }}
-<section class="panel">
-  <div class="section-head">
-    <div>
-      <small>{{ if .IsSection }}Section{{ else }}Category{{ end }}</small>
-      <h2>{{ .Title }}</h2>
-      <p>{{ with .Description }}{{ . }}{{ else }}按时间浏览当前列表。{{ end }}</p>
+  {{ $pages := .RegularPagesRecursive }}
+  {{ if eq (len $pages) 0 }}
+    {{ $pages = .Pages }}
+  {{ end }}
+  {{ $pages = sort $pages "Date" "desc" }}
+  {{ $paginator := .Paginate $pages }}
+
+  {{ $isNews := eq .Section "news" }}
+  {{ $isFigures := eq .Section "figures" }}
+  {{ $kicker := "ALL ARTICLES" }}
+  {{ $desc := "按时间浏览全部文章，也可以用关键词快速筛选。" }}
+  {{ if $isNews }}
+    {{ $kicker = "NEWS" }}
+    {{ $desc = "按时间浏览女性新闻与新闻摘要。" }}
+  {{ else if $isFigures }}
+    {{ $kicker = "WOMAN FILES" }}
+    {{ $desc = "浏览每周女性人物与相关资料入口。" }}
+  {{ end }}
+
+  <main class="archive-page">
+    <div class="shell archive-shell">
+      <section class="archive-panel">
+        <div class="archive-heading">
+          <span class="archive-heading__kicker">{{ $kicker }}</span>
+          <h1 class="archive-heading__title">{{ .Title }}</h1>
+          <p class="archive-heading__desc">{{ with .Description }}{{ . }}{{ else }}{{ $desc }}{{ end }}</p>
+        </div>
+
+        <section class="list-filter">
+          <form class="local-filter" data-local-filter data-target="#archiveGrid" data-empty="#archiveEmpty">
+            <label class="sr-only" for="archive-filter-input">筛选列表</label>
+            <input id="archive-filter-input" type="search" placeholder="搜索标题、摘要、分类、标签">
+          </form>
+        </section>
+
+        <div class="archive-grid{{ if $isFigures }} archive-grid--figures{{ end }}" id="archiveGrid">
+          {{ range $paginator.Pages }}
+            {{ partial "card.html" (dict "page" .) }}
+          {{ else }}
+            <article class="archive-card">
+              <h2 class="archive-card__title">这里暂时还没有内容</h2>
+              <p class="archive-card__summary">等你把内容放进对应 section 之后，这里会自动显示。</p>
+            </article>
+          {{ end }}
+        </div>
+
+        <p id="archiveEmpty" class="empty-state" hidden>没有匹配的内容，换个关键词试试。</p>
+        {{ template "_internal/pagination.html" . }}
+      </section>
     </div>
-  </div>
-  {{ if gt (len .Pages) 0 }}<div class="article-grid">{{ range .Pages.ByDate.Reverse }}{{ partial "post-card.html" . }}{{ end }}</div>{{ else }}<div class="empty">这里暂时还没有内容。</div>{{ end }}
-</section>
+  </main>
 {{ end }}

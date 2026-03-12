@@ -1,225 +1,135 @@
 {{ define "main" }}
-{{ $posts := where site.RegularPages "Section" "posts" }}
-{{ $posts = where $posts "Params.hidden" "ne" true }}
-{{ $featured := where $posts "Params.featured" true }}
-{{ $featured = $featured.ByDate.Reverse }}
-{{ $latest := $posts.ByDate.Reverse }}
+  {{ $recentPages := first 4 (sort (where .Site.RegularPages "Section" "eq" "posts") "Date" "desc") }}
+  {{ $newsPages := first 4 (sort (where .Site.RegularPages "Section" "eq" "news") "Date" "desc") }}
+  {{ $figurePages := first 1 (sort (where .Site.RegularPages "Section" "eq" "figures") "Date" "desc") }}
+  {{ $figureSection := .Site.GetPage "section" "figures" }}
+  {{ $homeTopics := .Site.Params.homeTopics | default (slice "社会议题" "个人成长" "女权输出" "资料归档" "站务") }}
 
-<style>
-  .home-hero-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.65fr) minmax(300px, 0.95fr);
-    gap: 26px;
-    align-items: stretch;
-  }
-  .home-hero-left {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    min-width: 0;
-    padding-right: 4px;
-  }
-  .home-breadcrumb {
-    display: inline-flex;
-    align-items: center;
-    align-self: flex-start;
-    min-height: 44px;
-    padding: 0 16px;
-    border-radius: 999px;
-    border: 1px solid #bcd8c3;
-    background: rgba(255,255,255,0.76);
-    color: #4e8a63;
-    font-weight: 700;
-    font-size: 15px;
-  }
-  .home-display-title {
-    margin: 2px 0 0;
-    font-size: clamp(34px, 4.6vw, 60px);
-    line-height: 1.02;
-    letter-spacing: -0.05em;
-    font-weight: 800;
-  }
-  .home-display-title .line-1,
-  .home-display-title .line-2 {
-    display: block;
-  }
-  .home-display-title .line-1 {
-    color: #263328;
-    white-space: nowrap;
-  }
-  .home-display-title .line-2 {
-    margin-top: 10px;
-    color: #4e8a63;
-    white-space: nowrap;
-  }
-  .home-display-title .line-3 {
-    margin-top: 10px;
-    color: #4e8a63;
-    white-space: nowrap;
-  }
-  .home-hero-copy {
-    max-width: 58ch;
-    margin: 2px 0 0;
-    color: #667567;
-    font-size: 17px;
-    line-height: 1.95;
-  }
-  .home-hero-right {
-    border-radius: 28px;
-    background: rgba(255,255,255,0.9);
-    border: 1px solid rgba(216, 234, 217, 0.96);
-    padding: 30px 34px;
-    box-shadow: var(--shadow);
-  }
-  .home-hero-right h2 {
-    margin: 0 0 26px;
-    font-size: 24px;
-    letter-spacing: -0.03em;
-    color: #263328;
-  }
-  .home-position-list {
-    display: grid;
-    gap: 28px;
-  }
-  .home-position-item h3 {
-    margin: 0 0 9px;
-    font-size: 15px;
-    color: #4e8a63;
-  }
-  .home-position-item p {
-    margin: 0;
-    color: #667567;
-    line-height: 1.92;
-    font-size: 16px;
-  }
-  .home-position-item a {
-    color: #4e8a63;
-    font-weight: 700;
-  }
-  .home-tag-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 2px;
-  }
-  .home-tag-row .pill.subtle {
-    min-height: 42px;
-    padding: 0 16px;
-    background: rgba(255,255,255,0.88);
-    border-color: #d8ead9;
-    color: #667567;
-    font-weight: 700;
-  }
-  @media (max-width: 1220px) {
-    .home-display-title {
-      font-size: clamp(34px, 4.15vw, 54px);
-    }
-    .home-display-title .line-1,
-    .home-display-title .line-2 {
-      white-space: normal;
-    }
-  }
-  @media (max-width: 1024px) {
-    .home-hero-grid {
-      grid-template-columns: 1fr;
-    }
-    .home-hero-left {
-      padding-right: 0;
-    }
-  }
-  @media (max-width: 720px) {
-    .home-display-title {
-      font-size: 38px;
-      line-height: 1.06;
-    }
-    .home-display-title .line-1,
-    .home-display-title .line-2 {
-      white-space: normal;
-    }
-    .home-hero-copy {
-      font-size: 16px;
-      line-height: 1.85;
-    }
-    .home-hero-right {
-      padding: 24px;
-    }
-    .home-position-item p {
-      font-size: 15px;
-    }
-  }
-</style>
+  <main class="home-page">
+    <div class="shell home-shell">
+      <section class="home-strip" aria-label="文库信息">
+        <div class="home-strip__left">
+          <span class="home-strip__label">立场</span>
+          <span class="home-strip__text">{{ .Site.Params.infoLeft | default "认可并践行 12BT，包括反性缘部分" }}</span>
+        </div>
+        <div class="home-strip__right">{{ .Site.Params.infoRight | default "豆瓣小组：全女评审团 · 书影音与评分" }}</div>
+      </section>
 
-<section class="hero">
-  <div class="home-hero-grid">
-    <div class="home-hero-left">
-      <div class="home-breadcrumb">主页 / Home</div>
-      <h1 class="home-display-title">
-        <span class="line-1">在信息时代的浪潮里，</span>
-        <span class="line-2">立起一座不被冲散的</span>
-        <span class="line-3">女性图书间。</span>
-      </h1>
-      <p class="home-hero-copy">
-        持续整理并收录消失和未消失的论坛讨论、原创长文、授权转载等精华内容，供每一位同路人阅览参照。
-      </p>
-      <div class="hero-actions">
-        <a class="btn" href='{{ "/posts/" | relURL }}'>阅读全部</a>
-        <a class="btn-secondary" href='{{ "/submit/" | relURL }}'>前往投稿页</a>
-      </div>
-      <div class="home-tag-row">
-        <span class="pill subtle">#思考</span>
-        <span class="pill subtle">#归档</span>
-        <span class="pill subtle">#平台</span>
-        <span class="pill subtle">#理论</span>
-        <span class="pill subtle">#备份</span>
-        <span class="pill subtle">#讨论</span>
-        <span class="pill subtle">#整理</span>
-        <span class="pill subtle">#读书</span>
-        <span class="pill subtle">#转载</span>
-      </div>
-    </div>
+      <section class="home-grid">
+        <div class="home-main">
+          <section class="section-card home-intro">
+            <div class="home-intro__top">
+              <div class="home-topic-tags">
+                {{ range $homeTopics }}
+                  <a class="topic-chip" href="{{ printf "/categories/%s/" (. | urlize) | relLangURL }}">{{ . }}</a>
+                {{ end }}
+              </div>
 
-    <aside class="home-hero-right">
-      <h2>站点定位</h2>
-      <div class="home-position-list">
-        <div class="home-position-item">
-          <h3>立场</h3>
-          <p>认可并践行12bt，包括反性缘。</p>
+              <div class="home-actions">
+                <a class="action-pill action-pill--solid" href="{{ "/posts/" | relLangURL }}">阅读全部</a>
+                <a class="action-pill" href="{{ .Site.Params.submitURL | default "/posts/submission-guidelines/" | relLangURL }}">前往投稿</a>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card section-card--latest">
+            <div class="section-heading">
+              <span class="section-heading__kicker">LATEST</span>
+              <div class="section-heading__row">
+                <h2 class="section-heading__title">最近更新</h2>
+                <a class="section-heading__more" href="{{ "/posts/" | relLangURL }}">更多 →</a>
+              </div>
+            </div>
+
+            <div class="latest-grid">
+              {{ range $recentPages }}
+                <article class="entry-card">
+                  <div class="entry-card__meta">
+                    <span>{{ .Date.Format "2006.01.02" }}</span>
+                    <span>{{ .Params.author | default .Site.Params.author.name | default "编辑部" }}</span>
+                  </div>
+                  <h3 class="entry-card__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+                  <p class="entry-card__summary">
+                    {{ with .Description }}{{ . | plainify | truncate 90 }}{{ else }}{{ .Summary | plainify | truncate 90 }}{{ end }}
+                  </p>
+                  {{ with .Params.categories }}
+                    <div class="entry-card__tags">
+                      {{ range first 2 . }}<span class="chip chip--filled">#{{ . }}</span>{{ end }}
+                    </div>
+                  {{ end }}
+                </article>
+              {{ else }}
+                <article class="entry-card entry-card--empty">
+                  <h3 class="entry-card__title">这里先放最近更新</h3>
+                  <p class="entry-card__summary">你把文章放进 content/posts 后，这里会自动抓取最新内容。</p>
+                </article>
+              {{ end }}
+            </div>
+          </section>
         </div>
 
-        <div class="home-position-item">
-          <h3>创始</h3>
-          <p>豆瓣全女评审团小组。<a href="https://judge.feminism-nv.space/" target="_blank" rel="noopener">点击查看</a>书影文舆评分。</p>
-        </div>
-      </div>
-    </aside>
-  </div>
-</section>
+        <aside class="home-side">
+          <section class="section-card section-card--news">
+            <div class="section-heading section-heading--compact">
+              <span class="section-heading__kicker">NEWS</span>
+              <div class="section-heading__row">
+                <h2 class="section-heading__title">女性新闻</h2>
+                <a class="section-heading__more" href="{{ "/news/" | relLangURL }}">更多 →</a>
+              </div>
+            </div>
 
-<section class="panel">
-  <div class="section-head">
-    <div>
-      <small>Featured</small>
-      <h2>精选文章</h2>
-    </div>
-  </div>
-  <div class="article-grid">
-    {{ range first 3 (cond (gt (len $featured) 0) $featured $latest) }}
-      {{ partial "post-card.html" . }}
-    {{ end }}
-  </div>
-</section>
+            <div class="news-stack">
+              {{ range $newsPages }}
+                <article class="news-card news-card--stacked">
+                  <div class="news-card__date">{{ .Date.Format "01.02" }}</div>
+                  <div class="news-card__body">
+                    <h3 class="news-card__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+                    <p class="news-card__summary">
+                      {{ with .Description }}{{ . | plainify | truncate 56 }}{{ else }}{{ .Summary | plainify | truncate 56 }}{{ end }}
+                    </p>
+                  </div>
+                </article>
+              {{ else }}
+                <article class="news-card news-card--stacked">
+                  <div class="news-card__date">03.09</div>
+                  <div class="news-card__body">
+                    <h3 class="news-card__title">女性新闻占位</h3>
+                    <p class="news-card__summary">这里显示标题和一行小字摘要，超出后自动省略。</p>
+                  </div>
+                </article>
+              {{ end }}
+            </div>
+          </section>
 
-<section class="panel">
-  <div class="section-head">
-    <div>
-      <small>Latest</small>
-      <h2>最近更新</h2>
+          <section class="section-card section-card--woman">
+            <div class="section-heading section-heading--compact">
+              <span class="section-heading__kicker">WOMAN OF THE WEEK</span>
+              <div class="section-heading__row">
+                <h2 class="section-heading__title">每周女性人物</h2>
+                <a class="section-heading__more" href="{{ with $figureSection }}{{ .RelPermalink }}{{ else }}{{ "/figures/" | relLangURL }}{{ end }}">更多 →</a>
+              </div>
+            </div>
+
+            {{ range $figurePages }}
+              <article class="woman-card">
+                
+                <h3 class="woman-card__name"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+                <p class="woman-card__summary">
+                  {{ with .Description }}{{ . | plainify | truncate 96 }}{{ else }}{{ .Summary | plainify | truncate 96 }}{{ end }}
+                </p>
+              </article>
+            {{ else }}
+              <article class="woman-card">
+                <span class="woman-card__badge">女性人物</span>
+                <h3 class="woman-card__name">这里放每周女性人物</h3>
+                <p class="woman-card__summary">把人物内容放进 content/figures 后，这里会自动显示最新一位。</p>
+              </article>
+            {{ end }}
+          </section>
+        </aside>
+      </section>
+
+      
     </div>
-  </div>
-  <div class="latest-grid">
-    {{ range first 6 $latest }}
-      {{ partial "post-mini-card.html" . }}
-    {{ end }}
-  </div>
-</section>
+  </main>
 {{ end }}

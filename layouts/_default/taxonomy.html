@@ -1,0 +1,33 @@
+{{ define "main" }}
+  {{ $pages := sort .Pages "Date" "desc" }}
+  {{ $paginator := .Paginate $pages }}
+  {{ $taxonomyLabel := upper (.Data.Singular | default "taxonomy") }}
+
+  <main class="archive-page">
+    <div class="shell archive-shell">
+      <section class="archive-panel">
+        <div class="archive-heading">
+          <span class="archive-heading__kicker">{{ $taxonomyLabel }}</span>
+          <h1 class="archive-heading__title">{{ .Title }}</h1>
+          <p class="archive-heading__desc">当前聚合页共收录 {{ len .Pages }} 篇内容。</p>
+        </div>
+
+        <section class="list-filter">
+          <form class="local-filter" data-local-filter data-target="#taxonomyGrid" data-empty="#taxonomyEmpty">
+            <label class="sr-only" for="taxonomy-filter-input">筛选分类聚合页</label>
+            <input id="taxonomy-filter-input" type="search" placeholder="搜索标题、摘要、标签">
+          </form>
+        </section>
+
+        <div class="archive-grid" id="taxonomyGrid">
+          {{ range $paginator.Pages }}
+            {{ partial "card.html" (dict "page" .) }}
+          {{ end }}
+        </div>
+
+        <p id="taxonomyEmpty" class="empty-state" hidden>没有匹配的内容，换个关键词试试。</p>
+        {{ template "_internal/pagination.html" . }}
+      </section>
+    </div>
+  </main>
+{{ end }}

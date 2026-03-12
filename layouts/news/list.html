@@ -1,0 +1,49 @@
+{{ define "main" }}
+  {{ $pages := sort .RegularPages "Date" "desc" }}
+  {{ $paginator := .Paginate $pages }}
+
+  <main class="archive-page archive-page--news">
+    <div class="shell archive-shell">
+      <section class="archive-panel">
+        <div class="archive-heading">
+          <span class="archive-heading__kicker">NEWS</span>
+          <h1 class="archive-heading__title">{{ .Title }}</h1>
+          <p class="archive-heading__desc">{{ with .Description }}{{ . }}{{ else }}按时间整理女性议题相关新闻、摘录与延伸阅读。{{ end }}</p>
+        </div>
+
+        <div class="news-list">
+          {{ range $paginator.Pages }}
+            <article class="news-row">
+              <div class="news-row__date">
+                <span>{{ .Date.Format "2006" }}</span>
+                <strong>{{ .Date.Format "01.02" }}</strong>
+              </div>
+              <div class="news-row__content">
+                <div class="archive-chip-row">
+                  {{ range first 2 (.Params.categories | default (slice)) }}<span class="chip chip--filled">#{{ . }}</span>{{ end }}
+                  <span class="chip">新闻</span>
+                </div>
+                <h2 class="news-row__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+                <p class="news-row__summary">{{ with .Description }}{{ . | plainify | truncate 110 }}{{ else }}{{ .Summary | plainify | truncate 110 }}{{ end }}</p>
+                <div class="news-row__meta">
+                  <span>{{ .Params.author | default site.Params.author.name | default "编辑部" }}</span>
+                  <a href="{{ .RelPermalink }}">查看全文 →</a>
+                </div>
+              </div>
+            </article>
+          {{ else }}
+            <article class="news-row">
+              <div class="news-row__date"><span>2026</span><strong>03.10</strong></div>
+              <div class="news-row__content">
+                <h2 class="news-row__title">这里暂时还没有新闻</h2>
+                <p class="news-row__summary">把新闻内容放进 content/news 后，这里会自动显示。</p>
+              </div>
+            </article>
+          {{ end }}
+        </div>
+
+        {{ template "_internal/pagination.html" . }}
+      </section>
+    </div>
+  </main>
+{{ end }}

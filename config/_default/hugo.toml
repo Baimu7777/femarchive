@@ -1,51 +1,27 @@
-baseURL = "https://femarchive.vercel.app"
-languageCode = "zh-CN"
+baseURL = "https://example.com/"
+languageCode = "zh-cn"
+defaultContentLanguage = "zh-cn"
 title = "女阅组文库 / Feminist Archive"
-enableRobotsTXT = true
-summaryLength = 120
 hasCJKLanguage = true
+enableRobotsTXT = true
+timeZone = "Asia/Shanghai"
+summaryLength = 28
 
 [pagination]
   pagerSize = 9
+
+[permalinks]
+  posts = "/posts/:slugorfilename/"
+  news = "/news/:slugorfilename/"
+  figures = "/figures/:slugorfilename/"
 
 [taxonomies]
   category = "categories"
   tag = "tags"
 
-[params]
-  slogan = "让重要的女性讨论被更稳定地保存，也更容易被找到。"
-  subtitle = "这里收录值得长期阅读、转引与归档的文章。它更接近文库与 blog，而不是即时发帖流：重点是保存、整理、检索与再次进入。"
-  archive_name = "女阅组文库 / Feminist Archive"
-  archive_english = "Feminist Archive"
-  submit_url = "https://你的-google-form-链接"
-
-[[menu.main]]
-  name = "主页"
-  pageRef = "/"
-  weight = 10
-
-[[menu.main]]
-  name = "全部文章"
-  pageRef = "/posts"
-  weight = 20
-
-[[menu.main]]
-  name = "分类查看"
-  pageRef = "/categories"
-  weight = 30
-
-[[menu.main]]
-  name = "搜索"
-  pageRef = "/search"
-  weight = 40
-
-[[menu.main]]
-  name = "投稿"
-  pageRef = "/submit"
-  weight = 50
-
 [outputs]
   home = ["HTML", "RSS", "JSON"]
+  page = ["HTML"]
   section = ["HTML", "RSS"]
   taxonomy = ["HTML", "RSS"]
   term = ["HTML", "RSS"]
@@ -54,10 +30,67 @@ hasCJKLanguage = true
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel = 3
+    ordered = false
 
-[params.waline]
-  enable = true
-  serverURL = "https://waline-one-mu-78.vercel.app"
-  lang = "zh-CN"
-  pageview = false
-  comment = true
+[params]
+  description = "一个以女性议题、资料归档、新闻整理与原创长文为主的长期文库。"
+  slogan = "姦如磐石"
+  about = "为被限流、被删帖、被销号的女性之声建立存档，为女性思想创设可被稳定留存、被检索、被看见和铭记的平台。"
+  infoLeft = "认可并践行 12BT，包括反性缘部分"
+  infoRight = "豆瓣小组：全女评审团 · 书影音与评分"
+  homeTopics = ["社会议题", "个人成长", "女权输出", "资料归档", "站务"]
+  submitLabel = "前往投稿"
+  submitURL = "/posts/submission-guidelines/"
+  mainSections = ["posts", "news"]
+
+  [params.author]
+    name = "编辑部"
+
+  [params.comments]
+    enable = true
+    provider = "waline"
+    serverURL = "https://waline-one-mu-78.vercel.app"
+    lang = "zh-CN"
+    emoji = ["https://unpkg.com/@waline/emojis@1.1.0/weibo"]
+    pageview = false
+    reaction = false
+
+[related]
+  includeNewer = true
+  threshold = 20
+  toLower = false
+
+  [[related.indices]]
+    name = "tags"
+    weight = 100
+
+  [[related.indices]]
+    name = "categories"
+    weight = 80
+
+  [[related.indices]]
+    name = "section"
+    weight = 20
+
+[[menu.main]]
+  name = "主页"
+  url = "/"
+  weight = 10
+
+[[menu.main]]
+  name = "全部文章"
+  url = "/posts/"
+  weight = 20
+
+[[menu.main]]
+  name = "新闻"
+  url = "/news/"
+  weight = 30
+
+[[menu.main]]
+  name = "分类"
+  url = "/categories/"
+  weight = 40

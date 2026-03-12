@@ -1,13 +1,28 @@
-<header class="topbar">
-  <div class="brand">
-    <small>{{ site.Params.archive_english }}</small>
-    <strong><a href='{{ "/" | relURL }}'>{{ site.Params.archive_name }}</a></strong>
+<header class="site-header">
+  <div class="shell site-header__inner">
+    <div class="site-brand">
+      <a class="site-brand__title" href="{{ "/" | relLangURL }}">{{ .Site.Title | default "女阅组文库 / Feminist Archive" }}</a>
+      <p class="site-brand__subtitle">{{ .Site.Params.slogan | default "姦如磐石" }}</p>
+    </div>
+
+    <nav class="site-nav" aria-label="主导航">
+      {{ if .Site.Menus.main }}
+        {{ range .Site.Menus.main }}
+          {{ $link := .URL | relLangURL }}
+          <a href="{{ $link }}" class="site-nav__link {{ if or ($.IsMenuCurrent "main" .) ($.HasMenuCurrent "main" .) (eq $.RelPermalink $link) }}is-active{{ end }}">{{ .Name }}</a>
+        {{ end }}
+      {{ else }}
+        <a href="{{ "/" | relLangURL }}" class="site-nav__link {{ if .IsHome }}is-active{{ end }}">主页</a>
+        <a href="{{ "/posts/" | relLangURL }}" class="site-nav__link {{ if eq .Section "posts" }}is-active{{ end }}">全部文章</a>
+        <a href="{{ "/news/" | relLangURL }}" class="site-nav__link {{ if eq .Section "news" }}is-active{{ end }}">新闻</a>
+        <a href="{{ "/categories/" | relLangURL }}" class="site-nav__link {{ if eq .Kind "taxonomyTerm" }}is-active{{ end }}">分类</a>
+      {{ end }}
+    </nav>
+
+    <form class="site-search" action="{{ "/search/" | relLangURL }}" method="get" role="search">
+      <label class="sr-only" for="header-search">搜索文章和新闻</label>
+      <input id="header-search" type="search" name="q" placeholder="搜索文章 / 新闻" aria-label="搜索文章和新闻">
+      <button type="submit">搜索</button>
+    </form>
   </div>
-  <nav class="nav">
-    {{ $current := . }}
-    {{ range site.Menus.main }}
-      {{ $active := or ($current.IsMenuCurrent "main" .) ($current.HasMenuCurrent "main" .) (eq $current.RelPermalink .URL) }}
-      <a class='nav-link{{ if $active }} active{{ end }}' href='{{ .URL }}'>{{ .Name }}</a>
-    {{ end }}
-  </nav>
 </header>

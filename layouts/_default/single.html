@@ -1,81 +1,29 @@
 {{ define "main" }}
-<article class="post-layout">
-  <section class="post-main">
-    <div class="post-hero"{{ with .Params.style.background }} style="--post-accent: {{ . }};"{{ end }}>
-      <div class="pill-row">{{ range .Params.categories }}<a class="pill subtle" href='{{ printf "/categories/%s/" (. | urlize) | relURL }}'>#{{ . }}</a>{{ end }}</div>
-      <h1>{{ .Title }}</h1>
-      {{ with .Description }}<p class="post-description">{{ . }}</p>{{ end }}
-      <div class="meta-line"><span>{{ .Date.Format "2006.01.02" }}</span>{{ with .Params.author }}<span>· {{ . }}</span>{{ end }}{{ with .Params.license }}<span>· {{ . }}</span>{{ end }}</div>
-    </div>
+  <main class="article-page">
+    <div class="shell article-shell">
+      <article class="article-main">
+        <header class="article-hero">
+          <div class="archive-chip-row">
+            {{ with .Params.categories }}<span class="chip chip--filled">#{{ index . 0 }}</span>{{ end }}
+            <span class="chip">{{ cond (eq .Section "news") "新闻" (cond (eq .Section "figures") "女性人物" "文章") }}</span>
+          </div>
+          <h1>{{ .Title }}</h1>
+          {{ with .Description }}<p class="article-hero__desc">{{ . }}</p>{{ end }}
+          <div class="article-hero__meta">
+            <span>{{ .Date.Format "2006.01.02" }}</span>
+            <span>{{ .Params.author | default site.Params.author.name | default "编辑部" }}</span>
+            <span>{{ .Params.license | default "该作品版权归原作者所有。" }}</span>
+          </div>
+        </header>
 
-    <div class="post-body prose">{{ .Content }}</div>
-
-    {{ if .Params.comments }}
-    <section class="comments-panel panel">
-      <div class="comments-head">
-        <div>
-          <div class="eyebrow">评论区</div>
-          <h2>留言与补充</h2>
-          <p>欢迎补充资料、纠错或继续讨论。</p>
+        <div class="article-content prose">
+          {{ .Content }}
         </div>
-      </div>
-      <div id="waline"></div>
-    </section>
-    {{ end }}
-  </section>
 
-  <aside class="post-sidebar">
-    <div class="sidebar-card">
-      <h3>文章信息</h3>
-      <dl class="meta-list">
-        <div><dt>发布时间</dt><dd>{{ .Date.Format "2006-01-02" }}</dd></div>
-        {{ with .Params.author }}<div><dt>作者</dt><dd>{{ . }}</dd></div>{{ end }}
-        {{ with .Params.categories }}<div><dt>分类</dt><dd>{{ delimit . " / " }}</dd></div>{{ end }}
-        {{ with .Params.tags }}<div><dt>标签</dt><dd>{{ delimit . " / " }}</dd></div>{{ end }}
-      </dl>
+        {{ partial "waline.html" . }}
+      </article>
+
+      {{ partial "sidebar-meta.html" . }}
     </div>
-
-    {{ with .Params.tags }}
-    <div class="sidebar-card">
-      <h3>相关文章</h3>
-      <div class="related-links">
-        {{ $page := $ }}
-        {{ range first 8 (where (where site.RegularPages "Section" "posts") "RelPermalink" "ne" $page.RelPermalink) }}
-          {{ if intersect .Params.tags $page.Params.tags }}<a href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}
-        {{ end }}
-      </div>
-    </div>
-    {{ end }}
-  </aside>
-</article>
-{{ end }}
-
-{{ define "pageScript" }}
-  {{ if .Params.comments }}
-  <script type="module">
-    import { init } from 'https://unpkg.com/@waline/client@v3/dist/waline.js';
-
-    init({
-      el: '#waline',
-      serverURL: 'https://waline-g4cngilya-baimu7777s-projects.vercel.app/',
-      lang: 'zh-CN',
-      path: '{{ .RelPermalink }}',
-      pageview: true,
-      comment: true,
-      locale: {
-        placeholder: '写下你的补充、勘误或想法……',
-        sofa: '还没有评论，来做第一个留言的人。',
-        submit: '发布评论',
-        comment: '评论',
-        refresh: '刷新',
-        more: '加载更多',
-        login: '登录',
-        nick: '昵称',
-        mail: '邮箱',
-        link: '网址',
-        optional: '可选'
-      }
-    });
-  </script>
-  {{ end }}
+  </main>
 {{ end }}

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>归档 on 女阅组文库 / Feminist Archive</title>
+    <link>http://localhost:1313/tags/%E5%BD%92%E6%A1%A3/</link>
+    <description>Recent content in 归档 on 女阅组文库 / Feminist Archive</description>
+    <generator>Hugo</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Mon, 09 Mar 2026 10:30:00 +0800</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/%E5%BD%92%E6%A1%A3/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>为什么要保存这些讨论</title>
+      <link>http://localhost:1313/posts/why-preserve-discussions/</link>
+      <pubDate>Mon, 09 Mar 2026 10:30:00 +0800</pubDate>
+      <guid>http://localhost:1313/posts/why-preserve-discussions/</guid>
+      <description>&lt;p&gt;平台经常把女性讨论压缩成“热闹一下就过去”的碎片。删帖、限流、外链失效、站点改版，都会让原本有价值的讨论被冲散。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>备份、转载与索引：三种收录方式最好分开写</title>
+      <link>http://localhost:1313/posts/archive-methods/</link>
+      <pubDate>Sun, 08 Mar 2026 09:00:00 +0800</pubDate>
+      <guid>http://localhost:1313/posts/archive-methods/</guid>
+      <description>&lt;p&gt;“收录”这个词很方便，但太宽。为了长期维护，最好把不同情况拆开：&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
