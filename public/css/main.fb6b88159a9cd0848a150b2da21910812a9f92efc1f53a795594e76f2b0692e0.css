@@ -886,34 +886,10 @@ a {
   white-space: nowrap;
   backdrop-filter: blur(2px);
   box-shadow: none;
-  transition:
-    color 0.22s ease,
-    background 0.22s ease,
-    border-color 0.22s ease;
 }
 
 .term-card.is-empty .term-card__count {
   color: #6f8872;
-}
-
-.term-card--decorative:hover .term-card__title {
-  color: #f7fbf7;
-}
-
-.term-card--decorative:hover .term-card__meta {
-  color: rgba(241, 247, 241, 0.88);
-}
-
-.term-card--decorative:hover .term-card__count {
-  border-color: rgba(246, 250, 246, 0.24);
-  background: rgba(245, 249, 245, 0.16);
-  color: #f7fbf7;
-}
-
-.term-card--decorative:focus-visible {
-  outline: none;
-  border-color: rgba(108, 141, 115, 0.58);
-  box-shadow: 0 0 0 3px rgba(108, 141, 115, 0.14);
 }
 
 .term-card__meta {
@@ -921,7 +897,6 @@ a {
   color: #6f8371;
   font-size: 0.92rem;
   line-height: 1.75;
-  transition: color 0.22s ease;
 }
 
 .term-card__list {

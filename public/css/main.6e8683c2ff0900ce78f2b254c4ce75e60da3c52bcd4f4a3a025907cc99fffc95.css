@@ -745,9 +745,9 @@ a {
 
 .term-card--decorative:hover {
   transform: translateY(-2px);
-  border-color: rgba(108, 141, 115, 0.5);
-  box-shadow: 0 18px 36px rgba(77, 103, 84, 0.16);
-  background: linear-gradient(180deg, #97ac9c 0%, #85a08b 100%);
+  border-color: #bfd3be;
+  box-shadow: 0 18px 34px rgba(114, 144, 117, 0.14);
+  background: linear-gradient(180deg, #e8f2e7 0%, #dce9db 100%);
 }
 
 .term-card--decorative::before,
@@ -756,7 +756,6 @@ a {
   position: absolute;
   pointer-events: none;
   z-index: 0;
-  transition: opacity 0.22s ease;
 }
 
 .term-card--decorative::before {
@@ -774,14 +773,6 @@ a {
   height: 72px;
   opacity: 0.2;
   border-radius: 50%;
-}
-
-.term-card--decorative:hover::before {
-  opacity: 0.3;
-}
-
-.term-card--decorative:hover::after {
-  opacity: 0.16;
 }
 
 .term-card--social::before {
@@ -867,7 +858,6 @@ a {
   line-height: 1.16;
   letter-spacing: -0.03em;
   font-weight: 800;
-  transition: color 0.22s ease;
 }
 
 .term-card__count {
@@ -886,34 +876,10 @@ a {
   white-space: nowrap;
   backdrop-filter: blur(2px);
   box-shadow: none;
-  transition:
-    color 0.22s ease,
-    background 0.22s ease,
-    border-color 0.22s ease;
 }
 
 .term-card.is-empty .term-card__count {
   color: #6f8872;
-}
-
-.term-card--decorative:hover .term-card__title {
-  color: #f7fbf7;
-}
-
-.term-card--decorative:hover .term-card__meta {
-  color: rgba(241, 247, 241, 0.88);
-}
-
-.term-card--decorative:hover .term-card__count {
-  border-color: rgba(246, 250, 246, 0.24);
-  background: rgba(245, 249, 245, 0.16);
-  color: #f7fbf7;
-}
-
-.term-card--decorative:focus-visible {
-  outline: none;
-  border-color: rgba(108, 141, 115, 0.58);
-  box-shadow: 0 0 0 3px rgba(108, 141, 115, 0.14);
 }
 
 .term-card__meta {
@@ -921,7 +887,6 @@ a {
   color: #6f8371;
   font-size: 0.92rem;
   line-height: 1.75;
-  transition: color 0.22s ease;
 }
 
 .term-card__list {

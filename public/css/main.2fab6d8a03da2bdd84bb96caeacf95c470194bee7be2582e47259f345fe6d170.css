@@ -732,22 +732,18 @@ a {
   overflow: hidden;
   min-height: 172px;
   padding: 24px 24px 22px;
-  border: 1px solid #d7e4d6;
+  border: 1px solid rgba(114, 147, 121, 0.42);
   border-radius: 28px;
-  background: linear-gradient(180deg, #f6faf5 0%, #edf5ec 100%);
-  box-shadow: 0 14px 30px rgba(114, 144, 117, 0.08);
-  transition:
-    transform 0.22s ease,
-    box-shadow 0.22s ease,
-    border-color 0.22s ease,
-    background 0.22s ease;
+  background: linear-gradient(180deg, #7da184 0%, #6c8f73 100%);
+  box-shadow: 0 16px 34px rgba(77, 103, 84, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
 }
 
 .term-card--decorative:hover {
   transform: translateY(-2px);
-  border-color: rgba(108, 141, 115, 0.5);
-  box-shadow: 0 18px 36px rgba(77, 103, 84, 0.16);
-  background: linear-gradient(180deg, #97ac9c 0%, #85a08b 100%);
+  border-color: rgba(132, 164, 138, 0.52);
+  box-shadow: 0 20px 38px rgba(77, 103, 84, 0.16);
+  background: linear-gradient(180deg, #86a88c 0%, #73967a 100%);
 }
 
 .term-card--decorative::before,
@@ -756,7 +752,6 @@ a {
   position: absolute;
   pointer-events: none;
   z-index: 0;
-  transition: opacity 0.22s ease;
 }
 
 .term-card--decorative::before {
@@ -764,7 +759,7 @@ a {
   bottom: -18px;
   width: 180px;
   height: 180px;
-  opacity: 0.38;
+  opacity: 0.3;
 }
 
 .term-card--decorative::after {
@@ -772,16 +767,8 @@ a {
   top: 18px;
   width: 72px;
   height: 72px;
-  opacity: 0.2;
+  opacity: 0.18;
   border-radius: 50%;
-}
-
-.term-card--decorative:hover::before {
-  opacity: 0.3;
-}
-
-.term-card--decorative:hover::after {
-  opacity: 0.16;
 }
 
 .term-card--social::before {
@@ -862,12 +849,11 @@ a {
 
 .term-card__title {
   margin: 0;
-  color: #27402e;
+  color: #f7fbf7;
   font-size: clamp(1.62rem, 2.1vw, 1.96rem);
   line-height: 1.16;
   letter-spacing: -0.03em;
   font-weight: 800;
-  transition: color 0.22s ease;
 }
 
 .term-card__count {
@@ -877,51 +863,26 @@ a {
   min-width: 72px;
   min-height: 38px;
   padding: 0 14px;
-  border: 1px solid rgba(122, 155, 126, 0.2);
+  border: 1px solid rgba(246, 250, 246, 0.24);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.52);
-  color: #557d5c;
+  background: rgba(245, 249, 245, 0.16);
+  color: #f7fbf7;
   font-size: 0.96rem;
   font-weight: 800;
   white-space: nowrap;
   backdrop-filter: blur(2px);
   box-shadow: none;
-  transition:
-    color 0.22s ease,
-    background 0.22s ease,
-    border-color 0.22s ease;
 }
 
 .term-card.is-empty .term-card__count {
-  color: #6f8872;
-}
-
-.term-card--decorative:hover .term-card__title {
-  color: #f7fbf7;
-}
-
-.term-card--decorative:hover .term-card__meta {
-  color: rgba(241, 247, 241, 0.88);
-}
-
-.term-card--decorative:hover .term-card__count {
-  border-color: rgba(246, 250, 246, 0.24);
-  background: rgba(245, 249, 245, 0.16);
-  color: #f7fbf7;
-}
-
-.term-card--decorative:focus-visible {
-  outline: none;
-  border-color: rgba(108, 141, 115, 0.58);
-  box-shadow: 0 0 0 3px rgba(108, 141, 115, 0.14);
+  color: rgba(247, 251, 247, 0.82);
 }
 
 .term-card__meta {
   margin: 12px 0 0;
-  color: #6f8371;
+  color: rgba(241, 247, 241, 0.86);
   font-size: 0.92rem;
   line-height: 1.75;
-  transition: color 0.22s ease;
 }
 
 .term-card__list {
@@ -1299,4 +1260,4 @@ a {
     padding: 0 12px;
     font-size: 0.9rem;
   }
-}f
+}

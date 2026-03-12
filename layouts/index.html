@@ -3,7 +3,6 @@
   {{ $newsPages := first 4 (sort (where .Site.RegularPages "Section" "eq" "news") "Date" "desc") }}
   {{ $figurePages := first 1 (sort (where .Site.RegularPages "Section" "eq" "figures") "Date" "desc") }}
   {{ $figureSection := .Site.GetPage "section" "figures" }}
-  {{ $homeTopics := .Site.Params.homeTopics | default (slice "社会议题" "个人成长" "女权输出" "资料归档" "站务") }}
 
   <main class="home-page">
     <div class="shell home-shell">
@@ -13,21 +12,6 @@
 
       <section class="home-grid">
         <div class="home-main">
-          <section class="section-card home-intro">
-            <div class="home-intro__top">
-              <div class="home-topic-tags">
-                {{ range $homeTopics }}
-                  <a class="topic-chip" href="{{ printf "/categories/%s/" (. | urlize) | relLangURL }}">{{ . }}</a>
-                {{ end }}
-              </div>
-
-              <div class="home-actions">
-                <a class="action-pill action-pill--solid" href="{{ "/posts/" | relLangURL }}">阅读全部</a>
-                <a class="action-pill" href="{{ .Site.Params.submitURL | default "/posts/submission-guidelines/" | relLangURL }}">前往投稿</a>
-              </div>
-            </div>
-          </section>
-
           <section class="section-card section-card--latest">
             <div class="section-heading">
               <span class="section-heading__kicker">LATEST</span>
@@ -60,6 +44,11 @@
                   <p class="entry-card__summary">你把文章放进 content/posts 后，这里会自动抓取最新内容。</p>
                 </article>
               {{ end }}
+            </div>
+
+            <div class="latest-actions home-actions">
+              <a class="action-pill action-pill--solid" href="{{ "/posts/" | relLangURL }}">阅读全部</a>
+              <a class="action-pill" href="{{ .Site.Params.submitURL | default "/posts/submission-guidelines/" | relLangURL }}">前往投稿</a>
             </div>
           </section>
         </div>

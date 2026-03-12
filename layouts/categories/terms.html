@@ -1,37 +1,38 @@
 {{ define "main" }}
+  {{ $categoryNames := slice "社会议题" "个人成长" "女权输出" "资料归档" "站务" }}
+  {{ $categoryStyles := dict 
+    "社会议题" "social"
+    "个人成长" "growth"
+    "女权输出" "voice"
+    "资料归档" "archive"
+    "站务" "site"
+  }}
+  {{ $postPages := where .Site.RegularPages "Section" "eq" "posts" }}
+
   <main class="terms-page">
     <div class="shell archive-shell">
-      <section class="archive-panel">
-        <div class="archive-heading">
-          <span class="archive-heading__kicker">CATEGORIES</span>
-          <h1 class="archive-heading__title">{{ .Title }}</h1>
-          <p class="archive-heading__desc">{{ with .Description }}{{ . }}{{ else }}按主题进入文库，而不是只按时间倒序翻页。{{ end }}</p>
-          {{ with .Content }}<div class="archive-heading__body">{{ . }}</div>{{ end }}
-        </div>
-
-        <div class="term-grid">
-          {{ range .Data.Terms.Alphabetical }}
-            <article class="term-card">
-              <div class="term-card__head">
-                <h2 class="term-card__title"><a href="{{ .Page.RelPermalink }}">{{ .Page.Title }}</a></h2>
-                <span class="term-card__count">{{ .Count }} 篇</span>
-              </div>
-              <div class="term-card__list">
-                {{ range first 3 .Page.Pages.ByDate.Reverse }}
-                  <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-                {{ end }}
-              </div>
-            </article>
-          {{ else }}
-            <article class="term-card">
-              <div class="term-card__head">
-                <h2 class="term-card__title">这里还没有分类</h2>
-                <span class="term-card__count">0 篇</span>
-              </div>
-              <div class="term-card__list">
-                <span>等你给文章加上 categories 后会自动出现。</span>
-              </div>
-            </article>
+      <section class="archive-panel archive-panel--terms">
+        <div class="term-grid term-grid--decorative">
+          {{ range $categoryNames }}
+            {{ $name := . }}
+            {{ $style := index $categoryStyles $name }}
+            {{ $matched := where $postPages "Params.categories" "intersect" (slice $name) }}
+            {{ $count := len $matched }}
+            {{ if gt $count 0 }}
+              <a class="term-card term-card--decorative term-card--{{ $style }}" href="{{ printf "/categories/%s/" ($name | urlize) | relLangURL }}">
+                <div class="term-card__head">
+                  <h2 class="term-card__title">{{ $name }}</h2>
+                  <span class="term-card__count">{{ $count }} 篇</span>
+                </div>
+              </a>
+            {{ else }}
+              <article class="term-card term-card--decorative term-card--{{ $style }} is-empty">
+                <div class="term-card__head">
+                  <h2 class="term-card__title">{{ $name }}</h2>
+                  <span class="term-card__count">0 篇</span>
+                </div>
+              </article>
+            {{ end }}
           {{ end }}
         </div>
       </section>

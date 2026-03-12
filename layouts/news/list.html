@@ -5,12 +5,6 @@
   <main class="archive-page archive-page--news">
     <div class="shell archive-shell">
       <section class="archive-panel">
-        <div class="archive-heading">
-          <span class="archive-heading__kicker">NEWS</span>
-          <h1 class="archive-heading__title">{{ .Title }}</h1>
-          <p class="archive-heading__desc">{{ with .Description }}{{ . }}{{ else }}按时间整理女性议题相关新闻、摘录与延伸阅读。{{ end }}</p>
-        </div>
-
         <div class="news-list">
           {{ range $paginator.Pages }}
             <article class="news-row">

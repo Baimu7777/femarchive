@@ -1,15 +1,16 @@
 {{ define "main" }}
-  {{ $pages := sort .Pages "Date" "desc" }}
+  {{ $pages := .Pages }}
+  {{ if eq (.Data.Singular | default "") "category" }}
+    {{ $pages = where .Pages "Section" "eq" "posts" }}
+  {{ end }}
+  {{ $pages = sort $pages "Date" "desc" }}
   {{ $paginator := .Paginate $pages }}
-  {{ $taxonomyLabel := upper (.Data.Singular | default "taxonomy") }}
 
   <main class="archive-page">
     <div class="shell archive-shell">
       <section class="archive-panel">
-        <div class="archive-heading">
-          <span class="archive-heading__kicker">{{ $taxonomyLabel }}</span>
+        <div class="archive-heading archive-heading--simple">
           <h1 class="archive-heading__title">{{ .Title }}</h1>
-          <p class="archive-heading__desc">当前聚合页共收录 {{ len .Pages }} 篇内容。</p>
         </div>
 
         <section class="list-filter">

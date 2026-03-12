@@ -5,12 +5,6 @@
   <main class="archive-page">
     <div class="shell archive-shell">
       <section class="archive-panel">
-        <div class="archive-heading">
-          <span class="archive-heading__kicker">ALL ARTICLES</span>
-          <h1 class="archive-heading__title">{{ .Title }}</h1>
-          <p class="archive-heading__desc">{{ with .Description }}{{ . }}{{ else }}按时间浏览原创长文、讨论整理、资料归档与转载文章。{{ end }}</p>
-        </div>
-
         <section class="list-filter">
           <form class="local-filter" data-local-filter data-target="#postsGrid" data-empty="#postsEmpty">
             <label class="sr-only" for="post-filter-input">搜索文章</label>
