@@ -11,9 +11,6 @@ tags:
   - "身体健康"
   - "经期"
   - "整理"
-related:
-  - "/posts/why-preserve-discussions/"
-  - "/posts/new-reader-entry/"
 license: "该作品版权归原作者所有。"
 ---
 

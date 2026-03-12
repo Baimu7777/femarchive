@@ -5,6 +5,12 @@ date: 2026-03-07T15:10:00+08:00
 draft: false
 comments: true
 author: "新闻组"
+categories:
+  - "女权输出"
+tags:
+  - "出版"
+  - "读书"
+  - "新闻"
 original_url: "https://example.com/original-book-news"
 license: "该作品版权归原作者所有。"
 ---

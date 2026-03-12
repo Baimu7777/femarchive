@@ -1,88 +1,45 @@
-{{ $author := .Params.author | default site.Params.author.name | default "编辑部" }}
-{{ $relatedPages := slice }}
-{{ with .Params.related }}
-  {{ range . }}
-    {{ with $.Site.GetPage . }}
-      {{ if ne .RelPermalink $.RelPermalink }}
-        {{ $relatedPages = $relatedPages | append . }}
-      {{ end }}
-    {{ end }}
-  {{ end }}
-{{ end }}
-
-<aside class="sidebar-stack">
+<aside class="page-sidebar">
   <section class="sidebar-card">
-    <h2 class="sidebar-card__title">文章信息</h2>
-
-    <div class="sidebar-meta">
-      <div class="sidebar-meta__row">
-        <span class="sidebar-meta__label">发布时间</span>
-        <div class="sidebar-meta__value">{{ .Date.Format "2006-01-02" }}</div>
+    <h2>文章信息</h2>
+    <dl class="meta-list">
+      <div>
+        <dt>发布时间</dt>
+        <dd>{{ .Date.Format "2006-01-02" }}</dd>
       </div>
-
-      {{ with $author }}
-        <div class="sidebar-meta__row">
-          <span class="sidebar-meta__label">作者</span>
-          <div class="sidebar-meta__value">{{ . }}</div>
-        </div>
-      {{ end }}
-
-      {{ with .Params.categories }}
-        <div class="sidebar-meta__row">
-          <span class="sidebar-meta__label">分类</span>
-          <div class="sidebar-meta__value sidebar-meta__value--chips">
-            {{ range . }}<span class="chip chip--category">{{ . }}</span>{{ end }}
-          </div>
-        </div>
-      {{ end }}
-
-      {{ with .Params.tags }}
-        <div class="sidebar-meta__row">
-          <span class="sidebar-meta__label">标签</span>
-          <div class="sidebar-meta__value sidebar-meta__value--chips">
-            {{ range . }}<span class="chip chip--tag">#{{ . }}</span>{{ end }}
-          </div>
-        </div>
-      {{ end }}
-
+      <div>
+        <dt>作者</dt>
+        <dd>{{ .Params.author | default site.Params.author.name }}</dd>
+      </div>
+      <div>
+        <dt>分类</dt>
+        <dd>{{ with .Params.categories }}{{ delimit . " / " }}{{ else }}未分类{{ end }}</dd>
+      </div>
+      <div>
+        <dt>标签</dt>
+        <dd>{{ with .Params.tags }}{{ delimit . " / " }}{{ else }}无{{ end }}</dd>
+      </div>
       {{ with .Params.original_url }}
-        <div class="sidebar-meta__row">
-          <span class="sidebar-meta__label">原文链接</span>
-          <div class="sidebar-meta__value">
-            <a href="{{ . }}" target="_blank" rel="noreferrer">查看原始来源</a>
-          </div>
+        <div>
+          <dt>原文链接</dt>
+          <dd><a href="{{ . }}" target="_blank" rel="noreferrer">查看原始来源</a></dd>
         </div>
       {{ end }}
-
-      {{ with .Params.license }}
-        <div class="sidebar-meta__row">
-          <span class="sidebar-meta__label">版权说明</span>
-          <div class="sidebar-meta__value">{{ . }}</div>
-        </div>
-      {{ end }}
-    </div>
+      <div>
+        <dt>版权说明</dt>
+        <dd>{{ .Params.license | default "该作品版权归原作者所有。" }}</dd>
+      </div>
+    </dl>
   </section>
 
-  {{ if gt (len $relatedPages) 0 }}
+  {{ $related := first 4 (.Site.RegularPages.Related .) }}
+  {{ if $related }}
     <section class="sidebar-card">
-      <h2 class="sidebar-card__title">相关文章</h2>
-      <div class="related-list">
-        {{ range $relatedPages }}
-          {{ $categories := .Params.categories | default (slice) }}
-          {{ $tags := .Params.tags | default (slice) }}
-          <a class="related-item" href="{{ .RelPermalink }}">
-            <div class="related-item__meta">
-              <span class="related-item__date">{{ .Date.Format "2006.01.02" }}</span>
-              {{ if or (gt (len $categories) 0) (gt (len $tags) 0) }}
-                <div class="related-item__chips">
-                  {{ range first 1 $categories }}<span class="chip chip--category">{{ . }}</span>{{ end }}
-                  {{ range first 2 $tags }}<span class="chip chip--tag">#{{ . }}</span>{{ end }}
-                </div>
-              {{ end }}
-            </div>
-            <h3 class="related-item__title">{{ .Title }}</h3>
-            <p class="related-item__summary">{{ with .Description }}{{ . | plainify | truncate 84 }}{{ else }}{{ .Summary | plainify | truncate 84 }}{{ end }}</p>
-          </a>
+      <h2>相关文章</h2>
+      <div class="sidebar-links">
+        {{ range $related }}
+          {{ if ne .RelPermalink $.RelPermalink }}
+            <a class="sidebar-link" href="{{ .RelPermalink }}">{{ .Title }}</a>
+          {{ end }}
         {{ end }}
       </div>
     </section>

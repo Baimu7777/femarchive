@@ -5,6 +5,12 @@ date: 2026-03-05T21:30:00+08:00
 draft: false
 comments: true
 author: "新闻组"
+categories:
+  - "社会议题"
+tags:
+  - "安全"
+  - "调查"
+  - "新闻"
 original_url: "https://example.com/original-safety-news"
 license: "该作品版权归原作者所有。"
 ---
