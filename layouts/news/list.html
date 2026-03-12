@@ -4,19 +4,26 @@
 
   <main class="archive-page archive-page--news">
     <div class="shell archive-shell">
-      <section class="archive-panel">
-        <div class="news-list">
+      <section class="archive-panel archive-panel--news">
+        <div class="news-list news-list--timeline">
           {{ range $paginator.Pages }}
-            <article class="news-row">
+            {{ $categories := .Params.categories | default (slice) }}
+            {{ $tags := .Params.tags | default (slice) }}
+            <article class="news-row news-row--timeline">
               <div class="news-row__date">
                 <span>{{ .Date.Format "2006" }}</span>
                 <strong>{{ .Date.Format "01.02" }}</strong>
               </div>
+              <div class="news-row__timeline" aria-hidden="true">
+                <span class="news-row__dot"></span>
+              </div>
               <div class="news-row__content">
-                <div class="archive-chip-row">
-                  {{ range first 2 (.Params.categories | default (slice)) }}<span class="chip chip--filled">#{{ . }}</span>{{ end }}
-                  <span class="chip">新闻</span>
-                </div>
+                {{ if or (gt (len $categories) 0) (gt (len $tags) 0) }}
+                  <div class="archive-chip-row">
+                    {{ range first 2 $categories }}<span class="chip chip--category">{{ . }}</span>{{ end }}
+                    {{ range first 3 $tags }}<span class="chip chip--tag">#{{ . }}</span>{{ end }}
+                  </div>
+                {{ end }}
                 <h2 class="news-row__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
                 <p class="news-row__summary">{{ with .Description }}{{ . | plainify | truncate 110 }}{{ else }}{{ .Summary | plainify | truncate 110 }}{{ end }}</p>
                 <div class="news-row__meta">
@@ -26,8 +33,11 @@
               </div>
             </article>
           {{ else }}
-            <article class="news-row">
+            <article class="news-row news-row--timeline">
               <div class="news-row__date"><span>2026</span><strong>03.10</strong></div>
+              <div class="news-row__timeline" aria-hidden="true">
+                <span class="news-row__dot"></span>
+              </div>
               <div class="news-row__content">
                 <h2 class="news-row__title">这里暂时还没有新闻</h2>
                 <p class="news-row__summary">把新闻内容放进 content/news 后，这里会自动显示。</p>

@@ -5,12 +5,6 @@ date: 2026-03-09T08:40:00+08:00
 draft: false
 comments: true
 author: "新闻组"
-categories:
-  - "社会议题"
-tags:
-  - "劳动"
-  - "照护"
-  - "新闻"
 original_url: "https://example.com/original-labor-news"
 license: "该作品版权归原作者所有。"
 ---
