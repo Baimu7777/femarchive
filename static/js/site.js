@@ -1,5 +1,7 @@
 (() => {
-  const isHomePage = document.documentElement.classList.contains('body-home') || document.body?.classList.contains('body-home');
+  const isHomePage =
+    document.documentElement.classList.contains('body-home') ||
+    document.body?.classList.contains('body-home');
 
   const forceScrollTop = () => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
@@ -20,8 +22,7 @@
       // ignore
     }
 
-    // 首页 slogan 每次重新进入都应从最顶端开始显示，
-    // 不让浏览器把上一次的滚动位置恢复回来直接跳过它。
+    // 首页每次重新进入都从最顶端开始，先正常显示 slogan。
     forceScrollTop();
     window.addEventListener('pageshow', forceScrollTop, { once: true });
   }
@@ -65,86 +66,69 @@
 
     if (homeHero && homeContent) {
       let heroDismissed = false;
-      let touchStartY = null;
 
-      const getSpacerHeight = () => {
-        const marginTop = parseFloat(window.getComputedStyle(homeContent).marginTop || '0');
-        return Number.isFinite(marginTop) ? marginTop : window.innerHeight;
+      const fadeDistanceRatio = 0.72;
+      const maxLift = 96;
+
+      const getScrollY = () =>
+        window.scrollY ||
+        window.pageYOffset ||
+        document.documentElement.scrollTop ||
+        0;
+
+      const measureDismissOffset = () => {
+        const currentScrollY = getScrollY();
+        const contentTop = homeContent.getBoundingClientRect().top + currentScrollY;
+        return Math.max(
+          Math.round(contentTop),
+          Math.round(window.innerHeight || document.documentElement.clientHeight || 0),
+          1,
+        );
       };
 
-      const removeHeroListeners = () => {
-        window.removeEventListener('scroll', handleScrollFallback, passiveOptions);
-        window.removeEventListener('wheel', handleWheel, passiveOptions);
-        window.removeEventListener('touchstart', handleTouchStart, passiveOptions);
-        window.removeEventListener('touchmove', handleTouchMove, passiveOptions);
-        window.removeEventListener('keydown', handleKeyDown);
-      };
-
-      const dismissHero = () => {
+      const syncHeroWithScroll = () => {
         if (heroDismissed) return;
-        heroDismissed = true;
 
-        const currentScrollY = window.scrollY || window.pageYOffset || 0;
-        const spacerHeight = getSpacerHeight();
+        const scrollY = getScrollY();
+        const dismissOffset = measureDismissOffset();
+        const fadeDistance = Math.max(dismissOffset * fadeDistanceRatio, 1);
+        const progress = Math.min(Math.max(scrollY / fadeDistance, 0), 1);
 
-        document.body.classList.add('home-hero-dismissed');
-        homeHero.classList.add('is-dismissed');
-        homeHero.style.opacity = '0';
-        homeHero.style.transform = 'translate3d(0, -120px, 0)';
+        homeHero.style.opacity = String(1 - progress);
+        homeHero.style.transform = `translate3d(0, ${(-maxLift * progress).toFixed(2)}px, 0)`;
 
-        removeHeroListeners();
+        if (progress >= 0.999) {
+          homeHero.classList.add('is-faded');
+          homeHero.setAttribute('aria-hidden', 'true');
+        } else {
+          homeHero.classList.remove('is-faded');
+          homeHero.removeAttribute('aria-hidden');
+        }
 
-        const nextScrollY = Math.max(currentScrollY - spacerHeight, 0);
-        window.scrollTo({ top: nextScrollY, left: 0, behavior: 'auto' });
-        requestAnimationFrame(() => {
-          window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-        });
-      };
+        if (scrollY >= dismissOffset - 2) {
+          heroDismissed = true;
+          document.body.classList.add('home-hero-dismissed');
+          homeHero.classList.add('is-faded');
+          homeHero.setAttribute('aria-hidden', 'true');
 
-      const handleScrollFallback = () => {
-        // 兜底：处理拖动滚动条等情况。
-        const scrollY = window.scrollY || window.pageYOffset || 0;
-        if (scrollY > 20) {
-          dismissHero();
+          const targetScrollTop = Math.max(Math.round(scrollY - dismissOffset), 0);
+          requestAnimationFrame(() => {
+            window.scrollTo({ top: targetScrollTop, left: 0, behavior: 'auto' });
+          });
         }
       };
 
-      const handleWheel = (event) => {
-        if (event.deltaY > 6) {
-          dismissHero();
-        }
+      const handleResize = () => {
+        if (heroDismissed) return;
+        syncHeroWithScroll();
       };
 
-      const handleTouchStart = (event) => {
-        touchStartY = event.touches?.[0]?.clientY ?? null;
-      };
-
-      const handleTouchMove = (event) => {
-        if (touchStartY === null) return;
-        const currentY = event.touches?.[0]?.clientY ?? touchStartY;
-        if (touchStartY - currentY > 10) {
-          dismissHero();
-        }
-      };
-
-      const handleKeyDown = (event) => {
-        const triggerKeys = ['ArrowDown', 'PageDown', ' ', 'Spacebar'];
-        if (triggerKeys.includes(event.key)) {
-          dismissHero();
-        }
-      };
-
-      const passiveOptions = { passive: true };
-
-      // 初始化时强制回到最顶端，让 slogan 先出现；
-      // 不再像之前那样一进页面就根据已有 scrollY 立即收起。
+      // 确保加载时先显示 slogan，而不是立刻被滚动恢复带走。
       forceScrollTop();
+      syncHeroWithScroll();
 
-      window.addEventListener('scroll', handleScrollFallback, passiveOptions);
-      window.addEventListener('wheel', handleWheel, passiveOptions);
-      window.addEventListener('touchstart', handleTouchStart, passiveOptions);
-      window.addEventListener('touchmove', handleTouchMove, passiveOptions);
-      window.addEventListener('keydown', handleKeyDown);
+      window.addEventListener('scroll', syncHeroWithScroll, { passive: true });
+      window.addEventListener('resize', handleResize, { passive: true });
     }
   });
 })();
