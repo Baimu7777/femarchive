@@ -3,114 +3,128 @@
   {{ $newsPages := first 4 (sort (where .Site.RegularPages "Section" "eq" "news") "Date" "desc") }}
   {{ $figurePages := first 1 (sort (where .Site.RegularPages "Section" "eq" "figures") "Date" "desc") }}
   {{ $figureSection := .Site.GetPage "section" "figures" }}
+  {{ $mottoRaw := .Site.Params.motto | default "我们的身体共振于同一个潮汐，我们的斗争永不止息。" }}
+  {{ $mottoClean := replace $mottoRaw "。" "" }}
+  {{ $mottoLines := split $mottoClean "，" }}
 
-  <main class="home-page">
-    <div class="shell home-shell">
-      <div class="home-motto" aria-label="文库宣言">
-        <p class="home-motto__text">{{ .Site.Params.motto | default "我们的身体共振于同一个潮汐，我们的斗争同样永不止息。" }}</p>
+  <div class="home-page">
+    <section class="home-hero" aria-label="文库宣言" data-home-hero>
+      <div class="home-hero__inner">
+        {{ if ge (len $mottoLines) 2 }}
+          <p class="home-hero__line">{{ index $mottoLines 0 }}</p>
+          <p class="home-hero__line">{{ index $mottoLines 1 }}</p>
+        {{ else }}
+          <p class="home-hero__line">{{ $mottoClean }}</p>
+        {{ end }}
       </div>
+    </section>
 
-      <section class="home-grid">
-        <div class="home-main">
-          <section class="section-card section-card--latest">
-            <div class="section-heading">
-              <span class="section-heading__kicker">LATEST</span>
-              <div class="section-heading__row">
-                <h2 class="section-heading__title">最近更新</h2>
-                <a class="section-heading__more" href="{{ "/posts/" | relLangURL }}">更多 →</a>
+    <div class="home-content" data-home-content>
+      {{ partial "header.html" . }}
+
+      <div class="shell home-shell">
+        <section class="home-grid">
+          <div class="home-main">
+            <section class="section-card section-card--latest">
+              <div class="section-heading">
+                <span class="section-heading__kicker">LATEST</span>
+                <div class="section-heading__row">
+                  <h2 class="section-heading__title">最近更新</h2>
+                  <a class="section-heading__more" href="{{ "/posts/" | relLangURL }}">更多 →</a>
+                </div>
               </div>
-            </div>
 
-            <div class="latest-grid">
-              {{ range $recentPages }}
-                <article class="entry-card">
-                  <div class="entry-card__meta">
-                    <span>{{ .Date.Format "2006.01.02" }}</span>
-                    <span>{{ .Params.author | default .Site.Params.author.name | default "编辑部" }}</span>
-                  </div>
-                  <h3 class="entry-card__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
-                  <p class="entry-card__summary">
-                    {{ with .Description }}{{ . | plainify | truncate 90 }}{{ else }}{{ .Summary | plainify | truncate 90 }}{{ end }}
-                  </p>
-                  {{ with .Params.categories }}
-                    <div class="entry-card__tags">
-                      {{ range first 2 . }}<span class="chip chip--category">{{ . }}</span>{{ end }}
+              <div class="latest-grid">
+                {{ range $recentPages }}
+                  <article class="entry-card">
+                    <div class="entry-card__meta">
+                      <span>{{ .Date.Format "2006.01.02" }}</span>
+                      <span>{{ .Params.author | default .Site.Params.author.name | default "编辑部" }}</span>
                     </div>
-                  {{ end }}
-                </article>
-              {{ else }}
-                <article class="entry-card entry-card--empty">
-                  <h3 class="entry-card__title">这里先放最近更新</h3>
-                  <p class="entry-card__summary">你把文章放进 content/posts 后，这里会自动抓取最新内容。</p>
-                </article>
-              {{ end }}
-            </div>
-
-            <div class="latest-actions home-actions">
-              <a class="action-pill action-pill--solid" href="{{ "/posts/" | relLangURL }}">阅读全部</a>
-              <a class="action-pill" href="{{ .Site.Params.submitURL | default "/posts/submission-guidelines/" | relLangURL }}">前往投稿</a>
-            </div>
-          </section>
-        </div>
-
-        <aside class="home-side">
-          <section class="section-card section-card--news">
-            <div class="section-heading section-heading--compact">
-              <span class="section-heading__kicker">NEWS</span>
-              <div class="section-heading__row">
-                <h2 class="section-heading__title">女性新闻</h2>
-                <a class="section-heading__more" href="{{ "/news/" | relLangURL }}">更多 →</a>
-              </div>
-            </div>
-
-            <div class="news-stack">
-              {{ range $newsPages }}
-                <article class="news-card news-card--stacked">
-                  <div class="news-card__date">{{ .Date.Format "01.02" }}</div>
-                  <div class="news-card__body">
-                    <h3 class="news-card__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
-                    <p class="news-card__summary">
-                      {{ with .Description }}{{ . | plainify | truncate 56 }}{{ else }}{{ .Summary | plainify | truncate 56 }}{{ end }}
+                    <h3 class="entry-card__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+                    <p class="entry-card__summary">
+                      {{ with .Description }}{{ . | plainify | truncate 90 }}{{ else }}{{ .Summary | plainify | truncate 90 }}{{ end }}
                     </p>
-                  </div>
+                    {{ with .Params.categories }}
+                      <div class="entry-card__tags">
+                        {{ range first 2 . }}<span class="chip chip--category">{{ . }}</span>{{ end }}
+                      </div>
+                    {{ end }}
+                  </article>
+                {{ else }}
+                  <article class="entry-card entry-card--empty">
+                    <h3 class="entry-card__title">这里先放最近更新</h3>
+                    <p class="entry-card__summary">你把文章放进 content/posts 后，这里会自动抓取最新内容。</p>
+                  </article>
+                {{ end }}
+              </div>
+
+              <div class="latest-actions home-actions">
+                <a class="action-pill action-pill--solid" href="{{ "/posts/" | relLangURL }}">阅读全部</a>
+                <a class="action-pill" href="{{ .Site.Params.submitURL | default "/posts/submission-guidelines/" | relLangURL }}">前往投稿</a>
+              </div>
+            </section>
+          </div>
+
+          <aside class="home-side">
+            <section class="section-card section-card--news">
+              <div class="section-heading section-heading--compact">
+                <span class="section-heading__kicker">NEWS</span>
+                <div class="section-heading__row">
+                  <h2 class="section-heading__title">女性新闻</h2>
+                  <a class="section-heading__more" href="{{ "/news/" | relLangURL }}">更多 →</a>
+                </div>
+              </div>
+
+              <div class="news-stack">
+                {{ range $newsPages }}
+                  <article class="news-card news-card--stacked">
+                    <div class="news-card__date">{{ .Date.Format "01.02" }}</div>
+                    <div class="news-card__body">
+                      <h3 class="news-card__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+                      <p class="news-card__summary">
+                        {{ with .Description }}{{ . | plainify | truncate 56 }}{{ else }}{{ .Summary | plainify | truncate 56 }}{{ end }}
+                      </p>
+                    </div>
+                  </article>
+                {{ else }}
+                  <article class="news-card news-card--stacked">
+                    <div class="news-card__date">03.09</div>
+                    <div class="news-card__body">
+                      <h3 class="news-card__title">女性新闻占位</h3>
+                      <p class="news-card__summary">这里显示标题和一行小字摘要，超出后自动省略。</p>
+                    </div>
+                  </article>
+                {{ end }}
+              </div>
+            </section>
+
+            <section class="section-card section-card--woman">
+              <div class="section-heading section-heading--compact">
+                <span class="section-heading__kicker">WOMAN OF THE WEEK</span>
+                <div class="section-heading__row">
+                  <h2 class="section-heading__title">每周女性人物</h2>
+                  <a class="section-heading__more" href="{{ with $figureSection }}{{ .RelPermalink }}{{ else }}{{ "/figures/" | relLangURL }}{{ end }}">更多 →</a>
+                </div>
+              </div>
+
+              {{ range $figurePages }}
+                <article class="woman-card">
+                  <h3 class="woman-card__name"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+                  <p class="woman-card__summary">
+                    {{ with .Description }}{{ . | plainify | truncate 96 }}{{ else }}{{ .Summary | plainify | truncate 96 }}{{ end }}
+                  </p>
                 </article>
               {{ else }}
-                <article class="news-card news-card--stacked">
-                  <div class="news-card__date">03.09</div>
-                  <div class="news-card__body">
-                    <h3 class="news-card__title">女性新闻占位</h3>
-                    <p class="news-card__summary">这里显示标题和一行小字摘要，超出后自动省略。</p>
-                  </div>
+                <article class="woman-card">
+                  <h3 class="woman-card__name">这里放每周女性人物</h3>
+                  <p class="woman-card__summary">把人物内容放进 content/figures 后，这里会自动显示最新一位。</p>
                 </article>
               {{ end }}
-            </div>
-          </section>
-
-          <section class="section-card section-card--woman">
-            <div class="section-heading section-heading--compact">
-              <span class="section-heading__kicker">WOMAN OF THE WEEK</span>
-              <div class="section-heading__row">
-                <h2 class="section-heading__title">每周女性人物</h2>
-                <a class="section-heading__more" href="{{ with $figureSection }}{{ .RelPermalink }}{{ else }}{{ "/figures/" | relLangURL }}{{ end }}">更多 →</a>
-              </div>
-            </div>
-
-            {{ range $figurePages }}
-              <article class="woman-card">
-                <h3 class="woman-card__name"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
-                <p class="woman-card__summary">
-                  {{ with .Description }}{{ . | plainify | truncate 96 }}{{ else }}{{ .Summary | plainify | truncate 96 }}{{ end }}
-                </p>
-              </article>
-            {{ else }}
-              <article class="woman-card">
-                <h3 class="woman-card__name">这里放每周女性人物</h3>
-                <p class="woman-card__summary">把人物内容放进 content/figures 后，这里会自动显示最新一位。</p>
-              </article>
-            {{ end }}
-          </section>
-        </aside>
-      </section>
+            </section>
+          </aside>
+        </section>
+      </div>
     </div>
-  </main>
+  </div>
 {{ end }}

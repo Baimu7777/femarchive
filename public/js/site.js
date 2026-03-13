@@ -31,4 +31,22 @@ document.addEventListener('DOMContentLoaded', () => {
     input.addEventListener('input', applyFilter);
     applyFilter();
   });
+
+  const homeHero = document.querySelector('[data-home-hero]');
+  if (homeHero) {
+    const updateHomeHero = () => {
+      const scrollY = window.scrollY || window.pageYOffset || 0;
+      const fadeDistance = Math.max(window.innerHeight * 0.72, 320);
+      const progress = Math.min(scrollY / fadeDistance, 1);
+      const translateY = Math.round(progress * -120);
+      const opacity = Math.max(1 - progress * 1.2, 0);
+
+      homeHero.style.opacity = String(opacity);
+      homeHero.style.transform = `translate3d(0, ${translateY}px, 0)`;
+    };
+
+    window.addEventListener('scroll', updateHomeHero, { passive: true });
+    window.addEventListener('resize', updateHomeHero);
+    updateHomeHero();
+  }
 });
