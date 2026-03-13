@@ -58,18 +58,20 @@
       {{ end }}
 
       {{ with .Params.original_url }}
-      {{ $originalRaw := . | strings.TrimSpace }}
-      <div class="sidebar-meta__row">
-        <span class="sidebar-meta__label">原始来源</span>
-        {{ if gt (len (findRE `^(https?:\/\/|mailto:)` $originalRaw)) 0 }}
+        {{ $originalRaw := trim (printf "%v" .) " \r\n\t" }}
+        <div class="sidebar-meta__row">
+          <span class="sidebar-meta__label">原始来源</span>
           <div class="sidebar-meta__value">
-            <a class="sidebar-meta__link" href="{{ $originalRaw | safeURL }}" target="_blank" rel="noopener noreferrer">{{ $originalRaw }}</a>
+            {{ if or (hasPrefix $originalRaw "http://") (hasPrefix $originalRaw "https://") (hasPrefix $originalRaw "mailto:") }}
+              <a class="sidebar-meta__link" href="{{ $originalRaw | safeURL }}" target="_blank" rel="noopener noreferrer">{{ $originalRaw }}</a>
+            {{ else }}
+              <div class="sidebar-meta__value sidebar-meta__value--rich">
+                {{ $originalRaw | markdownify }}
+              </div>
+            {{ end }}
           </div>
-        {{ else }}
-          <div class="sidebar-meta__value sidebar-meta__value--rich">
-            {{ $originalRaw | markdownify }}
-          </div>
-        {{ end }}
+        </div>
+      {{ end }}
       </div>
     {{ end }}
 
