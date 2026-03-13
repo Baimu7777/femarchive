@@ -1,6 +1,7 @@
 {{ $author := .Params.author | default site.Params.author.name | default "编辑部" }}
 {{ $relatedPages := slice }}
-{{ $hasTOC := gt (len .Fragments.Headings) 0 }}
+{{ $toc := .TableOfContents }}
+{{ $hasTOC := gt (len (findRE "<li" (printf "%s" $toc))) 0 }}
 
 {{ with .Params.related }}
   {{ range . }}
@@ -17,7 +18,7 @@
     <section class="sidebar-card toc-card">
       <h2 class="sidebar-card__title">文章目录</h2>
       <div class="toc-nav">
-        {{ .TableOfContents }}
+        {{ $toc }}
       </div>
     </section>
   {{ end }}

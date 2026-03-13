@@ -1,7 +1,7 @@
 {{ define "main" }}
-  {{ $pages := .RegularPagesRecursive }}
-  {{ if eq (len $pages) 0 }}
-    {{ $pages = .Pages }}
+  {{ $pages := .Pages }}
+  {{ with .RegularPages }}
+    {{ $pages = . }}
   {{ end }}
   {{ $pages = sort $pages "Date" "desc" }}
   {{ $paginator := .Paginate $pages }}
