@@ -1415,26 +1415,6 @@ a {
     width: min(100vw - 28px, 100%);
   }
 
-  .site-nav {
-    width: 100%;
-    flex-wrap: nowrap;
-    gap: 6px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  
-  .site-nav::-webkit-scrollbar {
-    display: none;
-  }
-  
-  .site-nav__link {
-    min-height: 40px;
-    padding: 0 12px;
-    font-size: 0.84rem;
-    flex: 0 0 auto;
-  }
-
   .site-header {
     padding-top: 18px;
   }
