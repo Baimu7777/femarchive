@@ -37,20 +37,21 @@
               <div class="latest-grid">
                 {{ range $recentPages }}
                   <article class="entry-card">
-                    {{ $author := .Params.author | default .Site.Params.author.name | default "编辑部" }}
-<div class="entry-card__meta">
-  <span>{{ .Date.Format "2006.01.02" }}</span>
-  <span>{{ $author | markdownify | plainify }}</span>
-</div>
-                    <h3 class="entry-card__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
-                    <p class="entry-card__summary">
-                      {{ with .Description }}{{ . | plainify | truncate 90 }}{{ else }}{{ .Summary | plainify | truncate 90 }}{{ end }}
-                    </p>
-                    {{ with .Params.categories }}
-                      <div class="entry-card__tags">
-                        {{ range first 2 . }}<span class="chip chip--category">{{ . }}</span>{{ end }}
+                    <a class="entry-card__inner" href="{{ .RelPermalink }}" aria-label="阅读：{{ .Title }}">
+                      <div class="entry-card__meta">
+                        <span>{{ .Date.Format "2006.01.02" }}</span>
+                        <span>{{ .Params.author | default .Site.Params.author.name | default "编辑部" }}</span>
                       </div>
-                    {{ end }}
+                      <h3 class="entry-card__title">{{ .Title }}</h3>
+                      <p class="entry-card__summary">
+                        {{ with .Description }}{{ . | plainify | truncate 90 }}{{ else }}{{ .Summary | plainify | truncate 90 }}{{ end }}
+                      </p>
+                      {{ with .Params.categories }}
+                        <div class="entry-card__tags">
+                          {{ range first 2 . }}<span class="chip chip--category">{{ . }}</span>{{ end }}
+                        </div>
+                      {{ end }}
+                    </a>
                   </article>
                 {{ else }}
                   <article class="entry-card entry-card--empty">
@@ -111,10 +112,12 @@
 
               {{ range $figurePages }}
                 <article class="woman-card">
-                  <h3 class="woman-card__name"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
-                  <p class="woman-card__summary">
-                    {{ with .Description }}{{ . | plainify | truncate 96 }}{{ else }}{{ .Summary | plainify | truncate 96 }}{{ end }}
-                  </p>
+                  <a class="woman-card__inner" href="{{ .RelPermalink }}" aria-label="阅读：{{ .Title }}">
+                    <h3 class="woman-card__name">{{ .Title }}</h3>
+                    <p class="woman-card__summary">
+                      {{ with .Description }}{{ . | plainify | truncate 96 }}{{ else }}{{ .Summary | plainify | truncate 96 }}{{ end }}
+                    </p>
+                  </a>
                 </article>
               {{ else }}
                 <article class="woman-card">
