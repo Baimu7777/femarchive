@@ -93,7 +93,7 @@
         }
       };
 
-      const measureDismissOffset = () => {
+      const measureBaseOffset = () => {
         const currentScrollY = getScrollY();
         const contentTop = homeContent.getBoundingClientRect().top + currentScrollY;
         return Math.max(
@@ -103,14 +103,19 @@
         );
       };
 
+      const getCollapseBuffer = () => {
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+        return Math.max(24, Math.min(72, Math.round(viewportHeight * 0.06)));
+      };
+
       const collapseHero = () => {
         if (heroDismissed || isDismissing) return;
 
         isDismissing = true;
 
         const scrollY = getScrollY();
-        const dismissOffset = measureDismissOffset();
-        const targetScrollTop = Math.max(Math.round(scrollY - dismissOffset), 0);
+        const baseOffset = measureBaseOffset();
+        const targetScrollTop = Math.max(Math.round(scrollY - baseOffset), 0);
 
         setInstantScrollMode(true);
         document.documentElement.classList.add('is-collapsing-home-hero');
@@ -132,8 +137,9 @@
         if (heroDismissed || isDismissing) return;
 
         const scrollY = getScrollY();
-        const dismissOffset = measureDismissOffset();
-        const fadeDistance = Math.max(dismissOffset * fadeDistanceRatio, 1);
+        const baseOffset = measureBaseOffset();
+        const collapseOffset = baseOffset + getCollapseBuffer();
+        const fadeDistance = Math.max(baseOffset * fadeDistanceRatio, 1);
         const progress = Math.min(Math.max(scrollY / fadeDistance, 0), 1);
 
         homeHero.style.opacity = String(1 - progress);
@@ -147,7 +153,7 @@
           homeHero.removeAttribute('aria-hidden');
         }
 
-        if (scrollY >= dismissOffset - 2) {
+        if (scrollY >= collapseOffset) {
           collapseHero();
         }
       };
