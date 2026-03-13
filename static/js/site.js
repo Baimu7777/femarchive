@@ -22,7 +22,6 @@
       // ignore
     }
 
-    // 首页每次重新进入都从最顶端开始，先正常显示 slogan。
     forceScrollTop();
     window.addEventListener('pageshow', forceScrollTop, { once: true });
   }
@@ -66,6 +65,7 @@
 
     if (homeHero && homeContent) {
       let heroDismissed = false;
+      let isDismissing = false;
 
       const fadeDistanceRatio = 0.72;
       const maxLift = 96;
@@ -75,6 +75,23 @@
         window.pageYOffset ||
         document.documentElement.scrollTop ||
         0;
+
+      const setInstantScrollMode = (enabled) => {
+        const root = document.documentElement;
+        const body = document.body;
+
+        if (enabled) {
+          root.dataset.prevInlineScrollBehavior = root.style.scrollBehavior || '';
+          body.dataset.prevInlineScrollBehavior = body.style.scrollBehavior || '';
+          root.style.scrollBehavior = 'auto';
+          body.style.scrollBehavior = 'auto';
+        } else {
+          root.style.scrollBehavior = root.dataset.prevInlineScrollBehavior || '';
+          body.style.scrollBehavior = body.dataset.prevInlineScrollBehavior || '';
+          delete root.dataset.prevInlineScrollBehavior;
+          delete body.dataset.prevInlineScrollBehavior;
+        }
+      };
 
       const measureDismissOffset = () => {
         const currentScrollY = getScrollY();
@@ -86,8 +103,33 @@
         );
       };
 
+      const collapseHero = () => {
+        if (heroDismissed || isDismissing) return;
+
+        isDismissing = true;
+
+        const scrollY = getScrollY();
+        const dismissOffset = measureDismissOffset();
+        const targetScrollTop = Math.max(Math.round(scrollY - dismissOffset), 0);
+
+        setInstantScrollMode(true);
+        document.documentElement.classList.add('is-collapsing-home-hero');
+        document.body.classList.add('home-hero-dismissed');
+        homeHero.classList.add('is-faded');
+        homeHero.setAttribute('aria-hidden', 'true');
+
+        window.scrollTo({ top: targetScrollTop, left: 0, behavior: 'auto' });
+
+        requestAnimationFrame(() => {
+          heroDismissed = true;
+          isDismissing = false;
+          document.documentElement.classList.remove('is-collapsing-home-hero');
+          setInstantScrollMode(false);
+        });
+      };
+
       const syncHeroWithScroll = () => {
-        if (heroDismissed) return;
+        if (heroDismissed || isDismissing) return;
 
         const scrollY = getScrollY();
         const dismissOffset = measureDismissOffset();
@@ -106,24 +148,15 @@
         }
 
         if (scrollY >= dismissOffset - 2) {
-          heroDismissed = true;
-          document.body.classList.add('home-hero-dismissed');
-          homeHero.classList.add('is-faded');
-          homeHero.setAttribute('aria-hidden', 'true');
-
-          const targetScrollTop = Math.max(Math.round(scrollY - dismissOffset), 0);
-          requestAnimationFrame(() => {
-            window.scrollTo({ top: targetScrollTop, left: 0, behavior: 'auto' });
-          });
+          collapseHero();
         }
       };
 
       const handleResize = () => {
-        if (heroDismissed) return;
+        if (heroDismissed || isDismissing) return;
         syncHeroWithScroll();
       };
 
-      // 确保加载时先显示 slogan，而不是立刻被滚动恢复带走。
       forceScrollTop();
       syncHeroWithScroll();
 
