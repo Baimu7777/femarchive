@@ -37,10 +37,11 @@
               <div class="latest-grid">
                 {{ range $recentPages }}
                   <article class="entry-card">
-                    <div class="entry-card__meta">
-                      <span>{{ .Date.Format "2006.01.02" }}</span>
-                      <span>{{ .Params.author | default .Site.Params.author.name | default "编辑部" }}</span>
-                    </div>
+                    {{ $author := .Params.author | default .Site.Params.author.name | default "编辑部" }}
+<div class="entry-card__meta">
+  <span>{{ .Date.Format "2006.01.02" }}</span>
+  <span>{{ $author | markdownify | plainify }}</span>
+</div>
                     <h3 class="entry-card__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
                     <p class="entry-card__summary">
                       {{ with .Description }}{{ . | plainify | truncate 90 }}{{ else }}{{ .Summary | plainify | truncate 90 }}{{ end }}
