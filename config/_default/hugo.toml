@@ -1,7 +1,7 @@
 baseURL = "https://example.com/"
 languageCode = "zh-cn"
 defaultContentLanguage = "zh-cn"
-title = "女阅组文库 / Feminist Archive"
+title = "女阅组文库 · Feminist Archive"
 hasCJKLanguage = true
 enableRobotsTXT = true
 timeZone = "Asia/Shanghai"
