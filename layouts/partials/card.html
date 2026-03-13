@@ -9,9 +9,11 @@
       </div>
     {{ end }}
 
+    {{ $author := $page.Params.author | default site.Params.author.name | default "编辑部" }}
+
     <div class="archive-card__meta">
       <span>{{ $page.Date.Format "2006.01.02" }}</span>
-      <span>{{ $page.Params.author | default site.Params.author.name | default "编辑部" }}</span>
+      <span>{{ $author | markdownify | plainify }}</span>
     </div>
   </div>
 
