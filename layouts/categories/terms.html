@@ -1,12 +1,5 @@
 {{ define "main" }}
   {{ $categoryNames := slice "社会议题" "个人成长" "女权输出" "资料归档" "站务" }}
-  {{ $categoryStyles := dict 
-    "社会议题" "social"
-    "个人成长" "growth"
-    "女权输出" "voice"
-    "资料归档" "archive"
-    "站务" "site"
-  }}
   {{ $postPages := where .Site.RegularPages "Section" "eq" "posts" }}
 
   <main class="terms-page">
@@ -15,9 +8,23 @@
         <div class="term-grid term-grid--decorative">
           {{ range $categoryNames }}
             {{ $name := . }}
-            {{ $style := index $categoryStyles $name }}
+            {{ $style := "site" }}
+
+            {{ if eq $name "社会议题" }}
+              {{ $style = "social" }}
+            {{ else if eq $name "个人成长" }}
+              {{ $style = "growth" }}
+            {{ else if eq $name "女权输出" }}
+              {{ $style = "voice" }}
+            {{ else if eq $name "资料归档" }}
+              {{ $style = "archive" }}
+            {{ else if eq $name "站务" }}
+              {{ $style = "site" }}
+            {{ end }}
+
             {{ $matched := where $postPages "Params.categories" "intersect" (slice $name) }}
             {{ $count := len $matched }}
+
             {{ if gt $count 0 }}
               <a class="term-card term-card--decorative term-card--{{ $style }}" href="{{ printf "/categories/%s/" ($name | urlize) | relLangURL }}">
                 <div class="term-card__head">
