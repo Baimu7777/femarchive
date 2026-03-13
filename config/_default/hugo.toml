@@ -48,7 +48,7 @@ summaryLength = 28
   infoRight = "豆瓣小组：全女评审团 · 书影音与评分"
   homeTopics = ["社会议题", "个人成长", "女权输出", "资料归档", "站务"]
   submitLabel = "前往投稿"
-  submitURL = "/posts/submission-guidelines/"
+  submitURL = "/submission-guidelines/"
   mainSections = ["posts", "news"]
 
   [params.author]
