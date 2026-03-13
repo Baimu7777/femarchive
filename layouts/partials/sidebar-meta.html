@@ -1,5 +1,7 @@
 {{ $author := .Params.author | default site.Params.author.name | default "编辑部" }}
 {{ $relatedPages := slice }}
+{{ $hasTOC := gt (len .Fragments.Headings) 0 }}
+
 {{ with .Params.related }}
   {{ range . }}
     {{ with $.Site.GetPage . }}
@@ -11,6 +13,15 @@
 {{ end }}
 
 <aside class="sidebar-stack">
+  {{ if $hasTOC }}
+    <section class="sidebar-card toc-card">
+      <h2 class="sidebar-card__title">文章目录</h2>
+      <div class="toc-nav">
+        {{ .TableOfContents }}
+      </div>
+    </section>
+  {{ end }}
+
   <section class="sidebar-card">
     <h2 class="sidebar-card__title">文章信息</h2>
 
@@ -25,7 +36,7 @@
         <span class="sidebar-meta__label">作者</span>
         <div class="sidebar-meta__value">{{ . | markdownify }}</div>
       </div>
-    {{ end }}
+      {{ end }}
 
       {{ with .Params.categories }}
         <div class="sidebar-meta__row">

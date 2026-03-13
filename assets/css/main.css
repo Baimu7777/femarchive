@@ -1138,6 +1138,91 @@ a {
   background: transparent;
 }
 
+.article-content h2,
+.article-content h3,
+.article-content h4 {
+  scroll-margin-top: 110px;
+}
+
+.sidebar-stack {
+  display: grid;
+  gap: 18px;
+  position: sticky;
+  top: 24px;
+}
+
+.sidebar-card {
+  padding: 20px;
+}
+
+.sidebar-card__title {
+  margin: 0 0 12px;
+  font-size: 1rem;
+}
+
+.toc-card {
+  padding-top: 18px;
+}
+
+.toc-nav {
+  font-size: 0.94rem;
+  line-height: 1.7;
+}
+
+.toc-nav nav {
+  display: block;
+}
+
+.toc-nav ul,
+.toc-nav ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.toc-nav li {
+  margin: 0;
+}
+
+.toc-nav li + li {
+  margin-top: 8px;
+}
+
+.toc-nav li > ul,
+.toc-nav li > ol {
+  margin-top: 8px;
+  margin-left: 10px;
+  padding-left: 12px;
+  border-left: 1px solid var(--line-soft);
+}
+
+.toc-nav a {
+  display: block;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: rgba(246, 250, 246, 0.92);
+  color: var(--text-main);
+  text-decoration: none;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.toc-nav a:hover {
+  color: var(--accent-deep);
+  background: #eef6ee;
+  border-color: #d7e4d6;
+  transform: translateX(2px);
+}
+
+.toc-nav li li a {
+  font-size: 0.9rem;
+  color: #506451;
+}
+
 .sidebar-stack {
   display: grid;
   gap: 18px;
@@ -1367,6 +1452,11 @@ a {
 @media (max-width: 1100px) {
   .site-header__inner {
     grid-template-columns: 1fr;
+  }
+
+  .sidebar-stack {
+    position: static;
+    top: auto;
   }
 
   .site-nav {
