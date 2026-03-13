@@ -6,21 +6,14 @@
     <description>Recent content in 女阅组文库 / Feminist Archive on 女阅组文库 · Feminist Archive</description>
     <generator>Hugo</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Tue, 10 Mar 2026 14:20:00 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 13 Mar 2026 00:00:00 +0800</lastBuildDate>
     <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>女性身体健康资料整理：先把最基础的事情说清楚</title>
-      <link>http://localhost:1313/posts/womens-body-health-notes/</link>
-      <pubDate>Tue, 10 Mar 2026 14:20:00 +0800</pubDate>
-      <guid>http://localhost:1313/posts/womens-body-health-notes/</guid>
-      <description>&lt;p&gt;很多女性从小接收到的身体知识都非常零碎：哪些疼痛算正常，哪些信号需要尽快就医，检查前要注意什么，常见症状该怎么记录，往往没有被系统地讲清楚。&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>为什么要保存这些讨论</title>
-      <link>http://localhost:1313/posts/why-preserve-discussions/</link>
-      <pubDate>Mon, 09 Mar 2026 10:30:00 +0800</pubDate>
-      <guid>http://localhost:1313/posts/why-preserve-discussions/</guid>
-      <description>&lt;p&gt;平台经常把女性讨论压缩成“热闹一下就过去”的碎片。删帖、限流、外链失效、站点改版，都会让原本有价值的讨论被冲散。&lt;/p&gt;</description>
+      <title>我“不”和我“恰好不”的区别</title>
+      <link>http://localhost:1313/posts/archive-methods/</link>
+      <pubDate>Fri, 13 Mar 2026 00:00:00 +0800</pubDate>
+      <guid>http://localhost:1313/posts/archive-methods/</guid>
+      <description>&lt;p&gt;10bt是在东亚严酷的男权、父权社会下提出的女性反抗纲领，而不是像后现代主义的某个派别那样的审美潮流。&lt;/p&gt;</description>
     </item>
     <item>
       <title>某地女性劳动议题观察：加班、照护与隐形劳动</title>
@@ -37,13 +30,6 @@
       <description>&lt;p&gt;秋瑾（1875—1907）是中国近代重要的女性人物之一。她既留下了诗文，也参与了更直接的社会与政治行动，因此不适合只被压缩成一个单一的烈士符号。&lt;/p&gt;</description>
     </item>
     <item>
-      <title>备份、转载与索引：三种收录方式最好分开写</title>
-      <link>http://localhost:1313/posts/archive-methods/</link>
-      <pubDate>Sun, 08 Mar 2026 09:00:00 +0800</pubDate>
-      <guid>http://localhost:1313/posts/archive-methods/</guid>
-      <description>&lt;p&gt;“收录”这个词很方便，但太宽。为了长期维护，最好把不同情况拆开：&lt;/p&gt;</description>
-    </item>
-    <item>
       <title>女作家作品再版整理：哪些书重新回到读者视野</title>
       <link>http://localhost:1313/news/writer-reprint-roundup/</link>
       <pubDate>Sat, 07 Mar 2026 15:10:00 +0800</pubDate>
@@ -58,25 +44,11 @@
       <description>&lt;p&gt;适合在这里继续补充：&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;调查样本与方法&lt;/li&gt;&#xA;&lt;li&gt;值得注意的数据点&lt;/li&gt;&#xA;&lt;li&gt;与过往调查的差异&lt;/li&gt;&#xA;&lt;li&gt;相关文章链接&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
     </item>
     <item>
-      <title>新读者入口应该怎么做</title>
-      <link>http://localhost:1313/posts/new-reader-entry/</link>
-      <pubDate>Wed, 04 Mar 2026 18:20:00 +0800</pubDate>
-      <guid>http://localhost:1313/posts/new-reader-entry/</guid>
-      <description>&lt;p&gt;文章足够多以后，站点就不能只靠时间倒序组织。读者第一次进入时，往往根本不知道该从哪里开始。&lt;/p&gt;</description>
-    </item>
-    <item>
       <title>李·米勒</title>
       <link>http://localhost:1313/figures/lee-miller/</link>
       <pubDate>Tue, 03 Mar 2026 11:00:00 +0800</pubDate>
       <guid>http://localhost:1313/figures/lee-miller/</guid>
       <description>&lt;p&gt;人物页不需要一开始就写成百科。先给出基础简介、推荐阅读与为什么值得现在重读，已经足够成为一个有效入口。&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>投稿与来稿说明</title>
-      <link>http://localhost:1313/posts/submission-guidelines/</link>
-      <pubDate>Sun, 01 Mar 2026 12:00:00 +0800</pubDate>
-      <guid>http://localhost:1313/posts/submission-guidelines/</guid>
-      <description>&lt;p&gt;目前建议的来稿类型包括：&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;原创长文&lt;/li&gt;&#xA;&lt;li&gt;已公开讨论的整理稿&lt;/li&gt;&#xA;&lt;li&gt;女性议题资料索引&lt;/li&gt;&#xA;&lt;li&gt;新闻摘录与延伸评论&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;来稿时尽量附带标题、摘要、原始链接（如有）、发布时间、作者署名方式，以及是否允许转载或节选。&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

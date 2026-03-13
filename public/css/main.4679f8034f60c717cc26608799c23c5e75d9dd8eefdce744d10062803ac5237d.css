@@ -1083,10 +1083,9 @@ a {
 
 .article-hero__desc {
   margin: 16px 0 0;
-  color: #2f6b47;
+  color: var(--text-soft);
   font-size: 1rem;
   line-height: 1.9;
-  font-family: "霞鹜文楷";
 }
 
 .article-content {

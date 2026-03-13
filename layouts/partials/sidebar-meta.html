@@ -21,11 +21,11 @@
       </div>
 
       {{ with $author }}
-        <div class="sidebar-meta__row">
-          <span class="sidebar-meta__label">作者</span>
-          <div class="sidebar-meta__value">{{ . }}</div>
-        </div>
-      {{ end }}
+      <div class="sidebar-meta__row">
+        <span class="sidebar-meta__label">作者</span>
+        <div class="sidebar-meta__value">{{ . | markdownify }}</div>
+      </div>
+    {{ end }}
 
       {{ with .Params.categories }}
         <div class="sidebar-meta__row">
@@ -46,10 +46,17 @@
       {{ end }}
 
       {{ with .Params.original_url }}
+        {{ $originalRaw := . }}
+        {{ $originalHref := . }}
+        {{ $originalLabel := "查看原始来源" }}
+        {{ if findRE `^\[[^\]]+\]\([^\)]+\)$` $originalRaw }}
+          {{ $originalHref = replaceRE `^\[([^\]]+)\]\(([^\)]+)\)$` "$2" $originalRaw }}
+          {{ $originalLabel = replaceRE `^\[([^\]]+)\]\(([^\)]+)\)$` "$1" $originalRaw }}
+        {{ end }}
         <div class="sidebar-meta__row">
           <span class="sidebar-meta__label">原文链接</span>
           <div class="sidebar-meta__value">
-            <a href="{{ . }}" target="_blank" rel="noreferrer">查看原始来源</a>
+            <a class="sidebar-meta__link" href="{{ $originalHref | safeURL }}" target="_blank" rel="noopener noreferrer">{{ $originalLabel }}</a>
           </div>
         </div>
       {{ end }}
