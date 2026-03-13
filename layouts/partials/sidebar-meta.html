@@ -58,20 +58,20 @@
       {{ end }}
 
       {{ with .Params.original_url }}
-        {{ $originalRaw := . }}
-        {{ $originalHref := . }}
-        {{ $originalLabel := "查看原始来源" }}
-        {{ if findRE `^\[[^\]]+\]\([^\)]+\)$` $originalRaw }}
-          {{ $originalHref = replaceRE `^\[([^\]]+)\]\(([^\)]+)\)$` "$2" $originalRaw }}
-          {{ $originalLabel = replaceRE `^\[([^\]]+)\]\(([^\)]+)\)$` "$1" $originalRaw }}
-        {{ end }}
-        <div class="sidebar-meta__row">
-          <span class="sidebar-meta__label">原文链接</span>
+      {{ $originalRaw := . | strings.TrimSpace }}
+      <div class="sidebar-meta__row">
+        <span class="sidebar-meta__label">原始来源</span>
+        {{ if gt (len (findRE `^(https?:\/\/|mailto:)` $originalRaw)) 0 }}
           <div class="sidebar-meta__value">
-            <a class="sidebar-meta__link" href="{{ $originalHref | safeURL }}" target="_blank" rel="noopener noreferrer">{{ $originalLabel }}</a>
+            <a class="sidebar-meta__link" href="{{ $originalRaw | safeURL }}" target="_blank" rel="noopener noreferrer">{{ $originalRaw }}</a>
           </div>
-        </div>
-      {{ end }}
+        {{ else }}
+          <div class="sidebar-meta__value sidebar-meta__value--rich">
+            {{ $originalRaw | markdownify }}
+          </div>
+        {{ end }}
+      </div>
+    {{ end }}
 
       {{ with .Params.license }}
         <div class="sidebar-meta__row">
