@@ -5,28 +5,30 @@
 
   <main class="article-page">
     <div class="shell article-layout">
-      <article class="article-main">
-        <header class="article-hero">
-          {{ if or (gt (len $categories) 0) (gt (len $tags) 0) }}
-            <div class="archive-chip-row article-chip-row">
-              {{ range $categories }}<span class="chip chip--category">{{ . }}</span>{{ end }}
-              {{ range $tags }}<span class="chip chip--tag">#{{ . }}</span>{{ end }}
-            </div>
-          {{ end }}
-        
-          <h1 class="article-hero__title">{{ .Title }}</h1>
-        
-          {{ with .Description }}
-            <p class="article-hero__desc">{{ . }}</p>
-          {{ end }}
-        </header>
+      <div class="article-column">
+        <article class="article-main">
+          <header class="article-hero">
+            {{ if or (gt (len $categories) 0) (gt (len $tags) 0) }}
+              <div class="archive-chip-row article-chip-row">
+                {{ range $categories }}<span class="chip chip--category">{{ . }}</span>{{ end }}
+                {{ range $tags }}<span class="chip chip--tag">#{{ . }}</span>{{ end }}
+              </div>
+            {{ end }}
+          
+            <h1 class="article-hero__title">{{ .Title }}</h1>
+          
+            {{ with .Description }}
+              <p class="article-hero__desc">{{ . }}</p>
+            {{ end }}
+          </header>
 
-        <div class="article-content prose">
-          {{ .Content }}
-        </div>
+          <div class="article-content prose">
+            {{ .Content }}
+          </div>
+        </article>
 
         {{ partial "waline.html" . }}
-      </article>
+      </div>
 
       {{ partial "sidebar-meta.html" . }}
     </div>

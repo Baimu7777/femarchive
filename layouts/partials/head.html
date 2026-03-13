@@ -3,6 +3,8 @@
 <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
 <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ site.Params.description }}{{ end }}">
 <link rel="canonical" href="{{ .Permalink }}">
+<link rel="icon" type="image/svg+xml" href="{{ "/pen.svg" | relLangURL }}">
+<link rel="shortcut icon" href="{{ "/pen.svg" | relLangURL }}">
 {{- $css := resources.Get "css/main.css" | fingerprint -}}
 <link rel="stylesheet" href="{{ $css.RelPermalink }}">
 {{- if site.Params.comments.enable }}

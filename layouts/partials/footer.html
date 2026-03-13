@@ -1,13 +1,14 @@
 <footer class="site-footer">
   <div class="shell footer-bar">
-    <div class="footer-bar__about">
+    <p class="footer-inline footer-inline--about">
       <strong>关于文库：</strong>
-      <span>{{ .Site.Params.about  }}</span>
-    </div>
-    <div class="footer-bar__group">
-      <span>豆瓣小组：</span>
+      <span class="footer-inline__text">{{ .Site.Params.about }}</span>
+    </p>
+
+    <p class="footer-inline footer-inline--group">
+      <span class="footer-inline__label">豆瓣小组：</span>
       <a href="{{ site.Params.groupURL | default "https://www.douban.com/group/758828/" }}" target="_blank" rel="noopener noreferrer">{{ site.Params.groupName | default "全女评审团" }}</a>
       <span>· {{ site.Params.groupDesc | default "书影文舆评分" }}</span>
-    </div>
+    </p>
   </div>
 </footer>

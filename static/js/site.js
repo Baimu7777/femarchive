@@ -33,20 +33,49 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const homeHero = document.querySelector('[data-home-hero]');
-  if (homeHero) {
-    const updateHomeHero = () => {
-      const scrollY = window.scrollY || window.pageYOffset || 0;
-      const fadeDistance = Math.max(window.innerHeight * 0.72, 320);
-      const progress = Math.min(scrollY / fadeDistance, 1);
-      const translateY = Math.round(progress * -120);
-      const opacity = Math.max(1 - progress * 1.2, 0);
+  const homeContent = document.querySelector('[data-home-content]');
 
-      homeHero.style.opacity = String(opacity);
-      homeHero.style.transform = `translate3d(0, ${translateY}px, 0)`;
+  if (homeHero && homeContent) {
+    let heroDismissed = false;
+
+    const getSpacerHeight = () => {
+      const marginTop = parseFloat(window.getComputedStyle(homeContent).marginTop || '0');
+      return Number.isFinite(marginTop) ? marginTop : window.innerHeight;
     };
 
-    window.addEventListener('scroll', updateHomeHero, { passive: true });
-    window.addEventListener('resize', updateHomeHero);
-    updateHomeHero();
+    const dismissHero = () => {
+      if (heroDismissed) return;
+      heroDismissed = true;
+
+      const scrollY = window.scrollY || window.pageYOffset || 0;
+      const spacerHeight = getSpacerHeight();
+
+      document.body.classList.add('home-hero-dismissed');
+      homeHero.classList.add('is-dismissed');
+      homeHero.style.opacity = '0';
+      homeHero.style.transform = 'translate3d(0, -120px, 0)';
+
+      const nextScrollY = Math.max(scrollY - spacerHeight, 0);
+      window.scrollTo({ top: nextScrollY, left: 0, behavior: 'auto' });
+      window.removeEventListener('scroll', handleFirstScroll);
+      window.removeEventListener('wheel', handleFirstScroll, wheelListenerOptions);
+      window.removeEventListener('touchmove', handleFirstScroll, touchListenerOptions);
+    };
+
+    const handleFirstScroll = () => {
+      const scrollY = window.scrollY || window.pageYOffset || 0;
+      if (scrollY > 12) {
+        dismissHero();
+      }
+    };
+
+    const wheelListenerOptions = { passive: true };
+    const touchListenerOptions = { passive: true };
+
+    window.addEventListener('scroll', handleFirstScroll, { passive: true });
+    window.addEventListener('wheel', handleFirstScroll, wheelListenerOptions);
+    window.addEventListener('touchmove', handleFirstScroll, touchListenerOptions);
+
+    handleFirstScroll();
   }
 });
