@@ -5,6 +5,13 @@
       {{ .Site.Params.about }}
     </p>
 
-    <p class="footer-bar__group"><strong>豆瓣小组：</strong><a href="{{ site.Params.groupURL | default "https://www.douban.com/group/758828/" }}" target="_blank" rel="noopener noreferrer">{{ site.Params.groupName | default "全女评审团" }}</a><span class="footer-bar__sep">·</span><span>{{ site.Params.groupDesc | default "书影文舆评分" }}</span></p>
+    <p class="footer-bar__group">
+      <strong>豆瓣小组：</strong>
+      <span>{{ site.Params.groupName | default "全女评审团" }}</span>
+      <span class="footer-bar__sep">·</span>
+      <a href="https://judge.feminism-nv.space/" target="_blank" rel="noopener noreferrer">
+        {{ site.Params.groupDesc | default "书影文舆评分" }}
+      </a>
+    </p>
   </div>
 </footer>

@@ -60,6 +60,49 @@
       applyFilter();
     });
 
+    const mobileTocs = document.querySelectorAll('[data-mobile-toc]');
+
+    mobileTocs.forEach((wrap) => {
+      const toggle = wrap.querySelector('[data-mobile-toc-toggle]');
+      const panel = wrap.querySelector('.mobile-toc__panel');
+      const closers = wrap.querySelectorAll('[data-mobile-toc-close]');
+      const tocLinks = wrap.querySelectorAll('.mobile-toc__nav a');
+
+      if (!toggle || !panel) return;
+
+      const syncState = (isOpen) => {
+        wrap.classList.toggle('is-open', isOpen);
+        document.body.classList.toggle('mobile-toc-open', isOpen);
+        toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        panel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+        const overlay = wrap.querySelector('.mobile-toc__overlay');
+        if (overlay) overlay.hidden = !isOpen;
+      };
+
+      const openPanel = () => syncState(true);
+      const closePanel = () => syncState(false);
+      const togglePanel = () => {
+        const isOpen = wrap.classList.contains('is-open');
+        syncState(!isOpen);
+      };
+
+      toggle.addEventListener('click', togglePanel);
+      closers.forEach((item) => item.addEventListener('click', closePanel));
+      tocLinks.forEach((link) => link.addEventListener('click', closePanel));
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && wrap.classList.contains('is-open')) {
+          closePanel();
+        }
+      });
+
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 720 && wrap.classList.contains('is-open')) {
+          closePanel();
+        }
+      });
+    });
+
     const homeHero = document.querySelector('[data-home-hero]');
     const homeContent = document.querySelector('[data-home-content]');
 
