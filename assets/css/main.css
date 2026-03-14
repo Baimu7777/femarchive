@@ -1535,6 +1535,21 @@ body.home-hero-dismissed .home-hero {
   padding: 24px;
 }
 
+.comment-panel__status {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border: 1px solid #d9e5d7;
+  border-radius: 16px;
+  background: #f6faf3;
+  color: #5f705f;
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+.footer-bar p {
+  margin: 0;
+}
+
 /* footer */
 
 .site-footer {
