@@ -70,16 +70,17 @@
 
       if (!toggle || !panel) return;
 
+      const overlay = wrap.querySelector('.mobile-toc__overlay');
+      if (overlay) overlay.hidden = false;
+
       const syncState = (isOpen) => {
         wrap.classList.toggle('is-open', isOpen);
         document.body.classList.toggle('mobile-toc-open', isOpen);
         toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         panel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
-        const overlay = wrap.querySelector('.mobile-toc__overlay');
-        if (overlay) overlay.hidden = !isOpen;
+        toggle.setAttribute('aria-label', isOpen ? '关闭文章目录' : '打开文章目录');
       };
 
-      const openPanel = () => syncState(true);
       const closePanel = () => syncState(false);
       const togglePanel = () => {
         const isOpen = wrap.classList.contains('is-open');
@@ -150,6 +151,25 @@
 
       syncSidebarScrollState();
     }
+
+    const backToTop = document.querySelector('[data-back-to-top]');
+
+    if (backToTop) {
+      const syncBackToTop = () => {
+        const visible = (window.scrollY || document.documentElement.scrollTop || 0) > 320;
+        backToTop.hidden = false;
+        backToTop.classList.toggle('is-visible', visible);
+      };
+
+      backToTop.addEventListener('click', () => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+      });
+
+      syncBackToTop();
+      window.addEventListener('scroll', syncBackToTop, { passive: true });
+      window.addEventListener('resize', syncBackToTop, { passive: true });
+    }
+
 
     const homeHero = document.querySelector('[data-home-hero]');
     const homeContent = document.querySelector('[data-home-content]');
