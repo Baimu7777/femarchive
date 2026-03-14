@@ -1,0 +1,17 @@
+{{- $paginator := .paginator -}}
+{{- if and $paginator $paginator.HasNext -}}
+  <div class="load-more-wrap" data-load-more-root>
+    <button
+      type="button"
+      class="load-more-btn"
+      data-load-more-button
+      data-next-url="{{ $paginator.Next.URL }}"
+      data-target="{{ .target }}"
+      data-item-selector="{{ .itemSelector }}"
+      data-empty="{{ .empty }}"
+    >
+      加载更多
+    </button>
+    <p class="load-more-note" data-load-more-note hidden>正在加载…</p>
+  </div>
+{{- end -}}

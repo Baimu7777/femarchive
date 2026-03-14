@@ -8,7 +8,7 @@ timeZone = "Asia/Shanghai"
 summaryLength = 28
 
 [pagination]
-  pagerSize = 9
+  pagerSize = 20
 
 [permalinks]
   posts = "/posts/:slugorfilename/"

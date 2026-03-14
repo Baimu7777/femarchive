@@ -34,11 +34,11 @@
           </form>
         </section>
 
-        <div class="archive-grid{{ if $isFigures }} archive-grid--figures{{ end }}" id="archiveGrid">
+        <div class="archive-grid{{ if $isFigures }} archive-grid--figures{{ end }}" id="archiveGrid" data-load-more-list>
           {{ range $paginator.Pages }}
             {{ partial "card.html" (dict "page" .) }}
           {{ else }}
-            <article class="archive-card">
+            <article class="archive-card" data-filter-item>
               <h2 class="archive-card__title">这里暂时还没有内容</h2>
               <p class="archive-card__summary">等你把内容放进对应 section 之后，这里会自动显示。</p>
             </article>
@@ -46,7 +46,7 @@
         </div>
 
         <p id="archiveEmpty" class="empty-state" hidden>没有匹配的内容，换个关键词试试。</p>
-        {{ template "_internal/pagination.html" . }}
+        {{ partial "load-more.html" (dict "paginator" $paginator "target" "#archiveGrid" "itemSelector" ".archive-card" "empty" "#archiveEmpty") }}
       </section>
     </div>
   </main>

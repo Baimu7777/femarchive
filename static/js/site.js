@@ -38,10 +38,9 @@
 
       if (!input || !target) return;
 
-      const items = Array.from(target.querySelectorAll('[data-filter-item]'));
-
       const applyFilter = () => {
         const keyword = input.value.trim().toLowerCase();
+        const items = Array.from(target.querySelectorAll('[data-filter-item]'));
         let visibleCount = 0;
 
         items.forEach((item) => {
@@ -57,6 +56,12 @@
       };
 
       input.addEventListener('input', applyFilter);
+      document.addEventListener('content:updated', (event) => {
+        if (event?.detail?.target === target) {
+          applyFilter();
+        }
+      });
+
       applyFilter();
     });
 
@@ -75,11 +80,11 @@
         document.body.classList.toggle('mobile-toc-open', isOpen);
         toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         panel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+        toggle.setAttribute('aria-label', isOpen ? '关闭文章目录' : '打开文章目录');
         const overlay = wrap.querySelector('.mobile-toc__overlay');
         if (overlay) overlay.hidden = !isOpen;
       };
 
-      const openPanel = () => syncState(true);
       const closePanel = () => syncState(false);
       const togglePanel = () => {
         const isOpen = wrap.classList.contains('is-open');
@@ -102,6 +107,97 @@
         }
       });
     });
+
+    const loadMoreButtons = document.querySelectorAll('[data-load-more-button]');
+
+    loadMoreButtons.forEach((button) => {
+      const note = button.parentElement?.querySelector('[data-load-more-note]') || null;
+
+      const setBusy = (busy) => {
+        button.disabled = busy;
+        button.textContent = busy ? '加载中…' : '加载更多';
+        if (note) note.hidden = !busy;
+      };
+
+      button.addEventListener('click', async () => {
+        const nextUrl = button.dataset.nextUrl;
+        const targetSelector = button.dataset.target;
+        const itemSelector = button.dataset.itemSelector || '';
+        const target = targetSelector ? document.querySelector(targetSelector) : null;
+
+        if (!nextUrl || !target || !itemSelector) return;
+
+        setBusy(true);
+
+        try {
+          const response = await fetch(nextUrl, {
+            headers: {
+              'X-Requested-With': 'fetch',
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          const html = await response.text();
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          const incomingTarget = doc.querySelector(targetSelector);
+
+          if (!incomingTarget) {
+            throw new Error('Target not found in next page');
+          }
+
+          const items = Array.from(incomingTarget.querySelectorAll(itemSelector));
+          const fragment = document.createDocumentFragment();
+          items.forEach((item) => fragment.appendChild(item));
+          target.appendChild(fragment);
+
+          const incomingButton = doc.querySelector('[data-load-more-button]');
+          const newNextUrl = incomingButton?.dataset?.nextUrl || '';
+
+          if (newNextUrl) {
+            button.dataset.nextUrl = newNextUrl;
+            setBusy(false);
+          } else {
+            button.parentElement?.remove();
+          }
+
+          document.dispatchEvent(
+            new CustomEvent('content:updated', {
+              detail: { target },
+            }),
+          );
+        } catch (error) {
+          console.error(error);
+          setBusy(false);
+          button.textContent = '加载失败，重试';
+          if (note) {
+            note.hidden = false;
+            note.textContent = '加载失败，请再点一次。';
+          }
+        }
+      });
+    });
+
+    const backToTop = document.querySelector('[data-back-to-top]');
+
+    if (backToTop) {
+      const syncBackToTop = () => {
+        const visible = (window.scrollY || document.documentElement.scrollTop || 0) > 320;
+        backToTop.hidden = false;
+        backToTop.classList.toggle('is-visible', visible);
+      };
+
+      backToTop.addEventListener('click', () => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+      });
+
+      syncBackToTop();
+      window.addEventListener('scroll', syncBackToTop, { passive: true });
+      window.addEventListener('resize', syncBackToTop, { passive: true });
+    }
 
     const homeHero = document.querySelector('[data-home-hero]');
     const homeContent = document.querySelector('[data-home-content]');

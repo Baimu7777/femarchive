@@ -5,7 +5,7 @@
   <main class="archive-page archive-page--news">
     <div class="shell archive-shell">
       <section class="archive-panel archive-panel--news">
-        <div class="news-list news-list--timeline">
+        <div class="news-list news-list--timeline" id="newsTimeline" data-load-more-list>
           {{ range $paginator.Pages }}
             {{ $categories := .Params.categories | default (slice) }}
             {{ $tags := .Params.tags | default (slice) }}
@@ -48,7 +48,7 @@
           {{ end }}
         </div>
 
-        {{ template "_internal/pagination.html" . }}
+        {{ partial "load-more.html" (dict "paginator" $paginator "target" "#newsTimeline" "itemSelector" ".news-row" "empty" "") }}
       </section>
     </div>
   </main>
