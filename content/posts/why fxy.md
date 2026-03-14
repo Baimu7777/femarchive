@@ -6,7 +6,7 @@ draft: false
 comments: true
 author: "[𝖒𝖔𝖒𝖔](https://www.douban.com/people/165315197/)"
 categories:
-  - "女权讨论"
+  - "女权输出"
 tags:
   - "反性缘"
 original_url: "2025年9月24日发布于动画番剧组，原贴标题“反v缘一词使性缘的有害性隐身了”"
