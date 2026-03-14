@@ -115,6 +115,19 @@
         </div>
       {{ end }}
 
+      {{ with .Params.original_date }}
+        <div class="sidebar-meta__row">
+          <span class="sidebar-meta__label">原始发布时间</span>
+          <div class="sidebar-meta__value">{{ . }}</div>
+        </div>
+
+        <div class="sidebar-meta__note">
+          部分文章带有较强的时效性，建议大家结合实际情况，有选择地阅读。
+        </div>
+      {{ end }}
+
+
+
       {{ with .Params.license }}
         <div class="sidebar-meta__row">
           <span class="sidebar-meta__label">版权说明</span>

@@ -1444,6 +1444,14 @@ body.home-hero-dismissed .home-hero {
   margin-top: 0.45em;
 }
 
+.sidebar-meta__note {
+  margin-top: -8px;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: rgba(34, 154, 82, 0.72);
+  font-family: "霞鹜文楷";
+}
+
 .sidebar-meta__link,
 .sidebar-meta__link:visited,
 .sidebar-meta__value a,
