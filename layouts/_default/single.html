@@ -1,6 +1,7 @@
 {{ define "main" }}
   {{ $categories := .Params.categories | default (slice) }}
   {{ $tags := .Params.tags | default (slice) }}
+  {{ $author := .Params.author | default site.Params.author.name | default "编辑部" }}
 
   <main class="article-page">
     <div class="shell article-layout">
@@ -13,9 +14,9 @@
                 {{ range $tags }}<span class="chip chip--tag">#{{ . }}</span>{{ end }}
               </div>
             {{ end }}
-
+          
             <h1 class="article-hero__title">{{ .Title }}</h1>
-
+          
             {{ with .Description }}
               <p class="article-hero__desc">{{ . }}</p>
             {{ end }}
@@ -31,9 +32,5 @@
 
       {{ partial "sidebar-meta.html" . }}
     </div>
-
-    <button type="button" class="back-to-top" aria-label="回到页面顶部" data-back-to-top hidden>
-      <span class="back-to-top__icon" aria-hidden="true"></span>
-    </button>
   </main>
 {{ end }}

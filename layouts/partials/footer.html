@@ -7,7 +7,11 @@
 
     <p class="footer-bar__group">
       <strong>豆瓣小组：</strong>
-      <span class="footer-bar__group-text"><span>{{ site.Params.groupName | default "全女评审团" }}</span><span class="footer-bar__sep">·</span><a href="https://judge.feminism-nv.space/" target="_blank" rel="noopener noreferrer">{{ site.Params.groupDesc | default "书影文舆评分" }}</a></span>
+      <span>{{ site.Params.groupName | default "全女评审团" }}</span>
+      <span class="footer-bar__sep">·</span>
+      <a href="https://judge.feminism-nv.space/" target="_blank" rel="noopener noreferrer">
+        {{ site.Params.groupDesc | default "书影文舆评分" }}
+      </a>
     </p>
   </div>
 </footer>

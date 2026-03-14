@@ -12,14 +12,14 @@
           </form>
         </section>
 
-        <div class="archive-grid" id="postsGrid" data-load-more-list>
+        <div class="archive-grid" id="postsGrid">
           {{ range $paginator.Pages }}
             {{ partial "card.html" (dict "page" .) }}
           {{ end }}
         </div>
 
         <p id="postsEmpty" class="empty-state" hidden>没有匹配的文章，换个关键词试试。</p>
-        {{ partial "load-more.html" (dict "paginator" $paginator "target" "#postsGrid" "itemSelector" ".archive-card" "empty" "#postsEmpty") }}
+        {{ template "_internal/pagination.html" . }}
       </section>
     </div>
   </main>
