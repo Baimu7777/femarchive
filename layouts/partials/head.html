@@ -5,6 +5,11 @@
 <link rel="canonical" href="{{ .Permalink }}">
 <link rel="icon" type="image/svg+xml" href="{{ "/pen.svg" | relLangURL }}">
 <link rel="shortcut icon" href="{{ "/pen.svg" | relLangURL }}">
+
+{{ with site.Home.OutputFormats.Get "RSS" }}
+<link rel="alternate" type="application/rss+xml" title="{{ site.Title }}" href="{{ .RelPermalink }}">
+{{ end }}
+
 {{- $css := resources.Get "css/main.css" | fingerprint -}}
 <link rel="stylesheet" href="{{ $css.RelPermalink }}">
 {{- if site.Params.comments.enable }}

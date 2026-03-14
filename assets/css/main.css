@@ -2129,3 +2129,63 @@ body.home-hero-dismissed .home-hero {
     font-size: 0.9rem;
   }
 }
+
+.site-footer {
+  margin-top: 28px;
+  padding: 0 0 28px;
+}
+
+.site-footer__wrap {
+  position: relative;
+}
+
+.site-footer__rss {
+  position: absolute;
+  right: 4px;
+  bottom: -18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #7d8d7e;
+  text-decoration: none;
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1;
+  opacity: 0.62;
+  transition:
+    opacity 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.site-footer__rss svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+  fill: currentColor;
+}
+
+.site-footer__rss:hover {
+  color: var(--accent-deep);
+  opacity: 0.95;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.site-footer__rss span {
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 720px) {
+  .site-footer__wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .site-footer__rss {
+    position: static;
+    align-self: flex-end;
+    margin-right: 2px;
+  }
+}

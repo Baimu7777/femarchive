@@ -1,17 +1,35 @@
 <footer class="site-footer">
-  <div class="shell footer-bar">
-    <p class="footer-bar__about">
-      <strong>关于文库：</strong>
-      {{ .Site.Params.about }}
-    </p>
+  <div class="shell site-footer__wrap">
+    <div class="footer-bar">
+      <p class="footer-bar__about">
+        <strong>关于文库：</strong>
+        {{ .Site.Params.about }}
+      </p>
 
-    <p class="footer-bar__group">
-      <strong>豆瓣小组：</strong>
-      <span>{{ site.Params.groupName | default "全女评审团" }}</span>
-      <span class="footer-bar__sep">·</span>
-      <a href="https://judge.feminism-nv.space/" target="_blank" rel="noopener noreferrer">
-        {{ site.Params.groupDesc | default "书影文舆评分" }}
-      </a>
-    </p>
+      <p class="footer-bar__group">
+        <strong>豆瓣小组：</strong>
+        <span>{{ site.Params.groupName | default "全女评审团" }}</span>
+        <span class="footer-bar__sep">·</span>
+        <a href="https://judge.feminism-nv.space/" target="_blank" rel="noopener noreferrer">
+          {{ site.Params.groupDesc | default "书影文舆评分" }}
+        </a>
+      </p>
+    </div>
+
+    {{ with site.Home.OutputFormats.Get "RSS" }}
+    <a
+      class="site-footer__rss"
+      href="{{ .RelPermalink }}"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="RSS 订阅"
+      title="RSS 订阅"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M6.18 17.82a1.64 1.64 0 1 0 0 3.28 1.64 1.64 0 0 0 0-3.28Zm-3.28-6.55v2.91A9.82 9.82 0 0 1 12.73 24h2.91C15.64 17.18 8.82 10.36 2.9 10.36Zm0-5.82v2.91C14.64 8.36 23.64 17.36 23.64 24h2.91C26.55 14.73 12.27.45 2.9.45Z"/>
+      </svg>
+      <span>RSS</span>
+    </a>
+    {{ end }}
   </div>
 </footer>
