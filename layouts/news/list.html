@@ -27,7 +27,9 @@
                 <h2 class="news-row__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
                 <p class="news-row__summary">{{ with .Description }}{{ . | plainify | truncate 110 }}{{ else }}{{ .Summary | plainify | truncate 110 }}{{ end }}</p>
                 <div class="news-row__meta">
-                  <span>{{ .Params.author | default site.Params.author.name | default "编辑部" }}</span>
+                  {{ $authorRaw := .Params.author | default site.Params.author.name | default "编辑部" }}
+                  {{ $authorText := replaceRE `^\[([^\]]+)\]\(([^)]+)\)$` `$1` $authorRaw }}
+                  <span>{{ $authorText }}</span>
                   <a href="{{ .RelPermalink }}">查看全文 →</a>
                 </div>
               </div>

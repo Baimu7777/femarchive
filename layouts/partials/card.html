@@ -1,7 +1,8 @@
 {{- $page := .page -}}
 {{- $categories := default (slice) $page.Params.categories -}}
 {{- $tags := default (slice) $page.Params.tags -}}
-
+{{- $authorRaw := $page.Params.author | default site.Params.author.name | default "编辑部" -}}
+{{- $authorText := replaceRE `^\[([^\]]+)\]\(([^)]+)\)$` `$1` $authorRaw -}}
 <article class="archive-card{{ with .class }} {{ . }}{{ end }}" data-filter-item data-filter-text="{{ printf "%s %s %s %s %s" $page.Title ($page.Description | default "") (delimit $categories " ") (delimit $tags " ") ($page.Summary | plainify) | plainify | htmlEscape }}">
   <a class="archive-card__inner" href="{{ $page.RelPermalink }}" aria-label="阅读：{{ $page.Title }}">
     <div class="archive-card__head">
@@ -13,19 +14,12 @@
 
       <div class="archive-card__meta">
         <span>{{ $page.Date.Format "2006.01.02" }}</span>
-        <span>{{ $page.Params.author | default site.Params.author.name | default "编辑部" }}</span>
+        <span>{{ $authorText }}</span>
       </div>
     </div>
 
     <h3 class="archive-card__title">{{ $page.Title }}</h3>
-
-    <p class="archive-card__summary">
-      {{ with $page.Description }}
-        {{ . | plainify | truncate 110 }}
-      {{ else }}
-        {{ $page.Summary | plainify | truncate 110 }}
-      {{ end }}
-    </p>
+    <p class="archive-card__summary">{{ with $page.Description }}{{ . | plainify | truncate 110 }}{{ else }}{{ $page.Summary | plainify | truncate 110 }}{{ end }}</p>
 
     <div class="archive-card__foot">
       <div class="archive-chip-row archive-chip-row--bottom">
