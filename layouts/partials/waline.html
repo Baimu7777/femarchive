@@ -1,24 +1,46 @@
-{{ if and site.Params.comments.enable (.Params.comments | default true) }}
-<section class="comment-panel">
+{{ if and site.Params.comments.enable (ne .Params.comments false) }}
+<section class="comment-panel" id="comments">
   <p class="comment-panel__eyebrow">评论区</p>
   <h2>留言与补充</h2>
   <p class="comment-panel__desc">欢迎补充资料、纠错或继续讨论。</p>
-  <div id="waline"></div>
-</section>
-<script type="module">
-  import { init } from 'https://unpkg.com/@waline/client@v3/dist/waline.js';
 
-  init({
-    el: '#waline',
-    serverURL: '{{ site.Params.comments.serverURL }}',
-    lang: '{{ site.Params.comments.lang | default "zh-CN" }}',
-    path: '{{ .RelPermalink }}',
-    pageview: {{ if site.Params.comments.pageview }}true{{ else }}false{{ end }},
-    reaction: {{ if site.Params.comments.reaction }}true{{ else }}false{{ end }},
-    emoji: {{ site.Params.comments.emoji | jsonify }},
-    locale: {
-      placeholder: '欢迎补充资料、继续讨论，或留下勘误。'
+  <div id="waline"></div>
+  <p id="waline-status" class="comment-panel__status" hidden></p>
+  <noscript>
+    <p class="comment-panel__status">当前浏览器禁用了 JavaScript，所以评论组件无法显示。</p>
+  </noscript>
+</section>
+
+<script type="module">
+  const walineRoot = document.getElementById('waline');
+  const walineStatus = document.getElementById('waline-status');
+
+  const showWalineStatus = (message) => {
+    if (!walineStatus) return;
+    walineStatus.hidden = false;
+    walineStatus.textContent = message;
+  };
+
+  if (walineRoot) {
+    try {
+      const { init } = await import('https://unpkg.com/@waline/client@v3/dist/waline.js');
+
+      init({
+        el: walineRoot,
+        serverURL: '{{ site.Params.comments.serverURL }}',
+        lang: '{{ site.Params.comments.lang | default "zh-CN" }}',
+        path: window.location.pathname,
+        pageview: {{ if site.Params.comments.pageview }}true{{ else }}false{{ end }},
+        reaction: {{ if site.Params.comments.reaction }}true{{ else }}false{{ end }},
+        emoji: {{ site.Params.comments.emoji | jsonify }},
+        locale: {
+          placeholder: '欢迎补充资料、继续讨论，或留下勘误。'
+        }
+      });
+    } catch (error) {
+      console.error('Waline failed to initialize:', error);
+      showWalineStatus('评论组件加载失败。请检查 Waline 的 serverURL、Waline 服务本身是否可访问，以及你的 Vercel 正式域名是否已被允许访问。');
     }
-  });
+  }
 </script>
 {{ end }}
