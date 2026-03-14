@@ -10,4 +10,10 @@
 {{- if site.Params.comments.enable }}
 <link rel="stylesheet" href="https://unpkg.com/@waline/client@v3/dist/waline.css">
 {{- end }}
+
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+
 {{ hugo.Generator }}
