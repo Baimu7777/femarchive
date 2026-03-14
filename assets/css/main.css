@@ -1573,12 +1573,15 @@ body.home-hero-dismissed .home-hero {
   box-shadow: var(--shadow-soft);
 }
 
-.footer-bar__about,
-.footer-bar__group {
+.footer-bar__about {
   display: flex;
   align-items: center;
   gap: 4px 6px;
   flex-wrap: wrap;
+}
+
+.footer-bar__group {
+  display: block;
 }
 
 .footer-bar strong,
@@ -1597,6 +1600,10 @@ body.home-hero-dismissed .home-hero {
 .footer-bar__group a:hover,
 .site-footer__inner a:hover {
   text-decoration: underline;
+}
+
+.footer-bar__sep {
+  margin: 0 2px;
 }
 
 .site-footer__inner p {
@@ -1760,10 +1767,8 @@ body.home-hero-dismissed .home-hero {
   }
 
   .footer-bar__group {
-    flex-direction: row;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 4px 6px;
+    display: block;
+    width: 100%;
   }
 
   .latest-grid,

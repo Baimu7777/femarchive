@@ -5,10 +5,6 @@
       {{ .Site.Params.about }}
     </p>
 
-    <p class="footer-bar__group">
-      <span><strong>豆瓣小组：</strong></span>
-      <a href="{{ site.Params.groupURL | default "https://www.douban.com/group/758828/" }}" target="_blank" rel="noopener noreferrer">{{ site.Params.groupName | default "全女评审团" }}</a>
-      <span>· {{ site.Params.groupDesc | default "书影文舆评分" }}</span>
-    </p>
+    <p class="footer-bar__group"><strong>豆瓣小组：</strong><a href="{{ site.Params.groupURL | default "https://www.douban.com/group/758828/" }}" target="_blank" rel="noopener noreferrer">{{ site.Params.groupName | default "全女评审团" }}</a><span class="footer-bar__sep">·</span><span>{{ site.Params.groupDesc | default "书影文舆评分" }}</span></p>
   </div>
 </footer>
