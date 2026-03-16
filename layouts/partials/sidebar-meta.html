@@ -85,7 +85,9 @@
         <div class="sidebar-meta__row">
           <span class="sidebar-meta__label">分类</span>
           <div class="sidebar-meta__value sidebar-meta__value--chips">
-            {{ range . }}<span class="chip chip--category">{{ . }}</span>{{ end }}
+            {{ range . }}
+              <a class="chip chip--category chip--link" href="{{ (printf "/categories/%s/" (. | urlize)) | relLangURL }}">{{ . }}</a>
+            {{ end }}
           </div>
         </div>
       {{ end }}
@@ -94,7 +96,9 @@
         <div class="sidebar-meta__row">
           <span class="sidebar-meta__label">标签</span>
           <div class="sidebar-meta__value sidebar-meta__value--chips">
-            {{ range . }}<span class="chip chip--tag">#{{ . }}</span>{{ end }}
+            {{ range . }}
+              <a class="chip chip--tag chip--link" href="{{ (printf "/tags/%s/" (. | urlize)) | relLangURL }}">#{{ . }}</a>
+            {{ end }}
           </div>
         </div>
       {{ end }}

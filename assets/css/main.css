@@ -252,6 +252,20 @@ a {
   flex-wrap: wrap;
   gap: 8px;
 }
+.chip--link,
+.chip--link:visited {
+  text-decoration: none;
+  border-bottom: 0;
+  transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease;
+}
+
+.chip--link:hover {
+  text-decoration: none;
+  border-bottom: 0;
+  filter: brightness(0.96);
+  transform: translateY(-1px);
+}
+
 
 /* home */
 
@@ -1158,11 +1172,17 @@ body.home-hero-dismissed .home-hero {
 
 .article-content h2 {
   display: inline-block;
-  padding: 0.36em 0.9em;
-  border-left: 6px solid #5e8f69;
-  border-radius: 0 16px 16px 0;
-  background: #eef6ee;
-  color: #27412f;
+  padding: 0.34em 1.5em 0.34em 0.9em;
+  border-left: none;
+  border-radius: 16px 999px 999px 16px;
+  background: linear-gradient(
+    90deg,
+    rgba(221, 239, 223, 0.96) 0%,
+    rgba(230, 242, 232, 0.9) 38%,
+    rgba(241, 247, 242, 0.76) 72%,
+    rgba(251, 251, 251, 0.566) 100%
+  );
+  color: #40704e;
   font-size: 1.42rem;
   font-weight: 850;
 }
@@ -1207,7 +1227,7 @@ body.home-hero-dismissed .home-hero {
   text-indent: 0;
 }
 
-.article-content blockquote {
+.article-content blockquote:not(.quote):not(.quote-center) {
   margin-left: 0;
   padding: 0.9em 1em;
   border-left: 3px solid var(--line-mid);
@@ -1273,6 +1293,16 @@ body.home-hero-dismissed .home-hero {
   font-size: 1rem;
 }
 
+.toc-card,
+.toc-card .sidebar-card__title,
+.toc-nav,
+.toc-nav a,
+.toc-nav li,
+.toc-nav ol,
+.toc-nav ul {
+  font-family: "霞鹜文楷", "STKaiti", "KaiTi", serif;
+}
+
 .toc-card {
   padding-top: 18px;
 }
@@ -1325,7 +1355,7 @@ body.home-hero-dismissed .home-hero {
   min-width: 0;
   color: #2f7e6b;
   text-decoration: none;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.6;
   transition: color 0.2s ease, opacity 0.2s ease;
 }
@@ -1357,7 +1387,7 @@ body.home-hero-dismissed .home-hero {
 .toc-nav > ol > li > a {
   color: #2b7c69;
   font-size: 1.08rem;
-  font-weight: 800;
+  font-weight: 300;
 }
 
 /* 二级 */
@@ -1369,7 +1399,7 @@ body.home-hero-dismissed .home-hero {
 .toc-nav li li > a {
   color: #4f8f80;
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 200;
 }
 
 /* 三级 */
@@ -1381,7 +1411,7 @@ body.home-hero-dismissed .home-hero {
 .toc-nav li li li > a {
   color: #79a79b;
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 100;
 }
 
 /* 四级 */
@@ -1393,7 +1423,7 @@ body.home-hero-dismissed .home-hero {
 .toc-nav li li li li > a {
   color: #9fbbb3;
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 100;
 }
 
 .sidebar-stack {
@@ -2188,4 +2218,134 @@ body.home-hero-dismissed .home-hero {
     align-self: flex-end;
     margin-right: 2px;
   }
+}
+
+.mycard {
+  padding: 10px 20px;
+  margin: 20px 0;
+  border-radius: 4px;
+  word-break: break-all;
+  background: #d2e5eb14;
+  box-shadow: 0 6px 10px 0 #00000033;
+  font-family: "霞鹜文楷", "STKaiti", "KaiTi", serif;
+}
+
+.mycard .content {
+  line-height: 30px;
+}
+
+blockquote.quote-center {
+  position: relative;
+  border-left: none;
+  padding-left: 0;
+  border-top: 0 solid var(--card-separator-color);
+  border-bottom: 0 solid var(--card-separator-color);
+}
+
+blockquote.quote-center p {
+  text-align: center !important;
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+blockquote.quote-center::before {
+  position: absolute;
+  left: 0;
+  content: "“----";
+  color: #55bb8a80;
+  font-size: 3em;
+  font-weight: normal;
+  margin-top: -0.72em;
+}
+
+blockquote.quote-center::after {
+  position: absolute;
+  right: 0;
+  content: "----”";
+  color: #55bb8a80;
+  font-size: 3em;
+  font-weight: normal;
+  margin-top: -1.42em;
+}
+
+/* 星星评级 */
+i.star {
+  color: hsl(61, 79%, 63%);
+}
+
+i.star-outline {
+  color: hsl(211, 31%, 74%);
+}
+
+i.star svg,
+i.star-outline svg {
+  width: 20px;
+  fill: currentColor;
+}
+
+/* 引用 shortcode */
+.article-content blockquote.quote {
+  margin: 1.8em 0;
+  padding: 1.35em 0 1.1em;
+  border: none;
+  border-radius: 0;
+  background: #f3f3f3;
+  box-shadow: none;
+  color: #111;
+}
+
+.article-content blockquote.quote::before {
+  display: none;
+}
+
+.article-content blockquote.quote .quote-content,
+.article-content blockquote.quote .quote-meta {
+  padding-left: 1.4em;
+  padding-right: 1.4em;
+  font-family: "霞鹜文楷", "STKaiti", "KaiTi", serif;
+}
+
+.article-content blockquote.quote .quote-content {
+  font-size: 1.22em;
+  line-height: 2;
+}
+
+.article-content blockquote.quote .quote-content p {
+  margin: 0;
+  text-indent: 0;
+}
+
+.article-content blockquote.quote .quote-meta {
+  margin-top: 1.2em;
+  text-align: right;
+  line-height: 1.9;
+  font-size: 1.12em;
+}
+
+.article-content blockquote.quote .quote-author {
+  font-weight: 700;
+  color: #000;
+  margin-right: 0.35em;
+}
+
+.article-content blockquote.quote .quote-title {
+  font-style: normal;
+  color: #3b8f8f;
+}
+
+.article-content blockquote.quote .quote-title::before {
+  content: "《";
+}
+
+.article-content blockquote.quote .quote-title::after {
+  content: "》";
+}
+
+.article-content blockquote.quote .quote-title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.article-content blockquote.quote .quote-title a:hover {
+  text-decoration: underline;
 }

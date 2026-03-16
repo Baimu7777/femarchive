@@ -1,0 +1,11 @@
+<div class="db-card">
+    <div class="db-card-subject">
+        <div class="db-card-post"><img loading="lazy" decoding="async" referrerpolicy="no-referrer" src="{{ .Get "image" }}"></div>
+        <div class="db-card-content">
+            <div class="db-card-title"><a href="{{ .Get "url" }}" class="cute" target="_blank" rel="noreferrer">{{ .Get "title" }}</a></div>
+            <div class="rating"><span class="rating_nums">个人评分：</span><span class="allstardark"><span class="allstarlight" style="width:{{ .Get "rate" }}0%"></span></span></div>
+            <div class="db-card-abstract">{{ .Get "brief" }}</div>
+        </div>
+        <div class="db-card-cate">{{ .Get "tag" }}</div>
+    </div>
+</div>

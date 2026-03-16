@@ -10,8 +10,12 @@
           <header class="article-hero">
             {{ if or (gt (len $categories) 0) (gt (len $tags) 0) }}
               <div class="archive-chip-row article-chip-row">
-                {{ range $categories }}<span class="chip chip--category">{{ . }}</span>{{ end }}
-                {{ range $tags }}<span class="chip chip--tag">#{{ . }}</span>{{ end }}
+                {{ range $categories }}
+                  <a class="chip chip--category chip--link" href="{{ (printf "/categories/%s/" (. | urlize)) | relLangURL }}">{{ . }}</a>
+                {{ end }}
+                {{ range $tags }}
+                  <a class="chip chip--tag chip--link" href="{{ (printf "/tags/%s/" (. | urlize)) | relLangURL }}">#{{ . }}</a>
+                {{ end }}
               </div>
             {{ end }}
           
