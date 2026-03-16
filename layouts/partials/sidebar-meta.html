@@ -104,20 +104,39 @@
       {{ end }}
 
       {{ with .Params.original_url }}
-        {{ $originalRaw := trim (printf "%v" .) " \r\n\t" }}
-        <div class="sidebar-meta__row">
-          <span class="sidebar-meta__label">原始来源</span>
-          <div class="sidebar-meta__value">
+      <div class="sidebar-meta__row">
+        <span class="sidebar-meta__label">原始来源</span>
+        <div class="sidebar-meta__value">
+          {{ if reflect.IsSlice . }}
+            <div class="sidebar-meta__source-list">
+              {{ range . }}
+                {{ $itemRaw := trim (printf "%v" .) " \r\n\t" }}
+                {{ if $itemRaw }}
+                  <div class="sidebar-meta__source-item">
+                    {{ if or (hasPrefix $itemRaw "http://") (hasPrefix $itemRaw "https://") (hasPrefix $itemRaw "mailto:") }}
+                      <a class="sidebar-meta__link" href="{{ $itemRaw | safeURL }}" target="_blank" rel="noopener noreferrer">{{ $itemRaw }}</a>
+                    {{ else }}
+                      <div class="sidebar-meta__value--rich">
+                        {{ $itemRaw | markdownify }}
+                      </div>
+                    {{ end }}
+                  </div>
+                {{ end }}
+              {{ end }}
+            </div>
+          {{ else }}
+            {{ $originalRaw := trim (printf "%v" .) " \r\n\t" }}
             {{ if or (hasPrefix $originalRaw "http://") (hasPrefix $originalRaw "https://") (hasPrefix $originalRaw "mailto:") }}
               <a class="sidebar-meta__link" href="{{ $originalRaw | safeURL }}" target="_blank" rel="noopener noreferrer">{{ $originalRaw }}</a>
             {{ else }}
-              <div class="sidebar-meta__value sidebar-meta__value--rich">
+              <div class="sidebar-meta__value--rich">
                 {{ $originalRaw | markdownify }}
               </div>
             {{ end }}
-          </div>
+          {{ end }}
         </div>
-      {{ end }}
+      </div>
+    {{ end }}
 
       {{ with .Params.original_date }}
         <div class="sidebar-meta__row">

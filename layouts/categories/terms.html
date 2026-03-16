@@ -1,5 +1,5 @@
 {{ define "main" }}
-  {{ $categoryNames := slice "社会议题" "个人成长" "女权输出" "资料归档" "站务" }}
+  {{ $categoryNames := .Site.Params.homeTopics | default (slice "社会议题" "个人成长" "女权输出" "女身优势" "资料归档" "站务") }}
   {{ $postPages := where .Site.RegularPages "Section" "eq" "posts" }}
 
   <main class="terms-page">
@@ -16,10 +16,13 @@
               {{ $style = "growth" }}
             {{ else if eq $name "女权输出" }}
               {{ $style = "voice" }}
+            {{ else if eq $name "女身优势" }}
+              {{ $style = "advantages" }}
             {{ else if eq $name "资料归档" }}
               {{ $style = "archive" }}
             {{ else if eq $name "站务" }}
               {{ $style = "site" }}
+            
             {{ end }}
 
             {{ $matched := where $postPages "Params.categories" "intersect" (slice $name) }}

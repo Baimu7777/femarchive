@@ -6,7 +6,6 @@ draft: false
 comments: true
 author: "豆瓣randomforest"
 categories:
-  - "资料归档"
   - "女权输出"
 tags:
   - "归档"

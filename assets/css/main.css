@@ -989,6 +989,19 @@ body.home-hero-dismissed .home-hero {
   background: radial-gradient(circle, rgba(236, 223, 208, 0.92) 0 42%, transparent 43%);
 }
 
+.term-card--advantages::before {
+  background:
+    radial-gradient(circle at 70% 34%, rgba(244, 223, 184, 0.82) 0 18px, transparent 19px),
+    radial-gradient(circle at 78% 58%, rgba(210, 231, 205, 0.88) 0 26px, transparent 27px),
+    radial-gradient(circle at 58% 74%, rgba(224, 237, 216, 0.9) 0 18px, transparent 19px),
+    linear-gradient(135deg, transparent 47%, rgba(214, 232, 207, 0.82) 47% 54%, transparent 54%),
+    linear-gradient(32deg, transparent 58%, rgba(244, 229, 186, 0.76) 58% 64%, transparent 64%);
+}
+
+.term-card--advantages::after {
+  background: radial-gradient(circle, rgba(244, 230, 188, 0.92) 0 42%, transparent 43%);
+}
+
 .term-card--archive::before {
   background:
     linear-gradient(90deg, transparent 36%, rgba(214, 231, 210, 0.84) 36% 43%, transparent 43%),
