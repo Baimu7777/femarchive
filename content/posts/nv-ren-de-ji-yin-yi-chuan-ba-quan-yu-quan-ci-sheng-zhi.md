@@ -12,7 +12,7 @@ tags:
 original_url:
   - "[空间霸权：母系遗传的绝对制霸](https://x.com/TheaWillendorf/status/1715809305234989119?s=20)"
   - "[纯雌生殖](https://x.com/TheaWillendorf/status/1739509846121103597?s=20)"
-original_date: ""
+original_date: "2023-10-22"
 license: "该作品版权归原作者所有。"
 ---
 
