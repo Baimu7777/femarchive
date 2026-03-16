@@ -6,9 +6,10 @@ draft: false
 comments: true
 author: "[德罗斯](https://www.douban.com/people/287708586/)"
 categories:
-  -
+  - "女权输出"
 tags:
-  -
+  - 科普
+  - 流行语
 original_url: "[科普一些常见但少被意识到问题的流行语](https://www.douban.com/note/873194110/)"
 original_date: 2025-05-28
 license: "该作品版权归原作者所有。"
