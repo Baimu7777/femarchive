@@ -1,0 +1,13 @@
+{{- $page := .page -}}
+{{- $limit := .limit | default 110 -}}
+{{- $text := "" -}}
+{{- with $page.Description -}}
+  {{- $text = . | plainify | replaceRE `\s+` " " | strings.TrimSpace | truncate $limit -}}
+{{- else -}}
+  {{- $content := $page.Content -}}
+  {{- $content = replaceRE `(?is)<div class="mycard"[^>]*>.*?</div>\s*</div>` "" $content -}}
+  {{- $content = replaceRE `(?is)<blockquote[^>]*class="[^"]*\bquote\b[^"]*"[^>]*>.*?</blockquote>` "" $content -}}
+  {{- $content = replaceRE `(?is)<blockquote[^>]*class="[^"]*\bquote-center\b[^"]*"[^>]*>.*?</blockquote>` "" $content -}}
+  {{- $text = $content | plainify | replaceRE `\s+` " " | strings.TrimSpace | truncate $limit -}}
+{{- end -}}
+{{- $text -}}

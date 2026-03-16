@@ -46,7 +46,7 @@
                       </div>
                       <h3 class="entry-card__title">{{ .Title }}</h3>
                       <p class="entry-card__summary">
-                        {{ with .Description }}{{ . | plainify | truncate 90 }}{{ else }}{{ .Summary | plainify | truncate 90 }}{{ end }}
+                        {{ partial "preview-text.html" (dict "page" . "limit" 90) }}
                       </p>
                       {{ with .Params.categories }}
                         <div class="entry-card__tags">
@@ -86,7 +86,7 @@
                     <div class="news-card__body">
                       <h3 class="news-card__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
                       <p class="news-card__summary">
-                        {{ with .Description }}{{ . | plainify | truncate 56 }}{{ else }}{{ .Summary | plainify | truncate 56 }}{{ end }}
+                        {{ partial "preview-text.html" (dict "page" . "limit" 56) }}
                       </p>
                     </div>
                   </article>
@@ -116,7 +116,7 @@
                   <a class="woman-card__inner" href="{{ .RelPermalink }}" aria-label="阅读：{{ .Title }}">
                     <h3 class="woman-card__name">{{ .Title }}</h3>
                     <p class="woman-card__summary">
-                      {{ with .Description }}{{ . | plainify | truncate 96 }}{{ else }}{{ .Summary | plainify | truncate 96 }}{{ end }}
+                      {{ partial "preview-text.html" (dict "page" . "limit" 120) }}
                     </p>
                   </a>
                 </article>

@@ -339,13 +339,18 @@ body.home-hero-dismissed .home-hero {
   display: grid;
   grid-template-columns: minmax(0, 1.65fr) minmax(320px, 0.85fr);
   gap: 20px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .home-main,
 .home-side {
   display: grid;
   gap: 20px;
+  height: 100%;
+}
+
+.home-side {
+  grid-template-rows: auto 1fr;
 }
 
 .home-intro {
@@ -573,13 +578,29 @@ body.home-hero-dismissed .home-hero {
   text-overflow: ellipsis;
 }
 
+.section-card--latest,
+.section-card--woman {
+  height: 100%;
+}
+
+.section-card--woman {
+  display: flex;
+  flex-direction: column;
+}
+
 .woman-card {
+  display: flex;
+  flex: 1;
   overflow: hidden;
   padding: 0;
+  height: 100%;
 }
 
 .woman-card__inner {
-  display: block;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  height: 100%;
   padding: 18px;
   color: inherit;
   text-decoration: none;
@@ -592,7 +613,13 @@ body.home-hero-dismissed .home-hero {
 
 .woman-card__summary {
   margin: 10px 0 0;
+  min-height: calc(1.72em * 5);
   font-size: 0.92rem;
+  line-height: 1.72;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  overflow: hidden;
 }
 
 .home-footer-note {
@@ -2221,17 +2248,27 @@ body.home-hero-dismissed .home-hero {
 }
 
 .mycard {
-  padding: 10px 20px;
+  padding: 14px 20px;
   margin: 20px 0;
-  border-radius: 4px;
-  word-break: break-all;
-  background: #d2e5eb14;
-  box-shadow: 0 6px 10px 0 #00000033;
+  border: 1px solid rgba(168, 207, 173, 0.82);
+  border-radius: 16px;
+  word-break: break-word;
+  background: linear-gradient(180deg, #eef8ef 0%, #e6f3e7 100%);
+  box-shadow: 0 8px 18px rgba(80, 105, 87, 0.08);
   font-family: "霞鹜文楷", "STKaiti", "KaiTi", serif;
 }
 
+.mycard__content,
 .mycard .content {
-  line-height: 30px;
+  line-height: 1.95;
+}
+
+.mycard__content > :first-child {
+  margin-top: 0;
+}
+
+.mycard__content > :last-child {
+  margin-bottom: 0;
 }
 
 blockquote.quote-center {

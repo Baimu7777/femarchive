@@ -3,7 +3,7 @@ title: "Mary Wollstonecraft"
 description: ""
 date: 2026-03-09T07:30:00+08:00
 draft: false
-comments: false
+comments: true
 original_url: "[Mary Wollstonecraft](https://en.wikipedia.org/wiki/Mary_Wollstonecraft)"
 license: "该作品版权归原作者所有。"
 ---
@@ -11,7 +11,6 @@ license: "该作品版权归原作者所有。"
 {{< quote author="弗吉尼亚·伍尔夫" >}}
 她还活在当下，争辩着，实验着，生机勃勃；我们仍然听见她的声音，在活着的人当中仍然能寻获她的影响。
 {{< /quote >}}
-
 
 
 玛丽·沃斯通克拉夫特（Mary Wollstonecraft，1759年4月27日—1797年9月10日），女，英国启蒙时代著名的女性政论家、哲学家、作家与思想家，更是西方女权主义思想史上的先驱。在她短暂的写作生涯中，她写就了《女教论》《玛丽：一篇小说》《真实生活的原创故事》《人权辩护》《女权辩护》《瑞典、挪威和丹麦短居书简》《玛丽亚：女人的受罪》等作品。

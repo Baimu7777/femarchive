@@ -25,7 +25,7 @@
                   </div>
                 {{ end }}
                 <h2 class="news-row__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-                <p class="news-row__summary">{{ with .Description }}{{ . | plainify | truncate 110 }}{{ else }}{{ .Summary | plainify | truncate 110 }}{{ end }}</p>
+                <p class="news-row__summary">{{ partial "preview-text.html" (dict "page" . "limit" 110) }}</p>
                 <div class="news-row__meta">
                   {{ $authorRaw := .Params.author | default site.Params.author.name | default "编辑部" }}
                   {{ $authorText := replaceRE `^\[([^\]]+)\]\(([^)]+)\)$` `$1` $authorRaw }}
