@@ -1,7 +1,7 @@
 {{ define "main" }}
   {{ $categories := .Params.categories | default (slice) }}
   {{ $tags := .Params.tags | default (slice) }}
-  {{ $author := .Params.author | default site.Params.author.name | default "编辑部" }}
+  {{ $author := .Params.author | default site.Params.author.name | default "" }}
 
   <main class="article-page">
     <div class="shell article-layout">

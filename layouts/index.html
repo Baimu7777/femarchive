@@ -36,7 +36,7 @@
 
               <div class="latest-grid">
                 {{ range $recentPages }}
-                  {{ $authorRaw := .Params.author | default .Site.Params.author.name | default "编辑部" }}
+                  {{ $authorRaw := .Params.author | default .Site.Params.author.name | default "" }}
                   {{ $authorText := replaceRE `^\[([^\]]+)\]\(([^)]+)\)$` `$1` $authorRaw }}
                   <article class="entry-card">
                     <a class="entry-card__inner" href="{{ .RelPermalink }}" aria-label="阅读：{{ .Title }}">

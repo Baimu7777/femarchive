@@ -1,4 +1,4 @@
-{{ $author := .Params.author | default site.Params.author.name | default "编辑部" }}
+{{ $author := .Params.author | default site.Params.author.name | default "" }}
 {{ $relatedPages := slice }}
 {{ $toc := .TableOfContents }}
 {{ $hasTOC := gt (len (findRE "<li" (printf "%s" $toc))) 0 }}

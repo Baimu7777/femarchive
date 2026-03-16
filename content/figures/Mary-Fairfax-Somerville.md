@@ -4,7 +4,6 @@ description: ""
 date: 2026-03-03T11:00:00+08:00
 draft: false
 comments: true
-author: "编辑部"
 original_url: "[Mary Fairfax Somerville](https://en.wikipedia.org/wiki/Mary_Somerville)"
 license: "该作品版权归原作者所有。"
 ---

@@ -1,7 +1,7 @@
 {{- $page := .page -}}
 {{- $categories := default (slice) $page.Params.categories -}}
 {{- $tags := default (slice) $page.Params.tags -}}
-{{- $authorRaw := $page.Params.author | default site.Params.author.name | default "编辑部" -}}
+{{- $authorRaw := $page.Params.author | default site.Params.author.name | default "" -}}
 {{- $authorText := replaceRE `^\[([^\]]+)\]\(([^)]+)\)$` `$1` $authorRaw -}}
 <article class="archive-card{{ with .class }} {{ . }}{{ end }}" data-filter-item data-filter-text="{{ printf "%s %s %s %s %s" $page.Title ($page.Description | default "") (delimit $categories " ") (delimit $tags " ") (partial "preview-text.html" (dict "page" $page "limit" 10000)) | plainify | htmlEscape }}">
   <a class="archive-card__inner" href="{{ $page.RelPermalink }}" aria-label="阅读：{{ $page.Title }}">

@@ -52,7 +52,7 @@ summaryLength = 28
   mainSections = ["posts", "news"]
 
   [params.author]
-    name = "编辑部"
+    name = ""
 
   [params.comments]
     enable = true

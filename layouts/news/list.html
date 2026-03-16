@@ -27,7 +27,7 @@
                 <h2 class="news-row__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
                 <p class="news-row__summary">{{ partial "preview-text.html" (dict "page" . "limit" 110) }}</p>
                 <div class="news-row__meta">
-                  {{ $authorRaw := .Params.author | default site.Params.author.name | default "编辑部" }}
+                  {{ $authorRaw := .Params.author | default site.Params.author.name | default "" }}
                   {{ $authorText := replaceRE `^\[([^\]]+)\]\(([^)]+)\)$` `$1` $authorRaw }}
                   <span>{{ $authorText }}</span>
                   <a href="{{ .RelPermalink }}">查看全文 →</a>
