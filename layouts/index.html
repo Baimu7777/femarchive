@@ -1,6 +1,6 @@
 {{ define "main" }}
   {{ $recentPages := first 4 (sort (where .Site.RegularPages "Section" "eq" "posts") "Date" "desc") }}
-  {{ $newsPages := first 4 (sort (where .Site.RegularPages "Section" "eq" "news") "Date" "desc") }}
+  {{ $newsPages := first 3 (sort (where .Site.RegularPages "Section" "eq" "news") "Date" "desc") }}
   {{ $figurePages := first 1 (sort (where .Site.RegularPages "Section" "eq" "figures") "Date" "desc") }}
   {{ $figureSection := .Site.GetPage "section" "figures" }}
   {{ $mottoRaw := .Site.Params.motto | default "我们的身体共振于同一个潮汐，我们的斗争永不止息。" }}
