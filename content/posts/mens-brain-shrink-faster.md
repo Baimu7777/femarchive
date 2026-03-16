@@ -9,6 +9,7 @@ categories:
   - "女身优势"
 tags:
   - "y染天残"
+  - "基因"
 original_url: "[A new study has found that men’s brains shrink faster than women’s as they age.](https://x.com/smartscience/status/2032304518449524756?s=46)"
 original_date: "2025-10-13"
 license: "该作品版权归原作者所有。"

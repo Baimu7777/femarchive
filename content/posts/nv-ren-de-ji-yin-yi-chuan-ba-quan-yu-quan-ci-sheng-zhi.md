@@ -9,6 +9,7 @@ categories:
   - "女身优势"
 tags:
   - "基因"
+  - "y染天残"
 original_url:
   - "[空间霸权：母系遗传的绝对制霸](https://x.com/TheaWillendorf/status/1715809305234989119?s=20)"
   - "[纯雌生殖](https://x.com/TheaWillendorf/status/1739509846121103597?s=20)"
