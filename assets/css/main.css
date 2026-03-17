@@ -37,6 +37,7 @@ html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  overflow-x: hidden;
 }
 
 
@@ -52,6 +53,8 @@ html {
 
 body {
   margin: 0;
+  max-width: 100%;
+  overflow-x: hidden;
   color: var(--text-main);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   background:
@@ -1147,6 +1150,7 @@ body.home-hero-dismissed .home-hero {
   grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.7fr);
   gap: 20px;
   align-items: start;
+  max-width: 100%;
 }
 
 
@@ -1692,7 +1696,7 @@ body.home-hero-dismissed .home-hero {
 .mobile-toc__toggle {
   position: fixed;
   top: 46vh;
-  right: 0;
+  right: max(0px, env(safe-area-inset-right));
   z-index: 90;
   width: 44px;
   height: 64px;
@@ -1820,7 +1824,7 @@ body.home-hero-dismissed .home-hero {
 
 .back-to-top {
   position: fixed;
-  right: 18px;
+  right: max(18px, calc(env(safe-area-inset-right) + 10px));
   bottom: 22px;
   z-index: 88;
   display: inline-flex;
@@ -2179,11 +2183,13 @@ body.home-hero-dismissed .home-hero {
     min-width: 176px;
     border-radius: 22px 0 0 22px;
     padding: 16px 12px 18px;
+    max-width: calc(100vw - 10px);
   }
 
   .mobile-toc__toggle {
     top: auto;
     bottom: 96px;
+    right: max(0px, env(safe-area-inset-right));
     width: 40px;
     height: 58px;
     padding-left: 7px;
@@ -2199,7 +2205,7 @@ body.home-hero-dismissed .home-hero {
   }
 
   .back-to-top {
-    right: 14px;
+    right: max(10px, calc(env(safe-area-inset-right) + 6px));
     bottom: 16px;
     width: 56px;
     height: 56px;
@@ -2772,5 +2778,18 @@ i.star-outline svg {
 
   .article-content blockquote.quote .quote-meta {
     font-size: 1em;
+  }
+}
+
+@media (max-width: 720px) {
+  .article-page,
+  .article-layout,
+  .article-column,
+  .article-main,
+  .article-content,
+  .sidebar-stack,
+  .sidebar-card,
+  .comment-panel {
+    max-width: 100%;
   }
 }
