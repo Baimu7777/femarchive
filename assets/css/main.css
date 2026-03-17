@@ -2330,12 +2330,12 @@ body.home-hero-dismissed .home-hero {
 }
 
 .mycard {
-  padding: 14px 20px;
-  margin: 20px 0;
-  border: 1px solid rgba(168, 207, 173, 0.82);
-  border-radius: 16px;
+  padding: 10px 20px;
+  margin: 20px 20px;
+  border: 1px solid rgba(159, 186, 163, 0.82);
+  border-radius: 6px;
   word-break: break-word;
-  background: linear-gradient(180deg, #eef8ef 0%, #e6f3e7 100%);
+  background: #7cafbe14;
   box-shadow: 0 8px 18px rgba(80, 105, 87, 0.08);
   font-family: "霞鹜文楷", "STKaiti", "KaiTi", serif;
 }
