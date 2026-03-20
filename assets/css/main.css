@@ -1431,6 +1431,7 @@ body.home-hero-dismissed .home-hero {
   font-size: 1rem;
 }
 
+
 .toc-card,
 .toc-card .sidebar-card__title,
 .toc-nav,
@@ -1443,6 +1444,11 @@ body.home-hero-dismissed .home-hero {
 
 .toc-card {
   padding-top: 18px;
+}
+
+.toc-card .sidebar-card__title {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
 }
 
 .toc-nav {
