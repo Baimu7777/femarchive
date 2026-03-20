@@ -2404,11 +2404,11 @@ i.star-outline svg {
 
 /* 引用 shortcode */
 .article-content blockquote.quote {
-  margin: 1.8em 0;
-  padding: 1.35em 0 1.1em;
+  margin: 1em 0;
+  padding: 1em 0 0.2em;
   border: none;
   border-radius: 0;
-  background: #f3f3f3;
+  background: #e4f6de96;
   box-shadow: none;
   color: #111;
 }
