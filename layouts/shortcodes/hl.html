@@ -1,1 +1,7 @@
+{{- $block := .Get "block" -}}
+{{- $blockStr := lower (printf "%v" $block) -}}
+{{- if or (eq $block true) (eq $blockStr "true") -}}
+<div class="text-highlight text-highlight--block">{{ .Inner | markdownify }}</div>
+{{- else -}}
 <span class="text-highlight">{{ .Inner | safeHTML }}</span>
+{{- end -}}

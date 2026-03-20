@@ -1382,6 +1382,25 @@ body.home-hero-dismissed .home-hero {
   -webkit-box-decoration-break: clone;
 }
 
+.article-content .text-highlight--block {
+  display: block;
+  margin: 0 0 1.1em;
+  padding: 0.55em 0.9em;
+  border-radius: 14px;
+  background: #e6f2df;
+  line-height: 1.95;
+  text-indent: 2em;
+}
+
+.article-content .text-highlight--block p {
+  margin: 0 0 1em;
+  text-indent: 2em;
+}
+
+.article-content .text-highlight--block p:last-child {
+  margin-bottom: 0;
+}
+
 .sidebar-stack {
   display: grid;
   gap: 18px;
@@ -2365,6 +2384,7 @@ blockquote.quote-center p {
   text-align: center !important;
   margin-top: 1.5em;
   margin-bottom: 1.5em;
+  font-family: "霞鹜文楷", "STKaiti", "KaiTi", serif;
 }
 
 blockquote.quote-center::before {
@@ -2792,4 +2812,14 @@ i.star-outline svg {
   .comment-panel {
     max-width: 100%;
   }
+}
+
+.article-content p.tight-indent {
+  margin: 0;
+  text-indent: 2em;
+  line-height: 1.9;
+}
+
+.article-content p.tight-indent + p.tight-indent {
+  margin-top: 0.15em; /* 想更挨就再小一点，甚至设 0 */
 }
