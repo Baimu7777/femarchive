@@ -44,7 +44,7 @@ license: "该作品版权归原作者所有。"
 <p class="tight-indent">建立在这个源头之初的谎言之一叫做：追求。</p>
 <p class="tight-indent">“追求”这个语汇的发明，恰恰代表了父权社会在侵占女性权益之上的高明之处——</p>
 <p class="tight-indent">把女性完全放在了被动地位，她们只能够等待男人的追求，而全然不顾女性本应在择偶生育之上的主动——这一自然界事实。</p>
-<p class="tight-indent">我之前看到过一张关于强奸文化的金字塔图，如下。</p>
+<p class="tight-indent">我之前看到过一张关于强歼文化的金字塔图，如下。</p>
 
 <br>
 
@@ -55,25 +55,25 @@ license: "该作品版权归原作者所有。"
 <p class="tight-indent">是违背（女性主体）个人意志的强买强卖。</p>
 <br>
 <p class="tight-indent">壁咚，是最小单位的人身囚禁。</p>
-<p class="tight-indent">黄段子，是最日常的精神强奸。</p>
+<p class="tight-indent">黄段子，是最日常的精神强歼。</p>
 <p class="tight-indent">当众求爱，是势在必得的情感勒索。</p>
 <p class="tight-indent">在这个过程之中，男人通过一步步的行为升级，打着“追求”的旗号，实则是鲸吞蚕食女性的生存权益、违背女性意志、剥夺自主权。</p>
 <p class="tight-indent">还要在各种影视剧中，把强吻、壁咚等种种忽略女性自主的行为，加上五百层粉红色滤镜，使女性安于这样人为构造出的性别景观之中。</p>
 <p class="tight-indent">称之为“少女心”。</p>
-<p class="tight-indent">细究这少女心的核心，都是为了强奸而发起的号角，构成强奸文化极具观赏性和迷惑性的一环（少女心这一逆女本能的幻想，却受到女性观众的追捧，恰好反映出父权制对于女性情欲想象的改造是何等成功）。</p>
+<p class="tight-indent">细究这少女心的核心，都是为了强歼而发起的号角，构成强歼文化极具观赏性和迷惑性的一环（少女心这一逆女本能的幻想，却受到女性观众的追捧，恰好反映出父权制对于女性情欲想象的改造是何等成功）。</p>
 <p class="tight-indent">全社会都在鼓励男性“追求”女性，实则是在鼓励男性“侵占”女性权利、违背女性意志。</p>
 
 <br>
-<p class="tight-indent">强奸文化，分为两步走：</p>
+<p class="tight-indent">强歼文化，分为两步走：</p>
 <p class="tight-indent">一方面，它鼓励男性以“追求“名义，占有女性；</p>
 <p class="tight-indent">另一方面，它又为执行的男性群体洗白脱罪、弱化罪行严重性。</p>
-<p class="tight-indent">不然你想，为什么会有约会强奸这个说法？
-强奸就是强奸。</p>
+<p class="tight-indent">不然你想，为什么会有约会强歼这个说法？
+强歼就是强歼。</p>
 <p class="tight-indent">为什么放置于约会这个场景之下，就可以消解掉它的犯罪严重性？</p>
-<p class="tight-indent">同理，又为什么叫做婚内强奸？</p>
+<p class="tight-indent">同理，又为什么叫做婚内强歼？</p>
 <p class="tight-indent">暴力就是暴力。</p>
 <p class="tight-indent">为什么要有家暴这个概念？</p>
-<p class="tight-indent">大概率下，谁会经常家暴、约会强奸、婚内强奸？</p>
+<p class="tight-indent">大概率下，谁会经常家暴、约会强歼、婚内强歼？</p>
 <p class="tight-indent">由此推演，以“爱情”“追求”“关系“”婚姻“为战壕，真正要庇护的又是什么？</p>
 <p class="tight-indent">是为谁脱罪的说辞？</p>
 <p class="tight-indent">违背女性意志、剥夺女性自主权、选择权，被包装为“爱情中的追求“。</p>
@@ -90,7 +90,7 @@ license: "该作品版权归原作者所有。"
 <p class="tight-indent">就这，还想要自欺欺人“没关系，是爱情“吗？</p>
 <p class="tight-indent">所以，“追求“是父权制下特有的偷换概念。</p>
 <p class="tight-indent">根源在于男性**没资格**追求女性——</p>
-<p class="tight-indent">因为这追求，必然会带来违背女性意志的种种伤害，构成强奸文化的基石。</p>
+<p class="tight-indent">因为这追求，必然会带来违背女性意志的种种伤害，构成强歼文化的基石。</p>
 <p class="tight-indent">男性，只能原地不动地吸引女性，等待女性的主动接近。</p>
 <p class="tight-indent">男性可以做的，是同其他男人竞争、修炼自己的技能、展示自己的魅力。</p>
 <p class="tight-indent">只能由女性来决定，选择哪一位，要不要进入下一个环节。</p>
