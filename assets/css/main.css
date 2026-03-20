@@ -37,7 +37,7 @@ html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 
@@ -54,12 +54,24 @@ html {
 body {
   margin: 0;
   max-width: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
   color: var(--text-main);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   background:
     radial-gradient(circle at top left, rgba(223, 241, 223, 0.78) 0, transparent 24%),
     linear-gradient(180deg, #fcfffc 0%, var(--bg-page) 100%);
+}
+
+
+@supports not (overflow: clip) {
+  html,
+  body {
+    overflow-x: visible;
+  }
+
+  .site-main {
+    overflow-x: hidden;
+  }
 }
 
 img {
@@ -1975,7 +1987,22 @@ body.home-hero-dismissed .home-hero {
 
 
 @media (min-width: 1101px) {
-  .sidebar-stack {
+  /*
+    让右侧整列保持足够高度，避免 sidebar-stack 如果包在 .article-column 里时，
+    sticky 被父级高度限制住，导致它跟着正文一起滑走。
+  */
+  .article-layout > :last-child:not(.sidebar-stack) {
+    align-self: stretch;
+    overflow: visible;
+    min-height: 100%;
+  }
+
+  .article-layout > .sidebar-stack {
+    min-height: auto;
+  }
+
+  .article-layout > .sidebar-stack,
+  .article-layout > :last-child:not(.sidebar-stack) .sidebar-stack {
     position: sticky;
     top: 18px;
     align-self: start;
@@ -1986,13 +2013,17 @@ body.home-hero-dismissed .home-hero {
     -ms-overflow-style: none;
   }
 
-  .sidebar-stack.is-scroll-active,
-  .sidebar-stack:hover,
-  .sidebar-stack:focus-within {
+  .article-layout > .sidebar-stack.is-scroll-active,
+  .article-layout > .sidebar-stack:hover,
+  .article-layout > .sidebar-stack:focus-within,
+  .article-layout > :last-child:not(.sidebar-stack) .sidebar-stack.is-scroll-active,
+  .article-layout > :last-child:not(.sidebar-stack) .sidebar-stack:hover,
+  .article-layout > :last-child:not(.sidebar-stack) .sidebar-stack:focus-within {
     overflow-y: auto;
   }
 
-  .sidebar-stack::-webkit-scrollbar {
+  .article-layout > .sidebar-stack::-webkit-scrollbar,
+  .article-layout > :last-child:not(.sidebar-stack) .sidebar-stack::-webkit-scrollbar {
     width: 0;
     height: 0;
     display: none;
@@ -2384,7 +2415,6 @@ blockquote.quote-center p {
   text-align: center !important;
   margin-top: 1.5em;
   margin-bottom: 1.5em;
-  font-family: "霞鹜文楷", "STKaiti", "KaiTi", serif;
 }
 
 blockquote.quote-center::before {
@@ -2812,14 +2842,4 @@ i.star-outline svg {
   .comment-panel {
     max-width: 100%;
   }
-}
-
-.article-content p.tight-indent {
-  margin: 0;
-  text-indent: 2em;
-  line-height: 1.9;
-}
-
-.article-content p.tight-indent + p.tight-indent {
-  margin-top: 0.15em; /* 想更挨就再小一点，甚至设 0 */
 }

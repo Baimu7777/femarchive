@@ -16,7 +16,7 @@ original_date: "1973"
 license: "该作品版权归原作者所有。"
 ---
 
-![](/images/posts/the-liberal.webp)
+![](/images/posts/the-liberal.jpg)
 
 **原文链接：**
 
