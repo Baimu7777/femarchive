@@ -1292,6 +1292,7 @@ body.home-hero-dismissed .home-hero {
   border-radius: 0 14px 14px 0;
   background: #f6faf6;
   color: var(--text-soft);
+  font-family: "霞鹜文楷";
 }
 
 .article-content a {
@@ -2415,6 +2416,7 @@ blockquote.quote-center {
   padding-left: 0;
   border-top: 0 solid var(--card-separator-color);
   border-bottom: 0 solid var(--card-separator-color);
+  font-family: 霞鹜文楷; 
 }
 
 blockquote.quote-center p {
@@ -2847,5 +2849,86 @@ i.star-outline svg {
   .sidebar-card,
   .comment-panel {
     max-width: 100%;
+  }
+}
+
+.linkcard {
+  display: block;
+  margin: 20px 0;
+  border: 1px solid rgba(159, 186, 163, 0.82);
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 8px 18px rgba(80, 105, 87, 0.08);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.linkcard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(80, 105, 87, 0.12);
+  border-color: rgba(118, 155, 121, 0.95);
+}
+
+.linkcard__thumb {
+  width: 100%;
+  background: #eef4ee;
+}
+
+.linkcard__thumb img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.linkcard__body {
+  padding: 14px 16px 15px;
+}
+
+.linkcard__site {
+  font-size: 0.82rem;
+  color: var(--text-soft);
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+
+.linkcard__title {
+  font-size: 1.02rem;
+  line-height: 1.55;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.linkcard__desc {
+  font-size: 0.92rem;
+  line-height: 1.8;
+  color: #516353;
+  margin-bottom: 10px;
+}
+
+.linkcard__url {
+  font-size: 0.8rem;
+  color: #7b8f7d;
+  word-break: break-all;
+}
+
+@media (max-width: 768px) {
+  .linkcard {
+    margin: 16px 0;
+    border-radius: 16px;
+  }
+
+  .linkcard__body {
+    padding: 12px 14px 13px;
+  }
+
+  .linkcard__title {
+    font-size: 0.96rem;
+  }
+
+  .linkcard__desc {
+    font-size: 0.88rem;
   }
 }

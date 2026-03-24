@@ -1,0 +1,19 @@
+<a class="linkcard" href="{{ .Get "url" }}" target="_blank" rel="noopener noreferrer">
+  {{ with .Get "image" }}
+    <div class="linkcard__thumb">
+      <img src="{{ . }}" alt="{{ $.Get "title" }}">
+    </div>
+  {{ end }}
+
+  <div class="linkcard__body">
+    {{ with .Get "site" }}
+      <div class="linkcard__site">{{ . }}</div>
+    {{ end }}
+
+    <div class="linkcard__title">{{ .Get "title" }}</div>
+
+    {{ with .Get "desc" }}
+      <div class="linkcard__desc">{{ . }}</div>
+    {{ end }}
+  </div>
+</a>
