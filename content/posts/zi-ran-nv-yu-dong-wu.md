@@ -11,6 +11,7 @@ tags:
   - "反动保"
 related_reading:
   - "posts/chong-wu-jing-ji"
+
 original_url: "[过往输出：女权与动物/动保及宠保的关系](https://m.weibo.cn/status/5280306764714340)"
 original_date: "2024-10"
 license: "该作品版权归原作者所有。"
