@@ -1,0 +1,48 @@
+{{ define "main" }}
+  {{ $categories := .Params.categories | default (slice) }}
+  {{ $tags := .Params.tags | default (slice) }}
+  {{ $author := .Params.author | default site.Params.author.name | default "" }}
+
+  <main class="article-page">
+    <div class="shell article-layout">
+      <div class="article-column">
+        <article class="article-main">
+          <header class="article-hero">
+            {{ if or (gt (len $categories) 0) (gt (len $tags) 0) }}
+              <div class="archive-chip-row article-chip-row">
+                {{ range $categories }}
+                  <a class="chip chip--category chip--link" href="{{ (printf "/categories/%s/" (. | urlize)) | relLangURL }}">{{ . }}</a>
+                {{ end }}
+                {{ range $tags }}
+                  <a class="chip chip--tag chip--link" href="{{ (printf "/tags/%s/" (. | urlize)) | relLangURL }}">#{{ . }}</a>
+                {{ end }}
+              </div>
+            {{ end }}
+          
+            <h1 class="article-hero__title">{{ .Title }}</h1>
+          
+            {{ with .Description }}
+              <p class="article-hero__desc">{{ . }}</p>
+            {{ end }}
+          </header>
+
+          <div class="article-content prose">
+            {{ .Content }}
+          </div>
+        </article>
+
+        {{ partial "article-related.html" . }}
+
+        {{ partial "waline.html" . }}
+      </div>
+
+      <div class="article-sidebar">
+        {{ partial "sidebar-meta.html" . }}
+      </div>
+    </div>
+
+    <button type="button" class="back-to-top" aria-label="回到页面顶部" data-back-to-top hidden>
+      <span class="back-to-top__icon" aria-hidden="true"></span>
+    </button>
+  </main>
+{{ end }}

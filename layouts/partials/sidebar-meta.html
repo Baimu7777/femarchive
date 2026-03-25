@@ -1,17 +1,7 @@
 {{ $author := .Params.author | default site.Params.author.name | default "" }}
-{{ $relatedPages := slice }}
 {{ $toc := .TableOfContents }}
 {{ $hasTOC := gt (len (findRE "<li" (printf "%s" $toc))) 0 }}
 
-{{ with .Params.related }}
-  {{ range . }}
-    {{ with $.Site.GetPage . }}
-      {{ if ne .RelPermalink $.RelPermalink }}
-        {{ $relatedPages = $relatedPages | append . }}
-      {{ end }}
-    {{ end }}
-  {{ end }}
-{{ end }}
 
 {{ if $hasTOC }}
   <div class="mobile-toc" data-mobile-toc>
@@ -160,28 +150,4 @@
     </div>
   </section>
 
-  {{ if gt (len $relatedPages) 0 }}
-    <section class="sidebar-card related-card">
-      <h2 class="sidebar-card__title">相关文章</h2>
-      <div class="related-list">
-        {{ range $relatedPages }}
-          {{ $categories := .Params.categories | default (slice) }}
-          {{ $tags := .Params.tags | default (slice) }}
-          <a class="related-item" href="{{ .RelPermalink }}">
-            <div class="related-item__meta">
-              <span class="related-item__date">{{ .Date.Format "2006.01.02" }}</span>
-              {{ if or (gt (len $categories) 0) (gt (len $tags) 0) }}
-                <div class="related-item__chips">
-                  {{ range first 1 $categories }}<span class="chip chip--category">{{ . }}</span>{{ end }}
-                  {{ range first 2 $tags }}<span class="chip chip--tag">#{{ . }}</span>{{ end }}
-                </div>
-              {{ end }}
-            </div>
-            <h3 class="related-item__title">{{ .Title }}</h3>
-            <p class="related-item__summary">{{ with .Description }}{{ . | plainify | truncate 84 }}{{ else }}{{ .Summary | plainify | truncate 84 }}{{ end }}</p>
-          </a>
-        {{ end }}
-      </div>
-    </section>
-  {{ end }}
 </aside>

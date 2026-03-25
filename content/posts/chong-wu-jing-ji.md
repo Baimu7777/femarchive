@@ -9,6 +9,8 @@ categories:
   - "个人成长"
 tags:
   - "反养宠"
+related_reading:
+  - "posts/zi-ran-nv-yu-dong-wu"
 original_url: "[“情绪价值”是宠物经济最大的圈套](https://mp.weixin.qq.com/s/y_x0ivrLxNaHITTMWEVVbQ)"
 original_date: "2026-3-14"
 license: "该作品版权归原作者所有。"

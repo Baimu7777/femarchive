@@ -1,0 +1,66 @@
+{{- $current := . -}}
+{{- $relatedPages := slice -}}
+{{- $seen := slice -}}
+{{- $entries := slice -}}
+
+{{- with .Params.related_reading -}}
+  {{- if reflect.IsSlice . -}}
+    {{- $entries = . -}}
+  {{- else -}}
+    {{- $entries = slice . -}}
+  {{- end -}}
+{{- end -}}
+
+{{- with .Params.related -}}
+  {{- if reflect.IsSlice . -}}
+    {{- $entries = $entries | append . -}}
+  {{- else -}}
+    {{- $entries = $entries | append . -}}
+  {{- end -}}
+{{- end -}}
+
+{{- range $entries -}}
+  {{- $raw := trim (printf "%v" .) " \r\n\t" -}}
+  {{- if $raw -}}
+    {{- $normalized := lower ($raw | replaceRE "^https?://[^/]+/" "/" | replaceRE "^/+" "" | replaceRE "/+$" "") -}}
+    {{- range $candidate := $current.Site.RegularPages -}}
+      {{- $rel := lower ($candidate.RelPermalink | replaceRE "^/+" "" | replaceRE "/+$" "") -}}
+      {{- $perm := lower ($candidate.Permalink | replaceRE "^https?://[^/]+/" "/" | replaceRE "^/+" "" | replaceRE "/+$" "") -}}
+      {{- $filePath := "" -}}
+      {{- $baseName := "" -}}
+      {{- if $candidate.File -}}
+        {{- $filePath = lower ($candidate.File.Path | replaceRE "\\.md$" "" | replaceRE "/index$" "" | replaceRE "^/+" "" | replaceRE "/+$" "") -}}
+        {{- $baseName = lower $candidate.File.ContentBaseName -}}
+      {{- end -}}
+      {{- $sectionSlug := lower (printf "%s/%s" $candidate.Section $baseName | replaceRE "^/+" "" | replaceRE "/+$" "") -}}
+      {{- if and
+            (ne $candidate.RelPermalink $current.RelPermalink)
+            (not (in $seen $candidate.RelPermalink))
+            (or
+              (eq $normalized $rel)
+              (eq $normalized $perm)
+              (and $filePath (eq $normalized $filePath))
+              (and $sectionSlug (eq $normalized $sectionSlug))
+              (and $baseName (eq $normalized $baseName))
+            )
+      -}}
+        {{- $relatedPages = $relatedPages | append $candidate -}}
+        {{- $seen = $seen | append $candidate.RelPermalink -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- if gt (len $relatedPages) 0 -}}
+  <section class="article-related">
+    <p class="article-related__eyebrow">MORE TO READ</p>
+    <h2 class="article-related__title">相关阅读</h2>
+    <div class="related-list article-related__list">
+      {{- range $relatedPages -}}
+        <a class="related-item" href="{{ .RelPermalink }}">
+          <h3 class="related-item__title">{{ .Title }}</h3>
+        </a>
+      {{- end -}}
+    </div>
+  </section>
+{{- end -}}

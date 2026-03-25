@@ -9,6 +9,8 @@ categories:
   - "个人成长"
 tags:
   - "反动保"
+related_reading:
+  - "posts/chong-wu-jing-ji"
 original_url: "[过往输出：女权与动物/动保及宠保的关系](https://m.weibo.cn/status/5280306764714340)"
 original_date: "2024-10"
 license: "该作品版权归原作者所有。"
@@ -17,4 +19,5 @@ license: "该作品版权归原作者所有。"
 
 2️⃣没有什么高于女性的权力和利益，无论是生态环境、动物福利、还是别的任何和女权无关的事物。不支持将女权和动/宠保等任何别的名目进行捆绑。
 女权只专注维护女性权益，不为任何别的物与事负责。
+
 ![](/images/posts/zi-ran-nv-yu-dong-wu.png)
