@@ -1956,40 +1956,97 @@ body.home-hero-dismissed .home-hero {
 
 /* pagination */
 
-.pagination {
-  display: flex;
-  justify-content: center;
-  margin-top: 28px;
-}
-
+/* Hugo 内置分页里，箭头文字通常会包在 <span> 里。
+   如果直接写 .pagination span，就会把里面的小 span 也画成按钮，
+   于是出现“圈套圈”的效果。这里改成只给 li 的直接子元素做按钮样式，
+   同时把整体做得更平一些。 */
+.pagination,
 .pagination ul {
   display: flex;
+  justify-content: center;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px;
   padding: 0;
-  margin: 0;
+  margin: 32px 0 0;
   list-style: none;
 }
 
-.pagination a,
-.pagination span {
+.pagination li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pagination li > a,
+.pagination li > span,
+.pagination .page-item > .page-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 42px;
-  min-height: 42px;
-  padding: 0 14px;
-  border: 1px solid var(--line-soft);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.92);
+  min-width: 48px;
+  height: 48px;
+  padding: 0 16px;
+  border: 1px solid #cfddce;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--text-main);
   text-decoration: none;
+  line-height: 1;
+  font-size: 1rem;
+  font-weight: 700;
+  box-sizing: border-box;
+  box-shadow: none;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
 }
 
-.pagination .active span {
+.pagination li:first-child > a,
+.pagination li:nth-child(2) > a,
+.pagination li:nth-last-child(2) > a,
+.pagination li:last-child > a {
+  min-width: 58px;
+  padding: 0 18px;
+}
+
+.pagination li > a:hover,
+.pagination .page-item > .page-link:hover {
+  border-color: #bfcfbe;
+  background: #f3f8f3;
+  transform: translateY(-1px);
+}
+
+.pagination .active > span,
+.pagination .active > a,
+.pagination .active .page-link,
+.pagination .page-item.active > .page-link {
   border-color: #c8dbc7;
   background: #edf6ed;
   color: var(--accent-deep);
   font-weight: 800;
+}
+
+.pagination .disabled > span,
+.pagination .disabled .page-link,
+.pagination .page-item.disabled > .page-link {
+  opacity: 0.42;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.pagination li > a > span,
+.pagination li > span > span,
+.pagination .page-link > span {
+  display: inline;
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  line-height: inherit;
+  box-shadow: none;
 }
 
 
@@ -2904,7 +2961,7 @@ i.star-outline svg {
 .linkcard__desc {
   font-size: 0.92rem;
   line-height: 1.8;
-  color: #516353;
+  color: #18492b4a;
   margin-bottom: 10px;
 }
 
