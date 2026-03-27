@@ -3025,18 +3025,32 @@ i.star-outline svg {
 
 
 .article-content hr {
+  position: relative;
   border: 0;
   height: 1px;
-  margin: 2.2rem auto;
-  width: min(160px, 42%);
+  margin: 2.4rem auto;
+  width: min(180px, 46%);
   background: linear-gradient(
     90deg,
     transparent 0%,
-    #b0d2b0 18%,
-    #537b53 50%,
-    #b8ccb8 82%,
+    #bfd1bf 20%,
+    #86a486 50%,
+    #bfd1bf 80%,
     transparent 100%
   );
-  opacity: 0.95;
   border-radius: 999px;
+}
+
+.article-content hr::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #f7faf7;
+  border: 1.5px solid #5c855c;
+  box-shadow: 0 0 0 4px rgba(244, 248, 244, 0.9);
 }
