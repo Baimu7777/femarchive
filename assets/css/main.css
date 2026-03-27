@@ -3022,3 +3022,21 @@ i.star-outline svg {
     font-size: 0.88rem;
   }
 }
+
+
+.article-content hr {
+  border: 0;
+  height: 1px;
+  margin: 2.2rem auto;
+  width: min(160px, 42%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #b0d2b0 18%,
+    #537b53 50%,
+    #b8ccb8 82%,
+    transparent 100%
+  );
+  opacity: 0.95;
+  border-radius: 999px;
+}
