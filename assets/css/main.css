@@ -2232,10 +2232,16 @@ body.home-hero-dismissed .home-hero {
   .news-row__meta,
   .footer-bar,
   .footer-bar__about,
-  .footer-bar__group,
   .site-footer__inner {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .footer-bar__group {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 6px;
   }
 
   .latest-grid,
