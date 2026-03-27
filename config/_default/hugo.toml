@@ -57,7 +57,7 @@ summaryLength = 28
   [params.comments]
     enable = true
     provider = "waline"
-    serverURL = "https://waline-one-mu-78.vercel.app"
+    serverURL = "https://waline.feminism-nv.space/"
     lang = "zh-CN"
     emoji = ["https://unpkg.com/@waline/emojis@1.1.0/weibo"]
     pageview = false
