@@ -2267,13 +2267,14 @@ body.home-hero-dismissed .home-hero {
     order: 2;
   }
 
-  .comment-panel {
+  .article-related,
+  .related-card {
     order: 3;
-    margin-top: 0;
   }
 
-  .related-card {
+  .comment-panel {
     order: 4;
+    margin-top: 0;
   }
 
   .mobile-toc {
