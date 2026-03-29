@@ -30,13 +30,65 @@
       <span class="waline-comment-count" data-path="${escapeHtml(path)}">0</span>
     </span>`;
 
+  const buildChipRow = (item) => {
+    const categoryChips = (item.categories || [])
+      .slice(0, 2)
+      .map((tag) => `<span class="chip chip--category">${escapeHtml(tag)}</span>`);
+
+    if (item.type) {
+      categoryChips.push(`<span class="chip chip--category">${escapeHtml(item.type)}</span>`);
+    }
+
+    if (!categoryChips.length) return '';
+    return `<div class="archive-chip-row">${categoryChips.join('')}</div>`;
+  };
+
+  const buildTagRow = (item) => {
+    const tags = (item.tags || [])
+      .slice(0, 3)
+      .map((tag) => `<span class="chip chip--tag">#${escapeHtml(tag)}</span>`)
+      .join('');
+
+    return `<div class="archive-chip-row archive-chip-row--bottom">${tags}</div>`;
+  };
+
+  const renderCard = (item) => {
+    const summary = item.description || item.summary || String(item.content || '').slice(0, 120);
+    const author = item.author || item.type || '';
+
+    return `
+      <article class="archive-card archive-card--search">
+        <a class="archive-card__inner" href="${escapeHtml(item.url)}" aria-label="阅读：${escapeHtml(item.title)}">
+          <div class="archive-card__head">
+            ${buildChipRow(item)}
+            <div class="archive-card__meta">
+              <span>${escapeHtml(item.date || '')}</span>
+              <span>${escapeHtml(author)}</span>
+            </div>
+          </div>
+          <h3 class="archive-card__title">${escapeHtml(item.title)}</h3>
+          <p class="archive-card__summary">${escapeHtml(summary)}</p>
+          <div class="archive-card__foot">
+            <div class="archive-card__foot-left">
+              ${buildTagRow(item)}
+            </div>
+            <div class="archive-card__foot-right">
+              ${renderCommentCount(item.url)}
+              <span class="archive-card__more">阅读全文 →</span>
+            </div>
+          </div>
+        </a>
+      </article>
+    `;
+  };
+
   const setScopeUI = () => {
     scopeButtons.forEach((button) => {
       button.classList.toggle('is-active', button.dataset.searchScope === currentScope);
     });
   };
 
-  const renderCards = async (items, keyword) => {
+  const renderCards = (items, keyword) => {
     if (!items.length) {
       results.innerHTML = '';
       empty.hidden = false;
@@ -47,41 +99,7 @@
     empty.hidden = true;
     meta.textContent = keyword ? `找到 ${items.length} 条与“${keyword}”相关的结果。` : `当前共载入 ${items.length} 条可搜索内容。`;
 
-    results.innerHTML = items
-      .map((item) => {
-        const categories = (item.categories || [])
-          .slice(0, 2)
-          .map((tag) => `<span class="chip chip--category">${escapeHtml(tag)}</span>`)
-          .join('');
-        const tags = (item.tags || [])
-          .slice(0, 3)
-          .map((tag) => `<span class="chip chip--tag">#${escapeHtml(tag)}</span>`)
-          .join('');
-        const desc = item.description || item.summary || String(item.content || '').slice(0, 120);
-
-        return `
-          <article class="archive-card archive-card--search">
-            <a class="archive-card__inner" href="${escapeHtml(item.url)}" aria-label="阅读：${escapeHtml(item.title)}">
-              <div class="archive-card__head">
-                ${categories ? `<div class="archive-chip-row">${categories}</div>` : ''}
-                <div class="archive-card__meta"><span>${escapeHtml(item.date)}</span><span>${escapeHtml(item.type)}</span></div>
-              </div>
-              <h3 class="archive-card__title">${escapeHtml(item.title)}</h3>
-              <p class="archive-card__summary">${escapeHtml(desc)}</p>
-              <div class="archive-card__foot">
-                <div class="archive-card__foot-left">
-                  <div class="archive-chip-row archive-chip-row--bottom">${tags}</div>
-                </div>
-                <div class="archive-card__foot-right">
-                  ${renderCommentCount(item.url)}
-                  <span class="archive-card__more">阅读全文 →</span>
-                </div>
-              </div>
-            </a>
-          </article>
-        `;
-      })
-      .join('');
+    results.innerHTML = items.map(renderCard).join('');
 
     if (typeof window.refreshWalineCommentCounts === 'function') {
       window.refreshWalineCommentCounts(results);
@@ -103,6 +121,7 @@
             item.description,
             item.summary,
             item.content,
+            item.author,
             ...(item.categories || []),
             ...(item.tags || []),
           ]
@@ -112,7 +131,7 @@
         })
       : scoped;
 
-    await renderCards(filtered, keyword);
+    renderCards(filtered, keyword);
 
     const next = new URLSearchParams();
     if (keyword) next.set('q', keyword);

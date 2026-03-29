@@ -6,12 +6,15 @@
   {{- $content = replaceRE `(?is)<div class="mycard"[^>]*>.*?</div>\s*</div>` "" $content -}}
   {{- $content = replaceRE `(?is)<blockquote[^>]*class="[^"]*\bquote\b[^"]*"[^>]*>.*?</blockquote>` "" $content -}}
   {{- $content = replaceRE `(?is)<blockquote[^>]*class="[^"]*\bquote-center\b[^"]*"[^>]*>.*?</blockquote>` "" $content -}}
+  {{- $authorRaw := $page.Params.author | default site.Params.author.name | default "" -}}
+  {{- $authorText := replaceRE `^\[([^\]]+)\]\(([^)]+)\)$` `$1` $authorRaw -}}
   {
     "title": {{ $page.Title | jsonify }},
     "url": {{ $page.RelPermalink | jsonify }},
     "section": {{ $page.Section | jsonify }},
     "type": {{ cond (eq $page.Section "news") "新闻" "文章" | jsonify }},
-    "date": {{ $page.Date.Format "2006-01-02" | jsonify }},
+    "author": {{ $authorText | jsonify }},
+    "date": {{ $page.Date.Format "2006.01.02" | jsonify }},
     "description": {{ ($page.Description | default "") | plainify | jsonify }},
     "summary": {{ (partial "preview-text.html" (dict "page" $page "limit" 10000)) | jsonify }},
     "content": {{ ($content | plainify | replaceRE `\s+` " " | strings.TrimSpace) | jsonify }},
