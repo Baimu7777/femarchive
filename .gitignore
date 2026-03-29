@@ -14,3 +14,4 @@ resources/_gen/
 # Node (if present)
 node_modules/
 npm-debug.log*
+fem.zip
