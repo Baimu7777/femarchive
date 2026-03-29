@@ -10,7 +10,6 @@ categories:
   - "女权输出"
 tags:
   - "女权主义"
-  - "伴侣中心观点"
   - "言论自由"
   - "单身中心观点"
 original_url: "[「殙驢」vs「單身狗」：揭穿體制維護者的道德面紗](https://civilizedsavagery.blogspot.com/2026/03/vs.html)"

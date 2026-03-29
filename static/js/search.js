@@ -19,8 +19,16 @@
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
-      .replace(/\"/g, '&quot;')
+      .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
+
+  const renderCommentCount = (path) => `
+    <span class="card-comment-count" aria-label="评论数">
+      <svg class="card-comment-count__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M5 6.75A2.75 2.75 0 0 1 7.75 4h8.5A2.75 2.75 0 0 1 19 6.75v5.5A2.75 2.75 0 0 1 16.25 15H11.7l-3.78 3.2c-.72.61-1.82.1-1.82-.85V15.9A2.75 2.75 0 0 1 5 13.25z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.85"></path>
+      </svg>
+      <span class="waline-comment-count" data-path="${escapeHtml(path)}">0</span>
+    </span>`;
 
   const setScopeUI = () => {
     scopeButtons.forEach((button) => {
@@ -28,7 +36,7 @@
     });
   };
 
-  const renderCards = (items, keyword) => {
+  const renderCards = async (items, keyword) => {
     if (!items.length) {
       results.innerHTML = '';
       empty.hidden = false;
@@ -41,32 +49,43 @@
 
     results.innerHTML = items
       .map((item) => {
-        const chips = (item.categories || [])
+        const categories = (item.categories || [])
           .slice(0, 2)
-          .map((tag) => `<span class="chip chip--filled">#${escapeHtml(tag)}</span>`)
+          .map((tag) => `<span class="chip chip--category">${escapeHtml(tag)}</span>`)
           .join('');
         const tags = (item.tags || [])
           .slice(0, 3)
-          .map((tag) => `<span class="chip">#${escapeHtml(tag)}</span>`)
+          .map((tag) => `<span class="chip chip--tag">#${escapeHtml(tag)}</span>`)
           .join('');
         const desc = item.description || item.summary || String(item.content || '').slice(0, 120);
 
         return `
-          <article class="archive-card">
-            <div class="archive-card__head">
-              <div class="archive-chip-row">${chips}<span class="chip">${escapeHtml(item.type)}</span></div>
-              <div class="archive-card__meta"><span>${escapeHtml(item.date)}</span><span>${escapeHtml(item.type)}</span></div>
-            </div>
-            <h3 class="archive-card__title"><a href="${escapeHtml(item.url)}">${escapeHtml(item.title)}</a></h3>
-            <p class="archive-card__summary">${escapeHtml(desc)}</p>
-            <div class="archive-card__foot">
-              <div class="archive-chip-row archive-chip-row--bottom">${tags}</div>
-              <a class="archive-card__more" href="${escapeHtml(item.url)}">阅读全文 →</a>
-            </div>
+          <article class="archive-card archive-card--search">
+            <a class="archive-card__inner" href="${escapeHtml(item.url)}" aria-label="阅读：${escapeHtml(item.title)}">
+              <div class="archive-card__head">
+                ${categories ? `<div class="archive-chip-row">${categories}</div>` : ''}
+                <div class="archive-card__meta"><span>${escapeHtml(item.date)}</span><span>${escapeHtml(item.type)}</span></div>
+              </div>
+              <h3 class="archive-card__title">${escapeHtml(item.title)}</h3>
+              <p class="archive-card__summary">${escapeHtml(desc)}</p>
+              <div class="archive-card__foot">
+                <div class="archive-card__foot-left">
+                  <div class="archive-chip-row archive-chip-row--bottom">${tags}</div>
+                </div>
+                <div class="archive-card__foot-right">
+                  ${renderCommentCount(item.url)}
+                  <span class="archive-card__more">阅读全文 →</span>
+                </div>
+              </div>
+            </a>
           </article>
         `;
       })
       .join('');
+
+    if (typeof window.refreshWalineCommentCounts === 'function') {
+      window.refreshWalineCommentCounts(results);
+    }
   };
 
   const runSearch = async () => {
@@ -93,7 +112,7 @@
         })
       : scoped;
 
-    renderCards(filtered, keyword);
+    await renderCards(filtered, keyword);
 
     const next = new URLSearchParams();
     if (keyword) next.set('q', keyword);

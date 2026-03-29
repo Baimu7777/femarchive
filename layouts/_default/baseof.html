@@ -3,7 +3,7 @@
 <head>
   {{ partial "head.html" . }}
 </head>
-<body class="body-kind-{{ .Kind }} body-section-{{ .Section }}{{ if .IsHome }} body-home{{ end }}">
+<body class="body-kind-{{ .Kind }} body-section-{{ .Section }}{{ if .IsHome }} body-home{{ end }}"{{ if site.Params.comments.enable }} data-waline-server-url="{{ site.Params.comments.serverURL }}"{{ end }}>
   {{ if not .IsHome }}
     {{ partial "header.html" . }}
   {{ end }}

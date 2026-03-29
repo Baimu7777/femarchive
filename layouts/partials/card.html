@@ -22,10 +22,20 @@
     <p class="archive-card__summary">{{ partial "preview-text.html" (dict "page" $page "limit" 110) }}</p>
 
     <div class="archive-card__foot">
-      <div class="archive-chip-row archive-chip-row--bottom">
-        {{ range first 3 $tags }}<span class="chip chip--tag">#{{ . }}</span>{{ end }}
+      <div class="archive-card__foot-left">
+        <div class="archive-chip-row archive-chip-row--bottom">
+          {{ range first 3 $tags }}<span class="chip chip--tag">#{{ . }}</span>{{ end }}
+        </div>
       </div>
-      <span class="archive-card__more">阅读全文 →</span>
+      <div class="archive-card__foot-right">
+        <span class="card-comment-count" aria-label="评论数">
+          <svg class="card-comment-count__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M5 6.75A2.75 2.75 0 0 1 7.75 4h8.5A2.75 2.75 0 0 1 19 6.75v5.5A2.75 2.75 0 0 1 16.25 15H11.7l-3.78 3.2c-.72.61-1.82.1-1.82-.85V15.9A2.75 2.75 0 0 1 5 13.25z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.85"/>
+          </svg>
+          <span class="waline-comment-count" data-path="{{ $page.RelPermalink }}">0</span>
+        </span>
+        <span class="archive-card__more">阅读全文 →</span>
+      </div>
     </div>
   </a>
 </article>

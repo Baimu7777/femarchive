@@ -48,11 +48,21 @@
                       <p class="entry-card__summary">
                         {{ partial "preview-text.html" (dict "page" . "limit" 90) }}
                       </p>
-                      {{ with .Params.categories }}
-                        <div class="entry-card__tags">
-                          {{ range first 2 . }}<span class="chip chip--category">{{ . }}</span>{{ end }}
-                        </div>
-                      {{ end }}
+                      <div class="entry-card__foot">
+                        {{ with .Params.categories }}
+                          <div class="entry-card__tags">
+                            {{ range first 2 . }}<span class="chip chip--category">{{ . }}</span>{{ end }}
+                          </div>
+                        {{ else }}
+                          <div class="entry-card__tags"></div>
+                        {{ end }}
+                        <span class="card-comment-count" aria-label="评论数">
+                          <svg class="card-comment-count__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M5 6.75A2.75 2.75 0 0 1 7.75 4h8.5A2.75 2.75 0 0 1 19 6.75v5.5A2.75 2.75 0 0 1 16.25 15H11.7l-3.78 3.2c-.72.61-1.82.1-1.82-.85V15.9A2.75 2.75 0 0 1 5 13.25z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.85"/>
+                          </svg>
+                          <span class="waline-comment-count" data-path="{{ .RelPermalink }}">0</span>
+                        </span>
+                      </div>
                     </a>
                   </article>
                 {{ else }}

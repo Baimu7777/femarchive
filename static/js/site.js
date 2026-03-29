@@ -27,6 +27,38 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    const walineServerURL = document.body?.dataset.walineServerUrl || '';
+    let walineCommentAbort = null;
+    let walineCommentModulePromise = null;
+
+    const refreshWalineCommentCounts = async (root = document) => {
+      if (!walineServerURL) return;
+
+      const selector = '.waline-comment-count';
+      const scope = root && typeof root.querySelectorAll === 'function' ? root : document;
+      const targets = Array.from(scope.querySelectorAll(selector)).filter((item) => item.dataset.path);
+      if (!targets.length) return;
+
+      try {
+        walineCommentModulePromise ||= import('https://unpkg.com/@waline/client@v3/dist/comment.js');
+        const { commentCount } = await walineCommentModulePromise;
+
+        if (typeof walineCommentAbort === 'function') {
+          walineCommentAbort('refresh');
+        }
+
+        walineCommentAbort = commentCount({
+          serverURL: walineServerURL,
+          selector,
+        });
+      } catch (error) {
+        console.error('Waline comment count failed to initialize:', error);
+      }
+    };
+
+    window.refreshWalineCommentCounts = refreshWalineCommentCounts;
+    refreshWalineCommentCounts();
+
     const filterForms = document.querySelectorAll('[data-local-filter]');
 
     filterForms.forEach((form) => {
