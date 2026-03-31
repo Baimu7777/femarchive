@@ -60,7 +60,7 @@ summaryLength = 28
     serverURL = "https://waline.feminism-nv.space/"
     lang = "zh-CN"
     emoji = ["https://unpkg.com/@waline/emojis@1.1.0/weibo"]
-    pageview = false
+    pageview = true
     reaction = false
 
 [related]

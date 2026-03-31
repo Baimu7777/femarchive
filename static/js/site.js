@@ -30,6 +30,8 @@
     const walineServerURL = document.body?.dataset.walineServerUrl || '';
     let walineCommentAbort = null;
     let walineCommentModulePromise = null;
+    let walinePageviewAbort = null;
+    let walinePageviewModulePromise = null;
 
     const refreshWalineCommentCounts = async (root = document) => {
       if (!walineServerURL) return;
@@ -56,8 +58,37 @@
       }
     };
 
+    const refreshWalinePageviewCounts = async (root = document) => {
+      if (!walineServerURL) return;
+
+      const selector = '.waline-pageview-count';
+      const scope = root && typeof root.querySelectorAll === 'function' ? root : document;
+      const targets = Array.from(scope.querySelectorAll(selector)).filter((item) => item.dataset.path);
+      if (!targets.length) return;
+
+      try {
+        walinePageviewModulePromise ||= import('https://unpkg.com/@waline/client@v3/dist/pageview.js');
+        const { pageviewCount } = await walinePageviewModulePromise;
+
+        if (typeof walinePageviewAbort === 'function') {
+          walinePageviewAbort('refresh');
+        }
+
+        walinePageviewAbort = pageviewCount({
+          serverURL: walineServerURL,
+          path: window.location.pathname,
+          selector,
+          update: false,
+        });
+      } catch (error) {
+        console.error('Waline pageview count failed to initialize:', error);
+      }
+    };
+
     window.refreshWalineCommentCounts = refreshWalineCommentCounts;
+    window.refreshWalinePageviewCounts = refreshWalinePageviewCounts;
     refreshWalineCommentCounts();
+    refreshWalinePageviewCounts();
 
     const filterForms = document.querySelectorAll('[data-local-filter]');
 

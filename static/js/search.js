@@ -30,6 +30,15 @@
       <span class="waline-comment-count" data-path="${escapeHtml(path)}">0</span>
     </span>`;
 
+  const renderPageviewCount = (path) => `
+    <span class="card-pageview-count" aria-label="浏览量">
+      <svg class="card-pageview-count__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M2.75 12s3.5-6 9.25-6 9.25 6 9.25 6-3.5 6-9.25 6-9.25-6-9.25-6Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.85"></path>
+        <circle cx="12" cy="12" r="2.65" fill="none" stroke="currentColor" stroke-width="1.85"></circle>
+      </svg>
+      <span class="waline-pageview-count" data-path="${escapeHtml(path)}">0</span>
+    </span>`;
+
   const buildChipRow = (item) => {
     const categoryChips = (item.categories || [])
       .slice(0, 2)
@@ -74,6 +83,7 @@
             </div>
             <div class="archive-card__foot-right">
               ${renderCommentCount(item.url)}
+              ${renderPageviewCount(item.url)}
               <span class="archive-card__more">阅读全文 →</span>
             </div>
           </div>
@@ -103,6 +113,10 @@
 
     if (typeof window.refreshWalineCommentCounts === 'function') {
       window.refreshWalineCommentCounts(results);
+    }
+
+    if (typeof window.refreshWalinePageviewCounts === 'function') {
+      window.refreshWalinePageviewCounts(results);
     }
   };
 
