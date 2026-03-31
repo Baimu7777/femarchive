@@ -1,6 +1,6 @@
 ---
-title: "投稿"
-description: "欢迎投稿。"
+title: "投稿入口"
+description: ""
 date: 2026-03-13T12:00:00+08:00
 draft: false
 ---
