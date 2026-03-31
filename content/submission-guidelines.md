@@ -6,8 +6,9 @@ draft: false
 ---
 欢迎投稿或搬运文章进行存档。若文章为她处搬运，请注明原作者与原文链接出处。
 
-若打不开下面的谷歌表格，可以将文件发送至女阅组邮箱：quannv.feedback@gmail.com
+可在notion页面：*组务建议-讨论区-网站文章*内直接新增内容，或将内容直接填入本页表格。
 
-**组内成员可在notion页面：*组务建议-讨论区-网站文章*内直接新增内容**
+若打不开下面的谷歌表格和notion，可以将文件发送至女阅组邮箱：quannv.feedback@gmail.com
+
 
 <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeWkDUxAJ3jMPSuS2rifhgoAFeBEGSKV3aSvEEnjZiffOyyUA/viewform?embedded=true" width="960" height="1335" frameborder="0" marginheight="0" marginwidth="0">正在加载…</iframe>
