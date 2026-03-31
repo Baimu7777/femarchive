@@ -567,6 +567,7 @@ body.home-hero-dismissed .home-hero {
   flex: 1 1 auto;
 }
 
+.entry-card__foot-right,
 .archive-card__foot-right,
 .news-row__meta-main {
   display: inline-flex;
