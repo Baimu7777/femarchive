@@ -10,7 +10,7 @@ categories:
   - "女权输出"
 tags:
   - "殙因制度"
-  - "语言政治"
+  - "语言"
 original_url: "[「殙驢」vs「單身狗」：揭穿體制維護者的道德面紗](https://civilizedsavagery.blogspot.com/2026/03/vs.html)"
 original_date: "2026-03-19"
 license: "该作品版权归原作者所有，搬运时进行了繁简互译。"
