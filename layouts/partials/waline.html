@@ -21,21 +21,38 @@
     walineStatus.textContent = message;
   };
 
+  const enablePageview = {{ if site.Params.comments.pageview }}true{{ else }}false{{ end }};
+  const enableReaction = {{ if site.Params.comments.reaction }}true{{ else }}false{{ end }};
+
   if (walineRoot) {
     try {
       const { init } = await import('https://unpkg.com/@waline/client@v3/dist/waline.js');
+
+      const isLocal =
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1';
 
       init({
         el: walineRoot,
         serverURL: '{{ site.Params.comments.serverURL }}',
         lang: '{{ site.Params.comments.lang | default "zh-CN" }}',
         path: window.location.pathname,
-        pageview: {{ if site.Params.comments.pageview }}true{{ else }}false{{ end }},
-        reaction: {{ if site.Params.comments.reaction }}true{{ else }}false{{ end }},
+        pageview: enablePageview && !isLocal,
+        reaction: enableReaction,
         comment: '.waline-comment-count',
         search: false,
-        emoji: ['https://cdn.jsdelivr.net/gh/norevi/blob-emoji-for-waline@2.0/blobs-png','https://cdn.jsdelivr.net/gh/norevi/blob-emoji-for-waline@2.0/blobs-gif','https://cdn.jsdelivr.net/gh/norevi/waline-blobcatemojis@1.0/blobs','//unpkg.com/@waline/emojis@1.4.0/tw-emoji','https://unpkg.com/@waline/emojis@1.4.0/tw-sport','https://unpkg.com/@waline/emojis@1.4.0/tw-body', '//unpkg.com/@waline/emojis@1.4.0/tw-travel', '//unpkg.com/@waline/emojis@1.4.0/tw-natural','//unpkg.com/@waline/emojis@1.4.0/tw-weather','//unpkg.com/@waline/emojis@1.4.0/tw-symbol'],
-  
+        emoji: [
+          'https://cdn.jsdelivr.net/gh/norevi/blob-emoji-for-waline@2.0/blobs-png',
+          'https://cdn.jsdelivr.net/gh/norevi/blob-emoji-for-waline@2.0/blobs-gif',
+          'https://cdn.jsdelivr.net/gh/norevi/waline-blobcatemojis@1.0/blobs',
+          'https://unpkg.com/@waline/emojis@1.4.0/tw-emoji',
+          'https://unpkg.com/@waline/emojis@1.4.0/tw-sport',
+          'https://unpkg.com/@waline/emojis@1.4.0/tw-body',
+          'https://unpkg.com/@waline/emojis@1.4.0/tw-travel',
+          'https://unpkg.com/@waline/emojis@1.4.0/tw-natural',
+          'https://unpkg.com/@waline/emojis@1.4.0/tw-weather',
+          'https://unpkg.com/@waline/emojis@1.4.0/tw-symbol'
+        ],
         locale: {
           placeholder: '欢迎补充资料、勘误或继续讨论。评论功能无需登录，昵称栏留空默认显示“匿名”。'
         }
