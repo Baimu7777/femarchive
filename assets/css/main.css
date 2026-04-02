@@ -2348,6 +2348,13 @@ body.home-hero-dismissed .home-hero {
     display: flex;
     flex-direction: column;
     gap: 18px;
+    align-items: stretch;
+  }
+
+  .article-column,
+  .article-sidebar {
+    width: 100%;
+    min-width: 0;
   }
 
   .article-column,
