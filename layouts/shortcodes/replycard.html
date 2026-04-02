@@ -1,0 +1,11 @@
+{{ $to := .Get "to" }}
+<div class="mycard mycard--reply">
+  {{ if $to }}
+    <div class="mycard__meta">
+      <span class="mycard__replyto">{{ $to }}</span>
+    </div>
+  {{ end }}
+  <div class="mycard__content">
+    {{ .Inner | markdownify }}
+  </div>
+</div>

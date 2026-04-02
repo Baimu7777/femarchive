@@ -779,7 +779,7 @@ body.home-hero-dismissed .home-hero {
 }
 
 .archive-grid--search {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .archive-grid--figures {
@@ -2348,7 +2348,6 @@ body.home-hero-dismissed .home-hero {
     display: flex;
     flex-direction: column;
     gap: 18px;
-    align-items: stretch;
   }
 
   .article-column,
@@ -2571,14 +2570,68 @@ body.home-hero-dismissed .home-hero {
 }
 
 .mycard {
-  padding: 10px 20px;
-  margin: 20px 20px;
-  border: 1px solid rgba(159, 186, 163, 0.82);
-  border-radius: 6px;
+  position: relative;
+  width: 100%;
+  padding: 1.15rem 1.45rem;
+  margin: 1.05rem 0 1.35rem;
+  border: 1px solid rgba(169, 194, 170, 0.92);
+  border-radius: 1.85rem;
   word-break: break-word;
-  background: #7cafbe14;
-  box-shadow: 0 8px 18px rgba(80, 105, 87, 0.08);
+  background: linear-gradient(180deg, rgba(248, 251, 248, 0.96) 0%, rgba(241, 246, 241, 0.93) 100%);
+  box-shadow: 0 14px 28px rgba(80, 105, 87, 0.06);
   font-family: "霞鹜文楷", "STKaiti", "KaiTi", serif;
+}
+
+.mycard__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.48rem;
+  margin: 0 0 0.65rem;
+}
+
+.mycard__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.55rem;
+  padding: 0.12rem 0.68rem;
+  border: 1px solid rgba(156, 183, 159, 0.95);
+  border-radius: 999px;
+  background: rgba(235, 244, 235, 0.96);
+  color: #4d7256;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.mycard__replyto {
+  color: #6b856f;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.mycard--reply {
+  width: calc(100% - 3.4rem);
+  margin: -0.25rem 0 1.45rem 3.4rem;
+  padding: 1rem 1.2rem 1.08rem;
+  border-color: rgba(182, 203, 184, 0.98);
+  border-left: 4px solid rgba(155, 183, 157, 0.9);
+  border-radius: 1.55rem;
+  background: linear-gradient(180deg, rgba(250, 252, 250, 0.98) 0%, rgba(244, 248, 244, 0.96) 100%);
+  box-shadow: 0 10px 22px rgba(87, 113, 92, 0.05);
+}
+
+.mycard--reply::before {
+  content: "";
+  position: absolute;
+  left: -1.55rem;
+  top: 1.35rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-left: 2px solid rgba(170, 194, 171, 0.95);
+  border-bottom: 2px solid rgba(170, 194, 171, 0.95);
+  border-bottom-left-radius: 0.95rem;
 }
 
 .mycard__content,
@@ -2592,6 +2645,65 @@ body.home-hero-dismissed .home-hero {
 
 .mycard__content > :last-child {
   margin-bottom: 0;
+}
+
+.douban-comments-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.5rem 0 0.9rem;
+  padding: 0.15rem 0.05rem 0.2rem 0;
+  color: #43684d;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.douban-comments-title::before {
+  content: "";
+  width: 0.58rem;
+  height: 0.58rem;
+  border-radius: 999px;
+  background: #95b497;
+  box-shadow: 1rem 0 0 #d9e7d9;
+}
+
+.douban-comments-title::after {
+  content: "";
+  width: 3.6rem;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(149, 180, 151, 0.55), rgba(149, 180, 151, 0));
+}
+
+@media (max-width: 720px) {
+  .mycard {
+    padding: 1rem 1rem;
+    margin: 0.95rem 0 1.15rem;
+    border-radius: 1.45rem;
+  }
+
+  .mycard--reply {
+    width: calc(100% - 1.35rem);
+    margin-left: 1.35rem;
+    padding: 0.92rem 0.95rem 1rem;
+    border-radius: 1.2rem;
+  }
+
+  .mycard--reply::before {
+    left: -0.9rem;
+    top: 1.15rem;
+    width: 0.68rem;
+    height: 0.85rem;
+  }
+
+  .douban-comments-title {
+    margin-top: 1.2rem;
+    font-size: 1rem;
+  }
+
+  .douban-comments-title::after {
+    width: 2.3rem;
+  }
 }
 
 blockquote.quote-center {

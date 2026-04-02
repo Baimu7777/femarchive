@@ -1,0 +1,2 @@
+{{ $title := .Get "title" | default (.Get 0) | default "评论区" }}
+<p class="douban-comments-title">{{ $title }}</p>
