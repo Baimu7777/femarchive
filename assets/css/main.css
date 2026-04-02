@@ -3160,3 +3160,75 @@ i.star-outline svg {
   border: 1.5px solid #5c855c;
   box-shadow: 0 0 0 4px rgba(244, 248, 244, 0.9);
 }
+
+
+.footnotes {
+  margin-top: 2rem;
+  padding-top: 0;
+  border-top: none;
+}
+
+.footnotes::before,
+.footnotes hr {
+  display: none;
+}
+
+.footnotes ol {
+  list-style: none !important;
+  margin: 0;
+  padding-left: 0 !important;
+  counter-reset: footnote;
+}
+
+.footnotes li {
+  counter-increment: footnote;
+  position: relative;
+  margin: 0 0 1.4rem 0;
+  padding-left: 3rem;
+}
+
+.footnotes li p {
+  margin: 0 0 0.65rem 0;
+  line-height: 1.95;
+  text-indent: 0 !important;
+  padding-left: 0 !important;
+}
+
+/* 关键：相对 li 定位，不相对 p 定位 */
+.footnotes li .footnote-backref {
+  position: absolute;
+  left: 0;
+  top: 0.05rem;
+  display: inline-block;
+  text-decoration: none;
+  font-size: 0;
+  line-height: 1;
+  color: #4f6b56;
+}
+
+.footnotes li .footnote-backref::before {
+  content: "注" counter(footnote);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #4f6b56;
+  font-family: "霞鹜文楷";
+}
+
+/* 如果你的 Hugo 版本输出的是这个类名，也一起兼容 */
+.footnotes li .footnote-return {
+  position: absolute;
+  left: 0;
+  top: 0.05rem;
+  display: inline-block;
+  text-decoration: none;
+  font-size: 0;
+  line-height: 1;
+  color: #4f6b56;
+}
+
+.footnotes li .footnote-return::before {
+  content: "注" counter(footnote);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #4f6b56;
+}
