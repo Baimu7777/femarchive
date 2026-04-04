@@ -1,6 +1,6 @@
 ---
 title: "停止习惯性哭丧、失望与消费 "
-description: ""
+description: "个人即姃治，所作所为皆为立场的体现。"
 date: 2026-04-04T11:19:17+08:00
 draft: false
 comments: true

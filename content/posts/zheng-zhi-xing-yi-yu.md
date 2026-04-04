@@ -1,6 +1,6 @@
 ---
 title: "拒绝使用“政治性抑郁”"
-description: ""
+description: "直接表达我们的愤怒、痛苦、疲惫和抗争吧，而不是使用“政治性抑郁”这样一个模糊且消耗女性群体的词。"
 date: 2026-04-01T14:46:44+08:00
 draft: false
 comments: true
