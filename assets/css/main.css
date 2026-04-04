@@ -1358,13 +1358,21 @@ body.home-hero-dismissed .home-hero {
 }
 
 .article-content blockquote:not(.quote):not(.quote-center) {
-  margin-left: 0;
-  padding: 0.9em 1em;
+  margin-left: 0.5em;
+  padding: 0.5em 1em;
   border-left: 3px solid var(--line-mid);
   border-radius: 0 14px 14px 0;
   background: #f6faf6;
   color: var(--text-soft);
   font-family: "霞鹜文楷";
+}
+
+.article-content blockquote:not(.quote):not(.quote-center) > :first-child {
+  margin-top: 0;
+}
+
+.article-content blockquote:not(.quote):not(.quote-center) > :last-child {
+  margin-bottom: 0;
 }
 
 .article-content a {
@@ -2644,6 +2652,11 @@ body.home-hero-dismissed .home-hero {
 .mycard__content,
 .mycard .content {
   line-height: 1.95;
+}
+
+.mycard__content p,
+.mycard .content p {
+  text-indent: 0 !important;
 }
 
 .mycard__content > :first-child {
