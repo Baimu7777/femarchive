@@ -1,8 +1,6 @@
 ---
 title: "停止对我评头论足"
-description: "不论是批评还是赞扬，都是评论。
-
-而不被邀请的评论，就是冒犯。"
+description: "不论是批评还是赞扬，都是评论。而不被邀请的评论，就是冒犯。"
 date: 2026-04-04T12:49:06+08:00
 draft: false
 comments: true
