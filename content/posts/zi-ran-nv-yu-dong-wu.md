@@ -6,7 +6,7 @@ draft: false
 comments: true
 author: "[磬烨](https://m.weibo.cn/profile/6332601293?user_token=a0.MTg1ZGEwZWU0OWVhNGQyY6jH4pE1FQCXzaAD0F0uAw4g-CgM_pCWBf1hJ3jgXfyC)"
 categories:
-  - "个人成长"
+  - "狩猎经验"
 tags:
   - "反动保"
 related_reading:

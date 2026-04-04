@@ -6,7 +6,7 @@ draft: false
 comments: true
 author: "[10000000000m³冰箱](https://x.com/olr1566064)"
 categories:
-  - "女权输出"
+  - "理论分野"
 tags:
   - "反性缘"
 related_reading:

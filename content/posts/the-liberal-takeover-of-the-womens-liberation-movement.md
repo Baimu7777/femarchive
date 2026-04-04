@@ -6,8 +6,7 @@ draft: false
 comments: true
 author: "Carol Hanisch"
 categories:
-  - "女权输出"
-  - "资料归档"
+  - "理论分野"
 tags:
   - "自由男权"
   - "激进派"

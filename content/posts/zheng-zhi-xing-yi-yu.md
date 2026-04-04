@@ -6,7 +6,8 @@ draft: false
 comments: true
 author: "女阅组"
 categories:
-  - "女权输出"
+  - "语言回声"
+  - "思考讨论"
 tags:
   - "语言"
 related_reading:

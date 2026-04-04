@@ -6,7 +6,7 @@ draft: false
 comments: true
 author: "茜小姨姨"
 categories:
-  - "女权输出"
+  - "结构辨析"
 tags:
   - "传统男权"
   - "自由男权"

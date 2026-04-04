@@ -6,7 +6,7 @@ draft: false
 comments: true
 author: "[王不逃](https://m.douban.com/people/143304989/)"
 categories:
-  - "个人成长"
+  - "狩猎经验"
 tags:
   - "反养宠"
 related_reading:

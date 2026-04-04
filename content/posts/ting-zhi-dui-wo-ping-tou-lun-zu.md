@@ -6,7 +6,7 @@ draft: false
 comments: true
 author: "微信公众号-婋勇骟战"
 categories:
-  - "女权输出"
+  - "语言回声"
 tags:
   - "女性主体性"
 related_reading:

@@ -6,7 +6,7 @@ draft: false
 comments: true
 author: "豆瓣randomforest"
 categories:
-  - "女权输出"
+  - "理论分野"
 tags:
   - "归档"
   - "10bt"

@@ -6,7 +6,7 @@ draft: false
 comments: true
 author: "[𝖒𝖔𝖒𝖔](https://www.douban.com/people/165315197/)"
 categories:
-  - "女权输出"
+  - "理论分野"
 tags:
   - "反性缘"
 related_reading:

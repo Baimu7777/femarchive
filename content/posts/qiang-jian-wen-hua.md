@@ -6,7 +6,7 @@ draft: false
 comments: true
 author: "红服女夜奔(在黑暗中吹口哨)"
 categories:
-  - "女权输出"
+  - "结构辨析"
 
 original_url: ""
 original_date: "2020-10-18"

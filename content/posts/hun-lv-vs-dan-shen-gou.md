@@ -6,8 +6,7 @@ draft: false
 comments: true
 author: "[媻姑](https://x.com/castrateaddict)"
 categories:
-  - "社会议题"
-  - "女权输出"
+  - "结构辨析"
 tags:
   - "殙因制度"
   - "语言"

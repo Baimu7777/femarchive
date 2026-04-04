@@ -1,48 +1,47 @@
 {{ define "main" }}
-  {{ $categoryNames := .Site.Params.homeTopics | default (slice "社会议题" "个人成长" "女权输出" "女身优势" "资料归档" "站务") }}
+  {{ $categoryNames := .Site.Params.homeTopics | default (slice "理论分野" "结构辨析" "语言回声" "狩猎经验" "女身优势" "思考讨论") }}
   {{ $postPages := where .Site.RegularPages "Section" "eq" "posts" }}
+  {{ $descriptions := dict
+    "理论分野" "聚焦女权相关的理论、立场与路线分歧，梳理概念边界与观点差异。"
+    "结构辨析" "分析制度与社会结构，拆解规训、关系与日常秩序背后的运作逻辑。"
+    "语言回声" "回应文化与语言中的男社痕迹，辨析词语、表达与叙事隐含的立场。"
+    "狩猎经验" "聚焦自我提升与行动实践，关注个人成长、现实策略与日常中的实际运用。"
+    "女身优势" "讨论女性身体、生理与相关差异，关注女身本身的条件、特点与意义。"
+    "思考讨论" "收录讨论与思考，呈现交流、碰撞与延伸出的阶段性观点。"
+  }}
 
   <main class="terms-page">
     <div class="shell archive-shell">
       <section class="archive-panel archive-panel--terms">
         <div class="term-grid term-grid--decorative">
-          {{ range $categoryNames }}
-            {{ $name := . }}
+          {{ range $index, $name := $categoryNames }}
             {{ $style := "site" }}
 
-            {{ if eq $name "社会议题" }}
-              {{ $style = "social" }}
-            {{ else if eq $name "个人成长" }}
-              {{ $style = "growth" }}
-            {{ else if eq $name "女权输出" }}
+            {{ if eq $name "理论分野" }}
               {{ $style = "voice" }}
+            {{ else if eq $name "结构辨析" }}
+              {{ $style = "social" }}
+            {{ else if eq $name "语言回声" }}
+              {{ $style = "archive" }}
+            {{ else if eq $name "狩猎经验" }}
+              {{ $style = "growth" }}
             {{ else if eq $name "女身优势" }}
               {{ $style = "advantages" }}
-            {{ else if eq $name "资料归档" }}
-              {{ $style = "archive" }}
-            {{ else if eq $name "站务" }}
+            {{ else if eq $name "思考讨论" }}
               {{ $style = "site" }}
-            
             {{ end }}
 
             {{ $matched := where $postPages "Params.categories" "intersect" (slice $name) }}
             {{ $count := len $matched }}
+            {{ $desc := index $descriptions $name }}
 
-            {{ if gt $count 0 }}
-              <a class="term-card term-card--decorative term-card--{{ $style }}" href="{{ printf "/categories/%s/" ($name | urlize) | relLangURL }}">
-                <div class="term-card__head">
-                  <h2 class="term-card__title">{{ $name }}</h2>
-                  <span class="term-card__count">{{ $count }} 篇</span>
-                </div>
-              </a>
-            {{ else }}
-              <article class="term-card term-card--decorative term-card--{{ $style }} is-empty">
-                <div class="term-card__head">
-                  <h2 class="term-card__title">{{ $name }}</h2>
-                  <span class="term-card__count">0 篇</span>
-                </div>
-              </article>
-            {{ end }}
+            <a class="term-card term-card--decorative term-card--{{ $style }}{{ if eq $count 0 }} is-empty{{ end }}" href="{{ printf "/categories/%s/" ($name | urlize) | relLangURL }}">
+              <div class="term-card__head">
+                <h2 class="term-card__title">{{ $name }}</h2>
+                <span class="term-card__count">{{ $count }} 篇</span>
+              </div>
+              {{ with $desc }}<p class="term-card__meta">{{ . }}</p>{{ end }}
+            </a>
           {{ end }}
         </div>
       </section>

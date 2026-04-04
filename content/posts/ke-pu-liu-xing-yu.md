@@ -6,7 +6,7 @@ draft: false
 comments: true
 author: "[德罗斯](https://www.douban.com/people/287708586/)"
 categories:
-  - "女权输出"
+  - "语言回声"
 tags:
   - 科普
   - 流行语
