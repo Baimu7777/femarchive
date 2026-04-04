@@ -260,8 +260,8 @@ a {
 
 .chip--tag {
   border-color: rgba(64, 138, 113, 0.18);
-  background: rgba(176, 228, 204, 0.18);
-  color: #285A48;
+  background: rgba(255, 189, 109, 0.106);
+  color: #3a5a28bb;
 }
 
 .archive-chip-row {
