@@ -1,6 +1,6 @@
 ---
 title: "男权社会的性自由、代孕自由是伪概念"
-description: ""
+description: "人只能禁止纳入，而不能选择是否纳入，就像人不能选择做虜隶一样。"
 date: 2026-04-02T09:56:06+08:00
 draft: false
 comments: true
