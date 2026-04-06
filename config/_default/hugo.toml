@@ -62,6 +62,7 @@ summaryLength = 28
     emoji = ["https://unpkg.com/@waline/emojis@1.1.0/weibo"]
     pageview = true
     reaction = false
+    turnstileKey = "0x4AAAAAAC1QJzPCJtEGCRGL"
 
 [related]
   includeNewer = true
