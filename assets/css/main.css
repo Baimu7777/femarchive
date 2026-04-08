@@ -3365,3 +3365,46 @@ i.star-outline svg {
   font-weight: 700;
   color: #285A48;
 }
+/* article image captions */
+.article-content .article-figure {
+  width: fit-content;
+  max-width: 100%;
+  margin: 1.6rem auto 1.9rem;
+}
+
+.article-content .article-figure > img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+
+.article-content .article-figure__caption {
+  width: auto;
+  max-width: min(100%, 52rem);
+  margin: 0.85rem auto 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #285A48;
+  font-family: "霞鹜文楷", "STKaiti", "Kaiti SC", serif;
+  font-size: 1rem;
+  line-height: 1.95;
+  text-align: center;
+  letter-spacing: 0.02em;
+  box-shadow: none;
+}
+
+@media (max-width: 640px) {
+  .article-content .article-figure {
+    width: 100%;
+  }
+
+  .article-content .article-figure__caption {
+    width: auto;
+    max-width: 100%;
+    padding: 0;
+    font-size: 0.96rem;
+  }
+}
