@@ -4,7 +4,7 @@ description: "在实现财富自由之前，用钱时永远优先让自己变得
 date: 2026-03-25T15:01:23+08:00
 draft: false
 comments: true
-author: "[磬烨](https://m.weibo.cn/profile/6332601293?user_token=a0.MTg1ZGEwZWU0OWVhNGQyY6jH4pE1FQCXzaAD0F0uAw4g-CgM_pCWBf1hJ3jgXfyC)"
+author: "X-磬烨"
 categories:
   - "狩猎经验"
 tags:

@@ -4,7 +4,7 @@ description: "而且越养猫，我思考的相关问题就更多，我无法忽
 date: 2026-03-25T14:08:47+08:00
 draft: false
 comments: true
-author: "[王不逃](https://m.douban.com/people/143304989/)"
+author: "豆瓣-王不逃"
 categories:
   - "狩猎经验"
 tags:

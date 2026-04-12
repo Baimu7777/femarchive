@@ -4,7 +4,7 @@ description: "女权不是审美派别，不是“今天穿裙子好还是裤子
 date: 2026-03-13
 draft: false
 comments: true
-author: "豆瓣randomforest"
+author: "豆瓣-randomforest"
 categories:
   - "理论分野"
 tags:

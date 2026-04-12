@@ -4,7 +4,7 @@ description: "「殙驴」没有具体指向任何个人，它是一个描述社
 date: 2026-03-24T22:57:27+08:00
 draft: false
 comments: true
-author: "[媻姑](https://x.com/castrateaddict)"
+author: "X-媻姑"
 categories:
   - "结构辨析"
 tags:

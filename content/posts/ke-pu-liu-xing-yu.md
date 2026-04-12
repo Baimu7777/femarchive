@@ -4,7 +4,7 @@ description: ""
 date: 2026-03-14T17:00:39+08:00
 draft: false
 comments: true
-author: "[德罗斯](https://www.douban.com/people/287708586/)"
+author: "豆瓣-德罗斯"
 categories:
   - "语言回声"
 tags:

@@ -4,7 +4,7 @@ description: "“爱情”本身就是虚假情感，而女权的使命就是让
 date: 2026-03-20T19:25:29+08:00
 draft: false
 comments: true
-author: "[10000000000m³冰箱](https://x.com/olr1566064)"
+author: "X-10000000000m³冰箱"
 categories:
   - "理论分野"
 tags:

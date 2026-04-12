@@ -4,7 +4,7 @@ description: "我们完全可以摒弃gl的分类，而去建设女无，去探�
 date: 2026-03-13T10:30:00+08:00
 draft: false
 comments: true
-author: "[𝖒𝖔𝖒𝖔](https://www.douban.com/people/165315197/)"
+author: "豆瓣-𝖒𝖔𝖒𝖔"
 categories:
   - "理论分野"
 tags:

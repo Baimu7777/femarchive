@@ -4,7 +4,7 @@ description: "母系基因身份证，女人的真实姓氏，男的白活、百
 date: 2026-03-16T14:55:28+08:00
 draft: false
 comments: true
-author: "[GreatGoddessOfLespugue](https://x.com/TheaWillendorf)"
+author: "X-GreatGoddessOfLespugue"
 categories:
   - "女身优势"
 tags:

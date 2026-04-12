@@ -4,7 +4,7 @@ description: "除去纳入的风险，纳入本身就是严重的侮辱，是屌
 date: 2026-04-02T09:56:06+08:00
 draft: false
 comments: true
-author: "女阅组"
+author: "豆瓣-女阅组"
 categories:
   - "理论分野"
 tags:

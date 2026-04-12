@@ -4,7 +4,7 @@ description: "愤怒就是愤怒，不甘心就是不甘心，缺少言论自由
 date: 2026-04-01T14:46:44+08:00
 draft: false
 comments: true
-author: "女阅组"
+author: "豆瓣-女阅组"
 categories:
   - "语言回声"
   - "思考讨论"
