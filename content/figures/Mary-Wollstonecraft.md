@@ -2,6 +2,7 @@
 title: "Mary Wollstonecraft"
 description: ""
 date: 2026-03-09T07:30:00+08:00
+slug: "263002"
 draft: false
 comments: true
 original_url: "[Mary Wollstonecraft](https://en.wikipedia.org/wiki/Mary_Wollstonecraft)"

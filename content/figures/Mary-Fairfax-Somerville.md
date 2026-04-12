@@ -2,6 +2,7 @@
 title: "Mary Fairfax Somerville"
 description: ""
 date: 2026-03-03T11:00:00+08:00
+slug: "263001"
 draft: false
 comments: true
 original_url: "[Mary Fairfax Somerville](https://en.wikipedia.org/wiki/Mary_Somerville)"
