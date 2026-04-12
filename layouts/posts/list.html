@@ -1,10 +1,23 @@
 {{ define "main" }}
   {{ $pages := sort .RegularPages "Date" "desc" }}
   {{ $paginator := .Paginate $pages }}
+  {{ $tagTerms := slice }}
+  {{ range $name, $taxonomy := site.Taxonomies.tags }}
+    {{ $tagName := trim $name " " }}
+    {{ $postPages := where $taxonomy.Pages "Section" "posts" }}
+    {{ if and (ne $tagName "") (gt (len $postPages) 0) }}
+      {{ $tagTerms = $tagTerms | append (dict
+        "name" $tagName
+        "count" (len $postPages)
+        "url" ((printf "/tags/%s/" ($tagName | urlize)) | relLangURL)
+      ) }}
+    {{ end }}
+  {{ end }}
+  {{ $tagTerms = sort $tagTerms "count" "desc" }}
 
-  <main class="archive-page">
-    <div class="shell archive-shell">
-      <section class="archive-panel">
+  <main class="archive-page archive-page--posts">
+    <div class="shell archive-shell posts-layout">
+      <section class="archive-panel posts-main">
         <section class="list-filter">
           <form class="local-filter" data-local-filter data-target="#postsGrid" data-empty="#postsEmpty">
             <label class="sr-only" for="post-filter-input">搜索文章</label>
@@ -21,6 +34,22 @@
         <p id="postsEmpty" class="empty-state" hidden>没有匹配的文章，换个关键词试试。</p>
         {{ template "_internal/pagination.html" . }}
       </section>
+
+      <aside class="tag-sidebar" aria-label="标签导航">
+        <div class="tag-sidebar__head">
+          <span class="archive-heading__kicker tag-sidebar__kicker">TAGS</span>
+        </div>
+
+        <div class="tag-sidebar__list">
+          {{ range $tagTerms }}
+            <a class="tag-sidebar__link" href="{{ .url }}">
+              <span class="tag-sidebar__name">{{ .name }}</span>
+            </a>
+          {{ else }}
+            <p class="tag-sidebar__empty">暂时还没有可显示的标签。</p>
+          {{ end }}
+        </div>
+      </aside>
     </div>
   </main>
 {{ end }}
