@@ -11,7 +11,7 @@ categories:
 tags:
   - "反性缘"
 related_reading:
-  - "posts/fxy-and-faq"
+  - "posts/261007"
 original_url: "2025年9月24日发布于动画番剧组，原贴标题“反v缘一词使性缘的有害性隐身了”"
 original_date: 2025-09-24
 license: "该作品版权归原作者所有。"
