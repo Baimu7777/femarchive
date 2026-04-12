@@ -90,6 +90,78 @@
     refreshWalineCommentCounts();
     refreshWalinePageviewCounts();
 
+
+    const autoWrapBrIndent = () => {
+      const paragraphs = document.querySelectorAll('.article-content p');
+
+      paragraphs.forEach((p) => {
+        if (!p.querySelector('br')) return;
+        if (p.querySelector('.br-indent')) return;
+        if (p.closest('.mycard, .footnotes, blockquote.quote, blockquote.quote-center')) return;
+
+        const nodes = Array.from(p.childNodes);
+        if (!nodes.length) return;
+
+        const fragment = document.createDocumentFragment();
+        let chunk = [];
+        let shouldIndentChunk = false;
+
+        const flushChunk = () => {
+          if (!chunk.length) return;
+
+          if (!shouldIndentChunk) {
+            chunk.forEach((node) => fragment.appendChild(node));
+            chunk = [];
+            return;
+          }
+
+          while (
+            chunk.length &&
+            chunk[0].nodeType === Node.TEXT_NODE &&
+            !chunk[0].textContent.trim()
+          ) {
+            chunk.shift();
+          }
+
+          while (
+            chunk.length &&
+            chunk[chunk.length - 1].nodeType === Node.TEXT_NODE &&
+            !chunk[chunk.length - 1].textContent.trim()
+          ) {
+            chunk.pop();
+          }
+
+          if (!chunk.length) return;
+
+          if (chunk[0].nodeType === Node.TEXT_NODE) {
+            chunk[0].textContent = chunk[0].textContent.replace(/^\s+/, '');
+          }
+
+          const span = document.createElement('span');
+          span.className = 'br-indent';
+          chunk.forEach((node) => span.appendChild(node));
+          fragment.appendChild(span);
+          chunk = [];
+        };
+
+        nodes.forEach((node) => {
+          if (node.nodeName === 'BR') {
+            flushChunk();
+            fragment.appendChild(node);
+            shouldIndentChunk = true;
+            return;
+          }
+
+          chunk.push(node);
+        });
+
+        flushChunk();
+        p.replaceChildren(fragment);
+      });
+    };
+
+    autoWrapBrIndent();
+
     const filterForms = document.querySelectorAll('[data-local-filter]');
 
     filterForms.forEach((form) => {

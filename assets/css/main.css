@@ -1360,15 +1360,6 @@ body.home-hero-dismissed .home-hero {
   letter-spacing: normal;
 }
 
-.article-content > p:has(br) {
-  padding-left: var(--article-indent);
-}
-
-.article-content > p:has(br)::before {
-  content: none;
-  white-space: normal;
-}
-
 .article-content li,
 .article-content blockquote p,
 .article-content td p,
@@ -3052,15 +3043,6 @@ i.star-outline svg {
     letter-spacing: normal;
   }
 
-  .article-content > p:has(br) {
-    padding-left: var(--article-indent);
-  }
-
-  .article-content > p:has(br)::before {
-    content: none;
-    white-space: normal;
-  }
-
   .article-content li,
   .article-content blockquote p,
   .article-content td p,
@@ -3488,4 +3470,19 @@ i.star-outline svg {
     padding: 0;
     font-size: 0.96rem;
   }
+}
+
+/* br 后单独首行缩进：site.js 会自动把 <br> 后的内容包成 .br-indent */
+.article-content .br-indent {
+  display: block;
+  text-indent: var(--article-indent);
+  padding-left: 0;
+  margin-left: 0;
+  white-space: normal;
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+.article-content .br-indent::before {
+  content: none !important;
 }
