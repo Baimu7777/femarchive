@@ -3652,3 +3652,12 @@ i.star-outline svg {
 .article-content .br-indent::before {
   content: none !important;
 }
+
+/* 隐藏 Waline 评论区的点赞按钮 */
+#waline .wl-card .wl-like {
+  display: none !important;
+}
+
+#waline .wl-card .wl-comment-actions {
+  gap: 0.35rem;
+}
