@@ -38,7 +38,7 @@
         lang: '{{ site.Params.comments.lang | default "zh-CN" }}',
         path: window.location.pathname,
         pageview: enablePageview && !isLocal,
-        reaction: enableReaction,
+        reaction: false,
         comment: '.waline-comment-count',
         search: false,
         turnstileKey: '{{ site.Params.comments.turnstileKey }}',
