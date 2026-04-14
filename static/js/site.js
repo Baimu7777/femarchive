@@ -162,20 +162,176 @@
 
     autoWrapBrIndent();
 
+    const escapeHtml = (text = '') =>
+      String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
+    const renderCommentCount = (path) => `
+      <span class="card-comment-count" aria-label="评论数">
+        <svg class="card-comment-count__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M5 6.75A2.75 2.75 0 0 1 7.75 4h8.5A2.75 2.75 0 0 1 19 6.75v5.5A2.75 2.75 0 0 1 16.25 15H11.7l-3.78 3.2c-.72.61-1.82.1-1.82-.85V15.9A2.75 2.75 0 0 1 5 13.25z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.85"></path>
+        </svg>
+        <span class="waline-comment-count" data-path="${escapeHtml(path)}">0</span>
+      </span>`;
+
+    const renderPageviewCount = (path) => `
+      <span class="card-pageview-count" aria-label="浏览量">
+        <svg class="card-pageview-count__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M2.75 12s3.5-6 9.25-6 9.25 6 9.25 6-3.5 6-9.25 6-9.25-6-9.25-6Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.85"></path>
+          <circle cx="12" cy="12" r="2.65" fill="none" stroke="currentColor" stroke-width="1.85"></circle>
+        </svg>
+        <span class="waline-pageview-count" data-path="${escapeHtml(path)}">0</span>
+      </span>`;
+
+    const buildChipRow = (item) => {
+      const chips = (item.categories || [])
+        .slice(0, 2)
+        .map((tag) => `<span class="chip chip--category">${escapeHtml(tag)}</span>`);
+
+      if (!chips.length) return '';
+      return `<div class="archive-chip-row">${chips.join('')}</div>`;
+    };
+
+    const buildTagRow = (item) => {
+      const tags = (item.tags || [])
+        .slice(0, 3)
+        .map((tag) => `<span class="chip chip--tag">#${escapeHtml(tag)}</span>`)
+        .join('');
+
+      return `<div class="archive-chip-row archive-chip-row--bottom">${tags}</div>`;
+    };
+
+    const renderArchiveCard = (item) => {
+      const summary = item.description || item.summary || String(item.content || '').slice(0, 120);
+      const author = item.author || '';
+
+      return `
+        <article class="archive-card" data-filter-item data-filter-text="${escapeHtml([
+          item.title,
+          item.description,
+          item.summary,
+          item.content,
+          ...(item.categories || []),
+          ...(item.tags || []),
+        ].join(' '))}">
+          <a class="archive-card__inner" href="${escapeHtml(item.url)}" aria-label="阅读：${escapeHtml(item.title)}">
+            <div class="archive-card__head">
+              ${buildChipRow(item)}
+              <div class="archive-card__meta">
+                <span>${escapeHtml(item.date || '')}</span>
+                <span>${escapeHtml(author)}</span>
+              </div>
+            </div>
+            <h3 class="archive-card__title">${escapeHtml(item.title)}</h3>
+            <p class="archive-card__summary">${escapeHtml(summary)}</p>
+            <div class="archive-card__foot">
+              <div class="archive-card__foot-left">
+                ${buildTagRow(item)}
+              </div>
+              <div class="archive-card__foot-right">
+                ${renderCommentCount(item.url)}
+                ${renderPageviewCount(item.url)}
+                <span class="archive-card__more">阅读全文 →</span>
+              </div>
+            </div>
+          </a>
+        </article>
+      `;
+    };
+
     const filterForms = document.querySelectorAll('[data-local-filter]');
 
     filterForms.forEach((form) => {
       const input = form.querySelector('input[type="search"]');
       const targetSelector = form.dataset.target;
       const emptySelector = form.dataset.empty;
+      const paginationSelector = form.dataset.pagination;
+      const indexUrl = form.dataset.indexUrl || '';
+      const sectionFilter = form.dataset.filterSection || '';
+      const taxonomyFilter = form.dataset.filterTaxonomy || '';
+      const termFilter = form.dataset.filterTerm || '';
       const target = targetSelector ? document.querySelector(targetSelector) : null;
       const empty = emptySelector ? document.querySelector(emptySelector) : null;
+      const pagination = paginationSelector ? document.querySelector(paginationSelector) : null;
 
       if (!input || !target) return;
 
+      const originalMarkup = target.innerHTML;
       const items = Array.from(target.querySelectorAll('[data-filter-item]'));
+      let indexPromise = null;
+      let latestRequest = 0;
 
-      const applyFilter = () => {
+      const refreshDynamicCounts = () => {
+        if (typeof window.refreshWalineCommentCounts === 'function') {
+          window.refreshWalineCommentCounts(target);
+        }
+
+        if (typeof window.refreshWalinePageviewCounts === 'function') {
+          window.refreshWalinePageviewCounts(target);
+        }
+      };
+
+      const setSearchingState = (isSearching) => {
+        if (pagination) {
+          pagination.hidden = isSearching;
+        }
+      };
+
+      const restoreOriginalList = () => {
+        target.innerHTML = originalMarkup;
+        setSearchingState(false);
+        if (empty) empty.hidden = true;
+        refreshDynamicCounts();
+      };
+
+      const getIndex = async () => {
+        if (!indexUrl) return [];
+        if (!indexPromise) {
+          indexPromise = fetch(indexUrl).then((response) => {
+            if (!response.ok) {
+              throw new Error(`Search index request failed: ${response.status}`);
+            }
+            return response.json();
+          });
+        }
+        return indexPromise;
+      };
+
+      const filterIndexedItems = (data, keyword) => {
+        const lowerKeyword = keyword.toLowerCase();
+
+        return data
+          .filter((item) => {
+            if (sectionFilter && item.section !== sectionFilter) return false;
+
+            if (taxonomyFilter && termFilter) {
+              const values = Array.isArray(item[taxonomyFilter]) ? item[taxonomyFilter] : [];
+              if (!values.includes(termFilter)) return false;
+            }
+
+            if (!lowerKeyword) return true;
+
+            const haystack = [
+              item.title,
+              item.description,
+              item.summary,
+              item.content,
+              item.author,
+              ...(item.categories || []),
+              ...(item.tags || []),
+            ]
+              .join(' ')
+              .toLowerCase();
+
+            return haystack.includes(lowerKeyword);
+          });
+      };
+
+      const applyLocalFilter = () => {
         const keyword = input.value.trim().toLowerCase();
         let visibleCount = 0;
 
@@ -189,6 +345,45 @@
         if (empty) {
           empty.hidden = visibleCount !== 0;
         }
+      };
+
+      const applyIndexedFilter = async () => {
+        const requestId = latestRequest + 1;
+        latestRequest = requestId;
+
+        const keyword = input.value.trim();
+        if (!keyword) {
+          restoreOriginalList();
+          return;
+        }
+
+        setSearchingState(true);
+
+        try {
+          const data = await getIndex();
+          if (requestId !== latestRequest) return;
+
+          const matches = filterIndexedItems(data, keyword);
+          target.innerHTML = matches.map(renderArchiveCard).join('');
+
+          if (empty) {
+            empty.hidden = matches.length !== 0;
+          }
+
+          refreshDynamicCounts();
+        } catch (error) {
+          console.error('Indexed archive search failed:', error);
+          restoreOriginalList();
+        }
+      };
+
+      const applyFilter = () => {
+        if (indexUrl) {
+          applyIndexedFilter();
+          return;
+        }
+
+        applyLocalFilter();
       };
 
       input.addEventListener('input', applyFilter);

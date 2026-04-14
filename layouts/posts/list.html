@@ -19,7 +19,15 @@
     <div class="shell archive-shell posts-layout">
       <section class="archive-panel posts-main">
         <section class="list-filter">
-          <form class="local-filter" data-local-filter data-target="#postsGrid" data-empty="#postsEmpty">
+          <form
+            class="local-filter"
+            data-local-filter
+            data-target="#postsGrid"
+            data-empty="#postsEmpty"
+            data-pagination="#postsPagination"
+            data-index-url="{{ "/index.json" | relLangURL }}"
+            data-filter-section="posts"
+          >
             <label class="sr-only" for="post-filter-input">搜索文章</label>
             <input id="post-filter-input" type="search" placeholder="搜索标题、摘要、标签">
           </form>
@@ -32,7 +40,7 @@
         </div>
 
         <p id="postsEmpty" class="empty-state" hidden>没有匹配的文章，换个关键词试试。</p>
-        {{ template "_internal/pagination.html" . }}
+        <div id="postsPagination">{{ template "_internal/pagination.html" . }}</div>
       </section>
 
       <aside class="tag-sidebar" aria-label="标签导航">
