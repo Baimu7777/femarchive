@@ -3662,3 +3662,48 @@ i.star-outline svg {
 #waline .wl-card .wl-comment-actions {
   gap: 0.35rem;
 }
+
+.dropcap {
+  float: left;
+  font-size: 3.5rem;
+  line-height: 0.9;
+  font-weight: 700;
+  margin-right: 0.35rem;
+  margin-top: 0.08rem;
+  font-family: "Times New Roman", "LXGW WenKai", serif;
+  color: #750b0b;
+}
+
+.lead-dropcap {
+  text-indent: 0 !important;
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+  line-height: 2;
+}
+
+.dropcap-cn {
+  display: inline-block;
+  font-size: 2.8em;
+  line-height: 1;
+  font-weight: 700;
+  margin-right: 0.12em;
+  margin-left: 0 !important;
+  vertical-align: -0.18em;
+  color: #750b0b;
+  font-family: "Times New Roman", serif;
+}
+
+.article-content u {
+  text-decoration: none;
+  border-bottom: 2px solid #a61b1b;
+  padding-bottom: 0.02em;
+  font-weight: 700;
+}
+
+.article-content del,
+.article-content s {
+  color: inherit;
+  text-decoration-line: line-through;
+  text-decoration-color: #a61b1b;
+  text-decoration-thickness: 2px;
+}
