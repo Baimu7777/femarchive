@@ -1132,7 +1132,7 @@ body.home-hero-dismissed .home-hero {
   transform: translateY(-2px);
   border-color: rgba(64, 138, 113, 0.36);
   box-shadow: 0 16px 32px rgba(9, 20, 19, 0.1);
-  background: linear-gradient(180deg, #5f9f86 0%, #36725d 100%);
+  background: linear-gradient(180deg, #70a892 0%, #428f76a2 100%);
 }
 
 .term-card--decorative::before,
