@@ -112,6 +112,6 @@ The time for individual skirmishes has passed. This time we are going all the wa
 
 <div style="text-align: right;">
   <p>July 7, 1969</p>
-  <p>Redstockings</p>
+  <p>1969年7月7日</p>
+  <p>Redstockings  红袜子</p>
 </div>
-
