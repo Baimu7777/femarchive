@@ -3738,3 +3738,22 @@ i.star-outline svg {
   padding-left: 0 !important;
   line-height: 1.8;
 }
+
+.heading-subtitle {
+  display: block;
+
+  color: #71887d;
+  font-size: 0.95em;
+  font-weight: 400;
+  font-style: normal;
+  font-family: "霞鹜文楷", "LXGW WenKai", serif;
+
+  text-indent: 0 !important;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
+
+  margin: -0.25em 0 1.8em 1.85rem !important;
+  padding: 0;
+  background: none;
+  border: none;
+}

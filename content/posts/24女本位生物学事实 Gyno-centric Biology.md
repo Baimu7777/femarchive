@@ -21,7 +21,8 @@ license: "该作品版权归原作者所有。"
 ---
 
 # 导言与总结：女本位生物学与妊娠统治
-Abstract: Gyno-centric Biology and Gestation Sovereignty
+
+<div class="heading-subtitle">Abstract · Gyno-centric Biology and Gestation Sovereignty</div>
 
 想要构建女本位全女社会，首先要定义“**女人**”（female/gyno-）——一种无可辩驳的生物学事实，是默认的、完整的、必然的唯一生物学形态。
 
