@@ -9,7 +9,7 @@ author: "Redstockings"
 categories:
   - "理论分野"
 tags:
-  - "女性历史"
+  - "herstory"
 related_reading:
   - ""
 original_url: "[红袜女性解放行动档案馆](https://www.redstockings.org/about-redstockings)"

@@ -1,6 +1,11 @@
 {{ $author := .Params.author | default site.Params.author.name | default "" }}
 {{ $toc := .TableOfContents }}
 {{ $hasTOC := gt (len (findRE "<li" (printf "%s" $toc))) 0 }}
+{{ $tocNumbered := true }}
+{{ if isset .Params "toc_numbered" }}
+  {{ $tocNumbered = .Params.toc_numbered }}
+{{ end }}
+{{ $tocClass := cond $tocNumbered "toc-nav" "toc-nav toc-nav--plain" }}
 
 
 {{ if $hasTOC }}
@@ -38,7 +43,7 @@
         </button>
       </div>
 
-      <div class="toc-nav mobile-toc__nav">
+      <div class="{{ $tocClass }} mobile-toc__nav">
         {{ $toc }}
       </div>
     </aside>
@@ -49,7 +54,7 @@
   {{ if $hasTOC }}
     <section class="sidebar-card toc-card">
       <h2 class="sidebar-card__title">文章目录</h2>
-      <div class="toc-nav">
+      <div class="{{ $tocClass }}">
         {{ $toc }}
       </div>
     </section>

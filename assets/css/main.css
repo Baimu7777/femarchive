@@ -1834,6 +1834,26 @@ body.home-hero-dismissed .home-hero {
   font-weight: 100;
 }
 
+/* 可通过文章 front matter 单独关闭目录编号：toc_numbered: false */
+.toc-nav--plain li {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.toc-nav--plain li::before {
+  content: none;
+  display: none;
+}
+
+.toc-nav--plain li > a {
+  grid-column: 1;
+}
+
+.toc-nav--plain li > ul,
+.toc-nav--plain li > ol {
+  grid-column: 1;
+  padding-left: 1rem;
+}
+
 .sidebar-stack {
   display: grid;
   gap: 18px;
@@ -3706,4 +3726,15 @@ i.star-outline svg {
   text-decoration-line: line-through;
   text-decoration-color: #a61b1b;
   text-decoration-thickness: 2px;
+}
+
+.md-green-title {
+  color: #2f8f6b;
+  font-size: 1.2em;
+  font-weight: 700;
+  font-family: "霞鹜文楷", "LXGW WenKai", serif;
+  text-indent: 0 !important;
+  margin: 1.4em 0 0.8em 0 !important;
+  padding-left: 0 !important;
+  line-height: 1.8;
 }
