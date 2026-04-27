@@ -258,8 +258,62 @@
       const target = targetSelector ? document.querySelector(targetSelector) : null;
       const empty = emptySelector ? document.querySelector(emptySelector) : null;
       const pagination = paginationSelector ? document.querySelector(paginationSelector) : null;
+      const initialSearchLimit = Math.max(parseInt(form.dataset.searchLimit || '0', 10) || 0, 0);
+      const searchStep = Math.max(parseInt(form.dataset.searchStep || String(initialSearchLimit || 0), 10) || initialSearchLimit || 0, 0);
+      const searchMode = (form.dataset.searchMode || 'more').toLowerCase();
+      const useSearchPagination = searchMode === 'paginate';
+      let visibleSearchCount = initialSearchLimit;
+      let currentSearchPage = 1;
+      let currentSearchResults = [];
 
       if (!input || !target) return;
+
+      let searchResultTools = null;
+      let searchResultMeta = null;
+      let searchLoadMoreButton = null;
+      let searchPaginationControls = null;
+      let searchPrevButton = null;
+      let searchPageText = null;
+      let searchNextButton = null;
+
+      if (indexUrl && initialSearchLimit > 0) {
+        searchResultTools = document.createElement('div');
+        searchResultTools.className = 'search-result-tools';
+        searchResultTools.hidden = true;
+
+        searchResultMeta = document.createElement('p');
+        searchResultMeta.className = 'search-result-meta';
+
+        if (useSearchPagination) {
+          searchPaginationControls = document.createElement('div');
+          searchPaginationControls.className = 'search-result-pages';
+
+          searchPrevButton = document.createElement('button');
+          searchPrevButton.className = 'search-page-btn search-page-btn--prev';
+          searchPrevButton.type = 'button';
+          searchPrevButton.textContent = '上一页';
+
+          searchPageText = document.createElement('span');
+          searchPageText.className = 'search-page-current';
+
+          searchNextButton = document.createElement('button');
+          searchNextButton.className = 'search-page-btn search-page-btn--next';
+          searchNextButton.type = 'button';
+          searchNextButton.textContent = '下一页';
+
+          searchPaginationControls.append(searchPrevButton, searchPageText, searchNextButton);
+          searchResultTools.append(searchResultMeta, searchPaginationControls);
+        } else {
+          searchLoadMoreButton = document.createElement('button');
+          searchLoadMoreButton.className = 'search-load-more';
+          searchLoadMoreButton.type = 'button';
+          searchLoadMoreButton.textContent = '显示更多';
+
+          searchResultTools.append(searchResultMeta, searchLoadMoreButton);
+        }
+
+        target.insertAdjacentElement('afterend', searchResultTools);
+      }
 
       const syncClearButton = () => {
         if (!clearButton) return;
@@ -287,9 +341,21 @@
         }
       };
 
+      const hideSearchResultTools = () => {
+        currentSearchResults = [];
+        visibleSearchCount = initialSearchLimit;
+        currentSearchPage = 1;
+        if (!searchResultTools) return;
+        searchResultTools.hidden = true;
+        if (searchResultMeta) searchResultMeta.textContent = '';
+        if (searchLoadMoreButton) searchLoadMoreButton.hidden = true;
+        if (searchPaginationControls) searchPaginationControls.hidden = true;
+      };
+
       const restoreOriginalList = () => {
         target.innerHTML = originalMarkup;
         setSearchingState(false);
+        hideSearchResultTools();
         if (empty) empty.hidden = true;
         refreshDynamicCounts();
       };
@@ -353,6 +419,78 @@
         }
       };
 
+      const renderLimitedSearchResults = () => {
+        const totalCount = currentSearchResults.length;
+        const hasLimit = initialSearchLimit > 0;
+
+        if (useSearchPagination && hasLimit) {
+          const pageSize = initialSearchLimit;
+          const totalPages = Math.max(Math.ceil(totalCount / pageSize), 1);
+          currentSearchPage = Math.min(Math.max(currentSearchPage, 1), totalPages);
+
+          const startIndex = (currentSearchPage - 1) * pageSize;
+          const visibleResults = currentSearchResults.slice(startIndex, startIndex + pageSize);
+
+          target.innerHTML = visibleResults.map(renderArchiveCard).join('');
+
+          if (empty) {
+            empty.hidden = totalCount !== 0;
+          }
+
+          if (searchResultTools && searchResultMeta) {
+            searchResultTools.hidden = totalCount === 0;
+            searchResultMeta.textContent =
+              totalCount > pageSize
+                ? `找到 ${totalCount} 篇匹配文章，当前第 ${currentSearchPage} / ${totalPages} 页。`
+                : `找到 ${totalCount} 篇匹配文章。`;
+
+            if (searchPaginationControls) {
+              searchPaginationControls.hidden = totalCount <= pageSize;
+            }
+
+            if (searchPageText) {
+              searchPageText.textContent = `${currentSearchPage} / ${totalPages}`;
+            }
+
+            if (searchPrevButton) {
+              searchPrevButton.disabled = currentSearchPage <= 1;
+            }
+
+            if (searchNextButton) {
+              searchNextButton.disabled = currentSearchPage >= totalPages;
+            }
+          }
+
+          refreshDynamicCounts();
+          return;
+        }
+
+        const visibleCount = hasLimit
+          ? Math.min(Math.max(visibleSearchCount, 0), totalCount)
+          : totalCount;
+        const visibleResults = currentSearchResults.slice(0, visibleCount);
+
+        target.innerHTML = visibleResults.map(renderArchiveCard).join('');
+
+        if (empty) {
+          empty.hidden = totalCount !== 0;
+        }
+
+        if (searchResultTools && searchResultMeta) {
+          searchResultTools.hidden = totalCount === 0;
+          searchResultMeta.textContent =
+            totalCount > visibleCount
+              ? `找到 ${totalCount} 篇匹配文章，当前显示 ${visibleCount} 篇。`
+              : `找到 ${totalCount} 篇匹配文章。`;
+
+          if (searchLoadMoreButton) {
+            searchLoadMoreButton.hidden = !hasLimit || visibleCount >= totalCount;
+          }
+        }
+
+        refreshDynamicCounts();
+      };
+
       const applyIndexedFilter = async () => {
         const requestId = latestRequest + 1;
         latestRequest = requestId;
@@ -369,14 +507,13 @@
           const data = await getIndex();
           if (requestId !== latestRequest) return;
 
-          const matches = filterIndexedItems(data, keyword);
-          target.innerHTML = matches.map(renderArchiveCard).join('');
+          currentSearchResults = filterIndexedItems(data, keyword);
+          currentSearchPage = 1;
+          visibleSearchCount = initialSearchLimit > 0
+            ? Math.min(initialSearchLimit, currentSearchResults.length)
+            : currentSearchResults.length;
 
-          if (empty) {
-            empty.hidden = matches.length !== 0;
-          }
-
-          refreshDynamicCounts();
+          renderLimitedSearchResults();
         } catch (error) {
           console.error('Indexed archive search failed:', error);
           restoreOriginalList();
@@ -404,6 +541,38 @@
       });
 
       input.addEventListener('input', handleFilterInput);
+
+      const scrollToSearchResults = () => {
+        if (form && typeof form.scrollIntoView === 'function') {
+          form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      };
+
+      if (searchLoadMoreButton) {
+        searchLoadMoreButton.addEventListener('click', () => {
+          visibleSearchCount += searchStep || initialSearchLimit || currentSearchResults.length;
+          renderLimitedSearchResults();
+        });
+      }
+
+      if (searchPrevButton) {
+        searchPrevButton.addEventListener('click', () => {
+          if (currentSearchPage <= 1) return;
+          currentSearchPage -= 1;
+          renderLimitedSearchResults();
+          scrollToSearchResults();
+        });
+      }
+
+      if (searchNextButton) {
+        searchNextButton.addEventListener('click', () => {
+          const totalPages = Math.max(Math.ceil(currentSearchResults.length / Math.max(initialSearchLimit, 1)), 1);
+          if (currentSearchPage >= totalPages) return;
+          currentSearchPage += 1;
+          renderLimitedSearchResults();
+          scrollToSearchResults();
+        });
+      }
 
       if (clearButton) {
         clearButton.addEventListener('click', () => {
