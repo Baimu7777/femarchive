@@ -20,7 +20,7 @@
       <section class="archive-panel posts-main">
         <section class="list-filter">
           <form
-            class="local-filter"
+            class="local-filter search-box"
             data-local-filter
             data-target="#postsGrid"
             data-empty="#postsEmpty"
@@ -29,7 +29,15 @@
             data-filter-section="posts"
           >
             <label class="sr-only" for="post-filter-input">搜索文章</label>
-            <input id="post-filter-input" type="search" placeholder="搜索标题、摘要、标签">
+            <div class="search-box__field">
+              <img class="search-box__icon" src="{{ "/icons/search.svg" | relLangURL }}" alt="" aria-hidden="true">
+              <input id="post-filter-input" class="search-box__input" type="search" placeholder="搜索标题、摘要、标签" autocomplete="off">
+              <button class="search-box__clear" type="button" data-search-clear aria-label="清空搜索" title="清空搜索" hidden>
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.2"/>
+                </svg>
+              </button>
+            </div>
           </form>
         </section>
 

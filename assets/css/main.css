@@ -282,6 +282,75 @@ a {
   cursor: pointer;
 }
 
+/* search box */
+
+.search-box {
+  width: 100%;
+}
+
+.search-box__field {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  min-height: 50px;
+  padding: 0 10px 0 16px;
+  gap: 8px;
+}
+
+.search-box__icon {
+  width: 18px;
+  height: 18px;
+  opacity: 0.72;
+  pointer-events: none;
+}
+
+.search-box .search-box__input {
+  height: 50px;
+  padding: 0 6px;
+}
+
+.search-box .search-box__input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.search-box__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 0;
+  border-left: 1px solid var(--line-soft);
+  background: transparent;
+  color: rgba(9, 20, 19, 0.72);
+  cursor: pointer;
+  transition: color 0.18s ease, background 0.18s ease;
+}
+
+.search-box__clear svg {
+  width: 19px;
+  height: 19px;
+}
+
+.search-box__clear:hover {
+  color: var(--accent-deep);
+  background: rgba(176, 228, 204, 0.24);
+}
+
+.search-box__clear[hidden] {
+  display: none;
+}
+
+.home-search {
+  margin: -4px 0 16px;
+}
+
+.home-search-results .archive-card__inner {
+  min-height: 188px;
+}
+
 /* shared cards */
 
 .section-card,

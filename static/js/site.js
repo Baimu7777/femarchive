@@ -247,6 +247,7 @@
 
     filterForms.forEach((form) => {
       const input = form.querySelector('input[type="search"]');
+      const clearButton = form.querySelector('[data-search-clear]');
       const targetSelector = form.dataset.target;
       const emptySelector = form.dataset.empty;
       const paginationSelector = form.dataset.pagination;
@@ -259,6 +260,11 @@
       const pagination = paginationSelector ? document.querySelector(paginationSelector) : null;
 
       if (!input || !target) return;
+
+      const syncClearButton = () => {
+        if (!clearButton) return;
+        clearButton.hidden = input.value.length === 0;
+      };
 
       const originalMarkup = target.innerHTML;
       const items = Array.from(target.querySelectorAll('[data-filter-item]'));
@@ -386,7 +392,28 @@
         applyLocalFilter();
       };
 
-      input.addEventListener('input', applyFilter);
+      const handleFilterInput = () => {
+        syncClearButton();
+        applyFilter();
+      };
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        input.value = input.value.trim();
+        handleFilterInput();
+      });
+
+      input.addEventListener('input', handleFilterInput);
+
+      if (clearButton) {
+        clearButton.addEventListener('click', () => {
+          input.value = '';
+          handleFilterInput();
+          input.focus();
+        });
+      }
+
+      syncClearButton();
       applyFilter();
     });
 

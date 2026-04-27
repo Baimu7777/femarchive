@@ -34,7 +34,29 @@
                 </div>
               </div>
 
-              <div class="latest-grid">
+              <section class="list-filter home-search">
+                <form
+                  class="local-filter search-box"
+                  data-local-filter
+                  data-target="#homeLatestGrid"
+                  data-empty="#homeSearchEmpty"
+                  data-index-url="{{ "/index.json" | relLangURL }}"
+                  data-filter-section="posts"
+                >
+                  <label class="sr-only" for="home-filter-input">搜索文章</label>
+                  <div class="search-box__field">
+                    <img class="search-box__icon" src="{{ "/icons/search.svg" | relLangURL }}" alt="" aria-hidden="true">
+                    <input id="home-filter-input" class="search-box__input" type="search" placeholder="搜索标题、摘要、标签" autocomplete="off">
+                    <button class="search-box__clear" type="button" data-search-clear aria-label="清空搜索" title="清空搜索" hidden>
+                      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.2"/>
+                      </svg>
+                    </button>
+                  </div>
+                </form>
+              </section>
+
+              <div class="latest-grid home-search-results" id="homeLatestGrid">
                 {{ range $recentPages }}
                   {{ $authorRaw := .Params.author | default .Site.Params.author.name | default "" }}
                   {{ $authorText := replaceRE `^\[([^\]]+)\]\(([^)]+)\)$` `$1` $authorRaw }}
@@ -81,6 +103,7 @@
                   </article>
                 {{ end }}
               </div>
+              <p id="homeSearchEmpty" class="empty-state" hidden>没有匹配的文章，换个关键词试试。</p>
               <div class="latest-actions home-actions">
                 <a class="action-pill action-pill--solid" href="{{ "/posts/" | relLangURL }}">阅读全部</a>
                 <a class="action-pill" href="{{ .Site.Params.submitURL | default "/posts/submission-guidelines/" | relLangURL }}">前往投稿</a>
