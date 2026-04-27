@@ -62,7 +62,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   background-color: #e4ede4;
   background-image:
-    radial-gradient(circle at top left, rgba(151, 230, 193, 0.111) 0, transparent 100%),
+    radial-gradient(circle at top left, rgba(119, 230, 178, 0.136) 0, transparent 100%),
     url("/images/bkgd.png"),
     linear-gradient(180deg, rgba(255, 255, 255, 0.72) 0%, rgba(228, 237, 228, 0.92) 100%);
   background-repeat: no-repeat, repeat, no-repeat;
