@@ -2867,6 +2867,7 @@ body.home-hero-dismissed .home-hero {
   }
 
   .site-nav {
+    justify-content: flex-start;
     flex-wrap: nowrap;
     gap: 6px;
     overflow-x: auto;
@@ -2911,6 +2912,7 @@ body.home-hero-dismissed .home-hero {
 
   .site-nav {
     width: 100%;
+    justify-content: flex-start;
     flex-wrap: nowrap;
     gap: 6px;
     overflow-x: auto;
