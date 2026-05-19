@@ -1,0 +1,220 @@
+{{ define "main" }}
+  {{ $archive := site.Data.allsis }}
+  {{ $items := slice }}
+  {{ $archiveCount := 0 }}
+  {{ $importedAt := "" }}
+  {{ $seriesTabs := slice "全部" "我茶话" "我评判" "我共建" }}
+  {{ with $archive }}
+    {{ $items = .items | default (slice) }}
+    {{ $archiveCount = .archiveCount | default (len $items) }}
+    {{ $importedAt = .importedAtDisplay | default "" }}
+  {{ end }}
+
+  <main class="archive-page allsis-page">
+    <div class="shell archive-shell allsis-shell">
+      <section class="archive-panel archive-panel--plain">
+        <section class="section-card allsis-header-card">
+          <div class="allsis-header-card__main">
+            <div class="allsis-header-card__copy">
+              <span class="archive-heading__kicker">ALLSIS</span>
+              <h1 class="archive-heading__title allsis-header-card__title">{{ .Title }}</h1>
+              <p class="archive-heading__desc allsis-header-card__desc">
+                {{ with .Description }}{{ . }}{{ else }}本组意在给女性提供一个为书籍与影视打分的平台。仅限女性加入。{{ end }}
+              </p>
+            </div>
+
+            <div class="allsis-header-card__meta" aria-label="存档信息">
+              <p class="allsis-header-card__meta-line">
+                <strong>{{ $archiveCount }}</strong>
+                <span>篇帖子已归档</span>
+              </p>
+              <p class="allsis-header-card__meta-line">
+                <span>最近导入时间</span>
+                <strong>{{ if $importedAt }}{{ $importedAt }}{{ else }}待导入{{ end }}</strong>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section class="allsis-toolbar">
+          <div class="allsis-series-tabs" role="tablist" aria-label="全女评审团分类">
+            {{ range $seriesTabs }}
+              {{ $seriesValue := . }}
+              {{ if eq . "全部" }}{{ $seriesValue = "all" }}{{ end }}
+              <button
+                type="button"
+                class="scope-pill{{ if eq . "全部" }} is-active{{ end }}"
+                data-allsis-series="{{ $seriesValue }}"
+                aria-pressed="{{ if eq . "全部" }}true{{ else }}false{{ end }}">
+                {{ . }}
+              </button>
+            {{ end }}
+          </div>
+
+          <form class="local-filter allsis-search" id="allsisFilterForm">
+            <label class="sr-only" for="allsis-filter-input">搜索全女评审团存档</label>
+            <input id="allsis-filter-input" type="search" placeholder="搜索标题、正文、发帖时间">
+          </form>
+        </section>
+
+        <section class="section-card allsis-list-card">
+          <div class="allsis-list" id="allsisGrid" data-allsis-directory data-page-size="30">
+            {{ range $items }}
+              {{ $filterBody := .content | default .summary | default "" }}
+              {{ $filterText := printf "%s %s %s %s %s %s %s" .title $filterBody .series .topicId (.lastActivityAtDisplay | default "") .savedAtDisplay .createdAtDisplay }}
+              <article class="allsis-row" data-filter-item data-filter-text="{{ $filterText | htmlEscape }}" data-series="{{ .series }}">
+                <div class="allsis-row__update">
+                  <strong class="allsis-row__update-date">{{ .lastActivityAtDisplay | default .createdAtDisplay | default .savedAtDisplay }}</strong>
+                </div>
+
+                <div class="allsis-row__content">
+                  <h2 class="allsis-row__title"><a href="{{ .localUrl }}">{{ .title }}</a></h2>
+                  <div class="allsis-row__meta-line">
+                    <span>存档时间 {{ .savedAtDisplay }}</span>
+                    {{ if .createdAtDisplay }}<span>发帖时间 {{ .createdAtDisplay }}</span>{{ end }}
+                  </div>
+                </div>
+
+                <div class="allsis-row__actions">
+                  <a class="action-pill action-pill--solid allsis-row__link" href="{{ .localUrl }}">进入存档</a>
+                </div>
+              </article>
+            {{ else }}
+              <article class="allsis-row allsis-row--empty">
+                <div class="allsis-row__content">
+                  <h2 class="allsis-row__title">这里还没有导入存档</h2>
+                  <p class="archive-heading__desc">运行导入脚本后，这里会显示“全女评审团”的帖子列表。</p>
+                </div>
+              </article>
+            {{ end }}
+          </div>
+        </section>
+
+        <p id="allsisEmpty" class="empty-state" hidden>没有匹配的帖子，换个关键词试试。</p>
+        <div class="allsis-pagination" id="allsisPagination" hidden>
+          <button type="button" class="search-page-btn search-page-btn--prev" id="allsisPrev">上一页</button>
+          <span class="search-page-current" id="allsisPageInfo">1 / 1</span>
+          <button type="button" class="search-page-btn search-page-btn--next" id="allsisNext">下一页</button>
+        </div>
+      </section>
+    </div>
+  </main>
+{{ end }}
+
+{{ define "scripts" }}
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const root = document.querySelector('[data-allsis-directory]');
+      if (!root) return;
+
+      const rows = Array.from(root.querySelectorAll('[data-filter-item]'));
+      const filterForm = document.getElementById('allsisFilterForm');
+      const searchInput = document.getElementById('allsis-filter-input');
+      const emptyState = document.getElementById('allsisEmpty');
+      const pagination = document.getElementById('allsisPagination');
+      const prevButton = document.getElementById('allsisPrev');
+      const nextButton = document.getElementById('allsisNext');
+      const pageInfo = document.getElementById('allsisPageInfo');
+      const seriesTabs = document.querySelector('.allsis-series-tabs');
+      const seriesButtons = Array.from(document.querySelectorAll('[data-allsis-series]'));
+      const pageSize = Math.max(parseInt(root.dataset.pageSize || '30', 10) || 30, 1);
+
+      let activeSeries = '';
+      let currentPage = 1;
+
+      const syncSeriesButtons = () => {
+        seriesButtons.forEach((button) => {
+          const buttonSeries = button.dataset.allsisSeries || 'all';
+          const selected = buttonSeries === 'all' ? !activeSeries : buttonSeries === activeSeries;
+          button.classList.toggle('is-active', selected);
+          button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+        });
+      };
+
+      const getFilteredRows = () => {
+        const keyword = (searchInput?.value || '').trim().toLowerCase();
+        const hasKeyword = keyword.length > 0;
+
+        return rows.filter((row) => {
+          const text = (row.dataset.filterText || '').toLowerCase();
+          const matchesKeyword = !hasKeyword || text.includes(keyword);
+          const matchesSeries = hasKeyword ? true : (!activeSeries || row.dataset.series === activeSeries);
+          return matchesKeyword && matchesSeries;
+        });
+      };
+
+      const render = () => {
+        const filteredRows = getFilteredRows();
+        const totalPages = Math.max(Math.ceil(filteredRows.length / pageSize), 1);
+
+        currentPage = Math.min(Math.max(currentPage, 1), totalPages);
+
+        const start = (currentPage - 1) * pageSize;
+        const end = start + pageSize;
+        const pageRows = new Set(filteredRows.slice(start, end));
+
+        rows.forEach((row) => {
+          row.style.display = pageRows.has(row) ? '' : 'none';
+        });
+
+        if (emptyState) {
+          emptyState.hidden = filteredRows.length !== 0;
+        }
+
+        if (pagination && prevButton && nextButton && pageInfo) {
+          const showPagination = filteredRows.length > pageSize;
+          pagination.hidden = !showPagination;
+          pageInfo.textContent = `${currentPage} / ${totalPages}`;
+          prevButton.disabled = currentPage <= 1;
+          nextButton.disabled = currentPage >= totalPages;
+        }
+
+        syncSeriesButtons();
+      };
+
+      if (seriesTabs) {
+        seriesTabs.addEventListener('click', (event) => {
+          const button = event.target.closest('[data-allsis-series]');
+          if (!button) return;
+          const series = button.dataset.allsisSeries || 'all';
+          activeSeries = series === 'all' ? '' : series;
+          currentPage = 1;
+          render();
+        });
+      }
+
+      if (searchInput) {
+        searchInput.addEventListener('input', () => {
+          currentPage = 1;
+          render();
+        });
+      }
+
+      if (filterForm) {
+        filterForm.addEventListener('submit', (event) => {
+          event.preventDefault();
+        });
+      }
+
+      if (prevButton) {
+        prevButton.addEventListener('click', () => {
+          if (currentPage <= 1) return;
+          currentPage -= 1;
+          render();
+          root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+
+      if (nextButton) {
+        nextButton.addEventListener('click', () => {
+          if (currentPage >= Math.ceil(getFilteredRows().length / pageSize)) return;
+          currentPage += 1;
+          render();
+          root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+
+      render();
+    });
+  </script>
+{{ end }}

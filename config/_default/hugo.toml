@@ -100,3 +100,8 @@ summaryLength = 28
   name = "分类"
   url = "/categories/"
   weight = 40
+
+[[menu.main]]
+  name = "全女评审团"
+  url = "/allsis/"
+  weight = 50

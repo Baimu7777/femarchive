@@ -20,6 +20,8 @@
             {{ $icon = "icons/news.svg" }}
           {{ else if or (eq $link ("/categories/" | relLangURL)) (eq .Name "分类") }}
             {{ $icon = "icons/categories.svg" }}
+          {{ else if or (eq $link ("/allsis/" | relLangURL)) (eq .Name "全女评审团") }}
+            {{ $icon = "icons/allsis.svg" }}
           {{ end }}
           <a href="{{ $link }}" class="site-nav__link {{ if $isActive }}is-active{{ end }}">
             {{ if $icon }}
@@ -44,6 +46,10 @@
         <a href="{{ "/categories/" | relLangURL }}" class="site-nav__link {{ if eq .Kind "taxonomyTerm" }}is-active{{ end }}">
           <img class="site-nav__icon" src="{{ "icons/categories.svg" | relURL }}" alt="" aria-hidden="true">
           <span class="site-nav__label">分类</span>
+        </a>
+        <a href="{{ "/allsis/" | relLangURL }}" class="site-nav__link {{ if eq .Section "allsis" }}is-active{{ end }}">
+          <img class="site-nav__icon" src="{{ "icons/allsis.svg" | relURL }}" alt="" aria-hidden="true">
+          <span class="site-nav__label">全女评审团</span>
         </a>
       {{ end }}
     </nav>

@@ -3,6 +3,12 @@
   {{ $newsPages := first 3 (sort (where .Site.RegularPages "Section" "eq" "news") "Date" "desc") }}
   {{ $figurePages := first 1 (sort (where .Site.RegularPages "Section" "eq" "figures") "Date" "desc") }}
   {{ $figureSection := .Site.GetPage "section" "figures" }}
+  {{ $allsisSection := .Site.GetPage "section" "allsis" }}
+  {{ $allsisData := site.Data.allsis }}
+  {{ $allsisGroupURL := "https://www.douban.com/group/758828/" }}
+  {{ with $allsisData }}
+    {{ $allsisGroupURL = .groupUrl | default $allsisGroupURL }}
+  {{ end }}
   {{ $mottoRaw := .Site.Params.motto | default "我们的身体共振于同一个潮汐，我们的斗争永不止息。" }}
   {{ $mottoClean := replace $mottoRaw "。" "" }}
   {{ $mottoLines := split $mottoClean "，" }}
@@ -172,6 +178,22 @@
               {{ end }}
             </section>
           </aside>
+        </section>
+
+        <section class="section-card section-card--allsis-banner">
+          <div class="allsis-banner">
+            <div class="allsis-banner__body">
+              <div class="allsis-banner__copy">
+                <h2 class="allsis-banner__title">全女评审团</h2>
+                <p class="allsis-banner__summary">本组意在给女性提供一个为书籍与影视打分的平台。<br>仅限女性加入。</p>
+              </div>
+
+              <div class="allsis-banner__actions">
+                <a class="action-pill action-pill--solid" href="{{ with $allsisSection }}{{ .RelPermalink }}{{ else }}{{ "/allsis/" | relLangURL }}{{ end }}">进入存档</a>
+                <a class="action-pill" href="{{ $allsisGroupURL }}" target="_blank" rel="noopener">豆瓣原组</a>
+              </div>
+            </div>
+          </div>
         </section>
       </div>
     </div>
