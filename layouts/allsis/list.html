@@ -9,6 +9,14 @@
     {{ $archiveCount = .archiveCount | default (len $items) }}
     {{ $importedAt = .importedAtDisplay | default "" }}
   {{ end }}
+  {{ $visibleItems := slice }}
+  {{ range $items }}
+    {{ if and .localUrl (fileExists (printf "static%s" .localUrl)) }}
+      {{ $visibleItems = $visibleItems | append . }}
+    {{ end }}
+  {{ end }}
+  {{ $items = $visibleItems }}
+  {{ $archiveCount = len $items }}
 
   <main class="archive-page allsis-page">
     <div class="shell archive-shell allsis-shell">

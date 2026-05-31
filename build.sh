@@ -35,4 +35,4 @@ rm "node-v${NODE_VERSION}-linux-x64.tar.xz"
 export PATH="${HOME}/.local/node-v${NODE_VERSION}-linux-x64/bin:${PATH}"
 
 # Avoid build differences from minified HTML when localhost is normal but production is not.
-hugo --gc --baseURL "https://${VERCEL_PROJECT_PRODUCTION_URL:-example.com}"
+hugo --gc --cleanDestinationDir --baseURL "https://${VERCEL_PROJECT_PRODUCTION_URL:-example.com}"
