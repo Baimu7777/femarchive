@@ -12,6 +12,7 @@ tags:
   - "herstory"
 related_reading:
   - "posts/261025"
+  - "posts/261026"
 original_url: "[红袜女性解放行动档案馆](https://www.redstockings.org/about-redstockings)"
 original_date: "1969"
 license: "该作品版权归原作者所有。"

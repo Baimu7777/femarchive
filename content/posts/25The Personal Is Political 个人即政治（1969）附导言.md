@@ -12,6 +12,7 @@ tags:
   - "herstory"
 related_reading:
   - "posts/261023"
+  - "posts/261026"
 original_url: "[Carol Hanisch 官方网站](https://www.carolhanisch.org/CHwritings/PIP.html)"
 original_date: "1969（附 2006 年导言）"
 license: "该作品版权归原作者所有。"
