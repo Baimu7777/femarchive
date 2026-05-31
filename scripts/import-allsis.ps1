@@ -118,10 +118,22 @@ function Get-PageTextInfo {
   }
 
   if (-not $text) {
-    $paragraphMatch = [regex]::Match($Html, '<p[^>]*>(.*?)</p>', [System.Text.RegularExpressions.RegexOptions]::Singleline)
-    if ($paragraphMatch.Success) {
-      $text = $paragraphMatch.Groups[1].Value
+    $paragraphs = New-Object System.Collections.Generic.List[string]
+    foreach ($paragraphMatch in [regex]::Matches($Html, '<p[^>]*>(.*?)</p>', [System.Text.RegularExpressions.RegexOptions]::Singleline)) {
+      $paragraphText = [regex]::Replace($paragraphMatch.Groups[1].Value, '<[^>]+>', ' ')
+      $paragraphText = [System.Net.WebUtility]::HtmlDecode($paragraphText)
+      $paragraphText = [regex]::Replace($paragraphText, '\s+', ' ').Trim()
+
+      if ($paragraphText) {
+        [void]$paragraphs.Add($paragraphText)
+      }
+
+      if ($paragraphs.Count -ge 8) {
+        break
+      }
     }
+
+    $text = $paragraphs -join ' '
   }
 
   $text = [regex]::Replace($text, '<[^>]+>', ' ')
@@ -140,6 +152,43 @@ function Get-PageTextInfo {
     createdAt = $createdAt
     activityTimes = @($activityTimes)
   }
+}
+
+function Get-HtmlTitle {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$Html,
+
+    [Parameter(Mandatory = $true)]
+    [string]$FallbackTitle
+  )
+
+  $titleMatch = [regex]::Match($Html, '<title[^>]*>([\s\S]*?)</title>', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+  if ($titleMatch.Success) {
+    $title = [regex]::Replace($titleMatch.Groups[1].Value, '<[^>]+>', ' ')
+    $title = [System.Net.WebUtility]::HtmlDecode($title)
+    $title = [regex]::Replace($title, '\s+', ' ').Trim()
+
+    if ($title) {
+      return $title
+    }
+  }
+
+  return [regex]::Replace($FallbackTitle, '\s+', ' ').Trim()
+}
+
+function Get-HtmlTopicId {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$Html
+  )
+
+  $topicIdMatch = [regex]::Match($Html, '/group/topic/(\d+)/', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+  if ($topicIdMatch.Success) {
+    return $topicIdMatch.Groups[1].Value
+  }
+
+  return ''
 }
 
 function Get-TopicTextInfo {
@@ -247,7 +296,7 @@ function Remove-RemoteScripts {
 
   $cleaned = [regex]::Replace(
     $Html,
-    '<script\b[^>]*>[\s\S]*?</script>',
+    '<script\b[^>]*\bsrc\s*=\s*["''][^"'']+["''][^>]*>[\s\S]*?</script>',
     '',
     [System.Text.RegularExpressions.RegexOptions]::IgnoreCase
   )
@@ -299,7 +348,7 @@ $DataPath = Assert-InsideRepo -Path $DataPath
 $tmpRoot = Assert-InsideRepo -Path $tmpRoot
 
 Ensure-CleanDirectory -Path $tmpRoot
-New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
+Ensure-CleanDirectory -Path $OutputDir
 New-Item -ItemType Directory -Path (Split-Path -Parent $DataPath) -Force | Out-Null
 
 try {
@@ -316,11 +365,33 @@ try {
   Get-ChildItem -LiteralPath $archiveRoot.FullName -Directory | ForEach-Object {
     $topicDir = $_
     $metaPath = Join-Path $topicDir.FullName 'meta.json'
-    if (-not (Test-Path -LiteralPath $metaPath)) {
+    $sourcePageFiles = @(Get-ChildItem -LiteralPath $topicDir.FullName -Filter '*.html' | Sort-Object `
+      @{ Expression = {
+        $baseName = [System.IO.Path]::GetFileNameWithoutExtension($_.Name)
+        if ($baseName -match '^\d+$') { [int]$baseName } else { [int]::MaxValue }
+      } },
+      @{ Expression = { $_.Name } }
+    )
+
+    if ((-not (Test-Path -LiteralPath $metaPath)) -and $sourcePageFiles.Count -eq 0) {
       return
     }
 
-    $meta = Get-Content -LiteralPath $metaPath -Encoding UTF8 -Raw | ConvertFrom-Json
+    if (Test-Path -LiteralPath $metaPath) {
+      $meta = Get-Content -LiteralPath $metaPath -Encoding UTF8 -Raw | ConvertFrom-Json
+    } else {
+      $firstPageHtml = Get-Content -LiteralPath $sourcePageFiles[0].FullName -Encoding UTF8 -Raw
+      $htmlTopicId = Get-HtmlTopicId -Html $firstPageHtml
+      $savedAtFromFiles = ($sourcePageFiles | Sort-Object LastWriteTime -Descending | Select-Object -First 1).LastWriteTime
+
+      $meta = [PSCustomObject]@{
+        title = Get-HtmlTitle -Html $firstPageHtml -FallbackTitle $topicDir.Name
+        link = if ($htmlTopicId) { "https://www.douban.com/group/topic/$htmlTopicId/" } else { '' }
+        pages = $sourcePageFiles.Count
+        saved_at = $savedAtFromFiles.ToString('s')
+      }
+    }
+
     $topicIdMatch = [regex]::Match([string]$meta.link, '/group/topic/(\d+)/')
     $topicId = if ($topicIdMatch.Success) {
       $topicIdMatch.Groups[1].Value

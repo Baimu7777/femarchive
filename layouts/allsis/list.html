@@ -3,7 +3,7 @@
   {{ $items := slice }}
   {{ $archiveCount := 0 }}
   {{ $importedAt := "" }}
-  {{ $seriesTabs := slice "全部" "我茶话" "我评判" "我共建" }}
+  {{ $seriesTabs := slice "全部" "我茶话" "我评判" "我共建" "组务" }}
   {{ with $archive }}
     {{ $items = .items | default (slice) }}
     {{ $archiveCount = .archiveCount | default (len $items) }}
