@@ -2,6 +2,13 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "chmod a+x build.sh && ./build.sh",
   "outputDirectory": "public",
+  "redirects": [
+    {
+      "source": "/allsis/topics/:topicId/:page(\\d+)\\.html",
+      "destination": "/allsis/topics/:topicId/:page/",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

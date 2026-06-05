@@ -280,12 +280,50 @@ function Rewrite-PaginatorLinks {
             $pageIndex = [int]([int]$startMatch.Groups[1].Value / 100) + 1
           }
 
-          return "$pageIndex.html"
+          return "/allsis/topics/$TopicId/$pageIndex/"
         }
       )
     },
     1
   )
+}
+
+function Get-ArchivePageUrl {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$TopicId,
+
+    [Parameter(Mandatory = $true)]
+    [int]$PageIndex
+  )
+
+  return "/allsis/topics/$TopicId/$PageIndex/"
+}
+
+function Publish-ArchivePage {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$SourcePath,
+
+    [Parameter(Mandatory = $true)]
+    [string]$DestinationDir,
+
+    [Parameter(Mandatory = $true)]
+    [int]$PageIndex,
+
+    [Parameter(Mandatory = $true)]
+    [string]$Html,
+
+    [Parameter(Mandatory = $true)]
+    [System.Text.Encoding]$Encoding
+  )
+
+  $pageDir = Join-Path $DestinationDir ([string]$PageIndex)
+  New-Item -ItemType Directory -Path $pageDir -Force | Out-Null
+
+  $indexPath = Join-Path $pageDir 'index.html'
+  [System.IO.File]::WriteAllText($indexPath, $Html, $Encoding)
+  Remove-Item -LiteralPath $SourcePath -Force
 }
 
 function Remove-RemoteScripts {
@@ -428,11 +466,13 @@ try {
 
     $topicPageFiles | ForEach-Object {
       $pagePath = $_.FullName
+      $baseName = [System.IO.Path]::GetFileNameWithoutExtension($_.Name)
+      $pageIndex = if ($baseName -match '^\d+$') { [int]$baseName } else { 1 }
       $html = Get-Content -LiteralPath $pagePath -Encoding UTF8 -Raw
       $html = Rewrite-PaginatorLinks -Html $html -TopicId $topicId
       $html = Remove-RemoteScripts -Html $html
       $html = Add-ArchiveBanner -Html $html -ArchiveUrl '/allsis/' -OriginalUrl ([string]$meta.link)
-      [System.IO.File]::WriteAllText($pagePath, $html, $utf8NoBom)
+      Publish-ArchivePage -SourcePath $pagePath -DestinationDir $destinationDir -PageIndex $pageIndex -Html $html -Encoding $utf8NoBom
     }
 
     $savedAt = Get-Date ([string]$meta.saved_at)
@@ -471,7 +511,7 @@ try {
       summary = [string]$summaryInfo.summary
       content = [string]$summaryInfo.content
       originalLink = if ([string]$meta.link) { [string]$meta.link } else { '' }
-      localUrl = "/allsis/topics/$topicId/1.html"
+      localUrl = Get-ArchivePageUrl -TopicId $topicId -PageIndex 1
       savedAt = $savedAt.ToString('s')
       savedAtDisplay = $savedAt.ToString('yyyy.MM.dd')
       createdAt = $createdAtIso
