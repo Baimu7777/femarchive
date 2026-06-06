@@ -5,7 +5,7 @@
   {{ $figureSection := .Site.GetPage "section" "figures" }}
   {{ $allsisSection := .Site.GetPage "section" "allsis" }}
   {{ $allsisData := site.Data.allsis }}
-  {{ $allsisGroupURL := "https://www.douban.com/group/758828/" }}
+  {{ $allsisGroupURL := "https://www.douban.com/group/762437/" }}
   {{ with $allsisData }}
     {{ $allsisGroupURL = .groupUrl | default $allsisGroupURL }}
   {{ end }}
@@ -191,6 +191,7 @@
               <div class="allsis-banner__actions">
                 <a class="action-pill action-pill--solid" href="{{ with $allsisSection }}{{ .RelPermalink }}{{ else }}{{ "/allsis/" | relLangURL }}{{ end }}">进入存档</a>
                 <a class="action-pill" href="{{ $allsisGroupURL }}" target="_blank" rel="noopener">豆瓣原组</a>
+                <a class="action-pill" href="https://hermarks.feminism-nv.space/" target="_blank" rel="noopener">文舆打分</a>
               </div>
             </div>
           </div>

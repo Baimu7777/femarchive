@@ -529,7 +529,7 @@ try {
   $export = [ordered]@{
     groupName = '全女评审团'
     slug = 'allsis'
-    groupUrl = 'https://www.douban.com/group/758828/'
+    groupUrl = 'https://www.douban.com/group/762437/'
     archiveCount = $sortedItems.Count
     multiPageCount = @($sortedItems | Where-Object { $_.pages -gt 1 }).Count
     importedAt = (Get-Date).ToString('o')
