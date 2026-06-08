@@ -10,6 +10,7 @@ build:
   list: never
   render: always
 license: ""
+toc_numbered: false
 ---
 
 这份指南写给第一次接触 GitHub、Hugo 和 Markdown 的朋友。日常发帖并不需要学会编程。把网站想象成一个可以多人共同维护、并且会自动保留历史版本的文件夹即可。
