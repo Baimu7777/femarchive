@@ -10,8 +10,9 @@
   <main class="site-main">
     {{ block "main" . }}{{ end }}
   </main>
-  {{ partial "footer.html" . }}
-  <script src="{{ "js/code-copy.js" | relURL }}" defer></script>
+{{ partial "footer.html" . }}
+<script src="{{ "js/site.js" | relURL }}?v={{ now.Unix }}" defer></script>
+<script src="{{ "js/code-copy.js" | relURL }}" defer></script>
   {{ block "scripts" . }}{{ end }}
 
 </body>
