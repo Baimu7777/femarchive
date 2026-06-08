@@ -2048,7 +2048,6 @@ body.home-hero-dismissed .home-hero {
 
 .article-content img,
 .article-content p > img:only-child,
-.article-content p > a:only-child,
 .article-content p > a:only-child > img,
 .article-content p > picture:only-child,
 .article-content p > picture:only-child img {
@@ -2056,6 +2055,15 @@ body.home-hero-dismissed .home-hero {
   width: auto;
   max-width: 100%;
   height: auto;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 只有链接内部确实是一张图片时，才让链接独占一行并居中 */
+.article-content p > a:only-child:has(> img:only-child) {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
   margin-left: auto;
   margin-right: auto;
 }
@@ -4936,4 +4944,125 @@ i.star-outline svg {
 
 .article-content tbody tr:last-child td {
   border-bottom: 0;
+}
+
+/* ================================
+   Article code blocks
+   ================================ */
+
+   .article-content .code-block {
+    position: relative;
+    margin: 1.35em 0 1.65em;
+    padding: 1rem;
+    overflow: hidden;
+    border: 1px solid var(--line-soft, #d5dfd2);
+    border-radius: 10px;
+    background: #edf2eb;
+    box-shadow: 0 4px 12px rgba(65, 78, 62, 0.05);
+  }
+  
+  /* 取消占据整行的顶部工具栏 */
+  .article-content .code-block__toolbar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    display: block;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  
+  /* 不再显示 TEXT、BASH、CSS 等标签 */
+  .article-content .code-block__language {
+    display: none;
+  }
+  
+  /* 右上角复制按钮 */
+  .article-content .code-block__copy {
+    min-width: 62px;
+    padding: 0.48rem 0.85rem;
+    border: 0;
+    border-radius: 0 9px 0 5px;
+    background: #788174;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.2;
+    transition:
+      background-color 160ms ease,
+      transform 160ms ease;
+  }
+  
+  .article-content .code-block__copy:hover {
+    background: #626d5f;
+  }
+  
+  .article-content .code-block__copy:active {
+    transform: translateY(1px);
+  }
+  
+  .article-content .code-block__copy.is-copied {
+    background: #667c62;
+  }
+  
+  /* 兼容 Hugo 生成的语法高亮容器 */
+  .article-content .code-block .highlight {
+    margin: 0;
+    background: transparent !important;
+  }
+  
+  /* 代码正文 */
+  .article-content .code-block pre {
+    margin: 0;
+    padding: 1.35rem 1.15rem 1.1rem;
+    overflow-x: auto;
+    border: 0;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.48) !important;
+    box-shadow: none;
+  }
+  
+  /* 仅设置基础字体，不覆盖 Hugo 的语法高亮颜色 */
+  .article-content .code-block code {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+    font-size: 0.88rem;
+    line-height: 1.75;
+    white-space: pre;
+  }
+
+  /* 修复浅色代码块中的白色文字和旧版黑色边框 */
+.article-content .code-block pre {
+  color: #344033 !important;
+  border: 0 !important;
+  outline: 0 !important;
+  background: rgba(255, 255, 255, 0.48) !important;
+}
+
+.article-content .code-block pre code {
+  display: block;
+  padding: 0 !important;
+  border: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #344033 !important;
+}
+
+/* Hugo Chroma 高亮容器 */
+.article-content .code-block .highlight,
+.article-content .code-block .chroma {
+  border: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+}
+
+/* 普通 text 代码块使用深色文字 */
+.article-content .code-block code.language-text,
+.article-content .code-block code.language-plaintext {
+  color: #344033 !important;
 }

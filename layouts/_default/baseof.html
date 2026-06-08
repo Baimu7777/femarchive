@@ -11,7 +11,8 @@
     {{ block "main" . }}{{ end }}
   </main>
   {{ partial "footer.html" . }}
-  <script src="{{ "/js/site.js" | relLangURL }}" defer></script>
+  <script src="{{ "js/code-copy.js" | relURL }}" defer></script>
   {{ block "scripts" . }}{{ end }}
+
 </body>
 </html>
