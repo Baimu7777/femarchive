@@ -2509,7 +2509,7 @@ body.home-hero-dismissed .home-hero {
   position: fixed;
   top: 46vh;
   right: max(0px, env(safe-area-inset-right));
-  z-index: 90;
+  z-index: 120;
   width: 44px;
   height: 64px;
   padding: 0 0 0 8px;
@@ -2520,6 +2520,8 @@ body.home-hero-dismissed .home-hero {
   color: #408A71;
   box-shadow: 0 10px 22px rgba(9, 20, 19, 0.12);
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   transition: transform 0.36s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease, background 0.3s ease;
 }
 
@@ -2545,7 +2547,7 @@ body.home-hero-dismissed .home-hero {
 .mobile-toc__overlay {
   position: fixed;
   inset: 0;
-  z-index: 94;
+  z-index: 130;
   background: rgba(9, 20, 19, 0.08);
   backdrop-filter: blur(2px);
   opacity: 0;
@@ -2559,7 +2561,7 @@ body.home-hero-dismissed .home-hero {
   top: 0;
   right: 0;
   bottom: 0;
-  z-index: 95;
+  z-index: 131;
   width: min(68vw, 280px);
   min-width: 188px;
   padding: 18px 14px 20px;

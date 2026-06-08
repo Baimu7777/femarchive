@@ -7,49 +7,6 @@
 {{ end }}
 {{ $tocClass := cond $tocNumbered "toc-nav" "toc-nav toc-nav--plain" }}
 
-
-{{ if $hasTOC }}
-  <div class="mobile-toc" data-mobile-toc>
-    <button
-      type="button"
-      class="mobile-toc__toggle"
-      aria-expanded="false"
-      aria-controls="mobile-toc-panel"
-      aria-label="打开文章目录"
-      data-mobile-toc-toggle
-    >
-      <span class="sr-only">打开文章目录</span>
-      <span class="mobile-toc__toggle-lines" aria-hidden="true">
-        <span></span>
-        <span></span>
-        <span></span>
-      </span>
-    </button>
-
-    <div class="mobile-toc__overlay" data-mobile-toc-close hidden></div>
-
-    <aside
-      id="mobile-toc-panel"
-      class="mobile-toc__panel"
-      aria-hidden="true"
-    >
-      <div class="mobile-toc__header">
-        <div>
-          <p class="mobile-toc__eyebrow">CONTENTS</p>
-          <h2 class="mobile-toc__title">文章目录</h2>
-        </div>
-        <button type="button" class="mobile-toc__close" aria-label="关闭文章目录" data-mobile-toc-close>
-          <span aria-hidden="true">×</span>
-        </button>
-      </div>
-
-      <div class="{{ $tocClass }} mobile-toc__nav">
-        {{ $toc }}
-      </div>
-    </aside>
-  </div>
-{{ end }}
-
 <aside class="sidebar-stack">
   {{ if $hasTOC }}
     <section class="sidebar-card toc-card">
