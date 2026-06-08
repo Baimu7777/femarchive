@@ -1,6 +1,6 @@
 ---
 title: "零基础发帖指南：如何在文库网站发布、预览与修订文章"
-description: "从同步 GitHub 文件、创建 Markdown 文章、填写文章属性，到本地预览、发布、修订与使用网站短代码。"
+description: "第一节内含一部分原理解释，可以阅读并了解一些原理，安装"
 date: 2026-06-08
 slug: "posting"
 draft: false
@@ -767,9 +767,8 @@ build:
 {{< rating 5 4 >}}
 
 
-# 4. 最简发帖流程速查
+# 4. 完整发帖流程
 
-赶时间时，只看这一段即可：
 
 1. 打开 GitHub Desktop，点击 **Fetch origin**；如果出现 **Pull origin**，继续点击。
 2. 在 VS Code 中打开网站项目。

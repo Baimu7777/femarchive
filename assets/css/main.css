@@ -4909,3 +4909,31 @@ i.star-outline svg {
     border-radius: 0;
   }
 }
+
+/* 文章正文中的 Markdown 表格：仅显示横向分隔线 */
+.article-content table {
+  width: 100%;
+  margin: 1.2em 0 1.5em;
+  border-collapse: collapse;
+  border-top: 1.5px solid var(--line-mid);
+  border-bottom: 1.5px solid var(--line-mid);
+}
+
+.article-content th,
+.article-content td {
+  padding: 0.72em 0.8em;
+  border: 0;
+  border-bottom: 1px solid var(--line-soft);
+  text-align: left;
+  vertical-align: top;
+  line-height: 1.65;
+}
+
+.article-content th {
+  font-weight: 850;
+  border-bottom: 1.5px solid var(--line-mid);
+}
+
+.article-content tbody tr:last-child td {
+  border-bottom: 0;
+}
