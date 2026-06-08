@@ -2508,23 +2508,24 @@ body.home-hero-dismissed .home-hero {
 .mobile-toc__toggle {
   position: fixed;
   top: 46vh;
-  right: max(0px, env(safe-area-inset-right));
-  z-index: 90;
-  width: 44px;
-  height: 64px;
-  padding: 0 0 0 8px;
+  right: max(12px, calc(env(safe-area-inset-right) + 12px));
+  z-index: 1000;
+  width: 56px;
+  height: 56px;
+  padding: 0;
   border: 1px solid rgba(64, 138, 113, 0.22);
-  border-right: 0;
-  border-radius: 20px 0 0 20px;
-  background: linear-gradient(180deg, rgba(176, 228, 204, 0.24) 0%, rgba(176, 228, 204, 0.16) 100%);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
   color: #408A71;
   box-shadow: 0 10px 22px rgba(9, 20, 19, 0.12);
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   transition: transform 0.36s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease, background 0.3s ease;
 }
 
 .mobile-toc__toggle:hover {
-  transform: translateX(-2px);
+  transform: translateY(-2px);
   box-shadow: 0 14px 28px rgba(9, 20, 19, 0.16);
 }
 
@@ -2545,7 +2546,7 @@ body.home-hero-dismissed .home-hero {
 .mobile-toc__overlay {
   position: fixed;
   inset: 0;
-  z-index: 94;
+  z-index: 1001;
   background: rgba(9, 20, 19, 0.08);
   backdrop-filter: blur(2px);
   opacity: 0;
@@ -2559,7 +2560,7 @@ body.home-hero-dismissed .home-hero {
   top: 0;
   right: 0;
   bottom: 0;
-  z-index: 95;
+  z-index: 1002;
   width: min(68vw, 280px);
   min-width: 188px;
   padding: 18px 14px 20px;
@@ -2590,7 +2591,7 @@ body.home-hero-dismissed .home-hero {
 }
 
 .mobile-toc.is-open .mobile-toc__toggle {
-  transform: translateX(-3px);
+  transform: translateY(-3px);
 }
 
 .mobile-toc__header {
@@ -3091,6 +3092,8 @@ body.home-hero-dismissed .home-hero {
 
   .mobile-toc {
     display: block;
+    position: relative;
+    z-index: 1000;
   }
 
   .mobile-toc__overlay,
@@ -3192,12 +3195,12 @@ body.home-hero-dismissed .home-hero {
 
   .mobile-toc__toggle {
     top: auto;
-    bottom: 96px;
-    right: max(0px, env(safe-area-inset-right));
-    width: 40px;
+    bottom: max(96px, calc(env(safe-area-inset-bottom) + 88px));
+    right: max(14px, calc(env(safe-area-inset-right) + 14px));
+    width: 58px;
     height: 58px;
-    padding-left: 7px;
-    border-radius: 18px 0 0 18px;
+    padding: 0;
+    border-radius: 999px;
   }
 
   .mobile-toc__toggle-lines {

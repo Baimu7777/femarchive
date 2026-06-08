@@ -612,8 +612,20 @@
         const isOpen = wrap.classList.contains('is-open');
         syncState(!isOpen);
       };
+      let lastTouchToggle = 0;
 
-      toggle.addEventListener('click', togglePanel);
+      toggle.addEventListener('touchstart', (event) => {
+        lastTouchToggle = Date.now();
+        event.preventDefault();
+        togglePanel();
+      }, { passive: false });
+      toggle.addEventListener('click', (event) => {
+        if (Date.now() - lastTouchToggle < 500) {
+          event.preventDefault();
+          return;
+        }
+        togglePanel();
+      });
       closers.forEach((item) => item.addEventListener('click', closePanel));
       tocLinks.forEach((link) => link.addEventListener('click', closePanel));
 
