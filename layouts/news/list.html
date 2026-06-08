@@ -4,7 +4,7 @@
 
   <main class="archive-page archive-page--news">
     <div class="shell archive-shell">
-      <section class="archive-panel archive-panel--news">
+      <section class="archive-panel archive-panel--news panel-open timeline-list">
         <div class="news-list news-list--timeline">
           {{ range $paginator.Pages }}
             {{ $categories := .Params.categories | default (slice) }}
