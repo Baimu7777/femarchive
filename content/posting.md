@@ -274,10 +274,12 @@ Ctrl + Shift + F
 第一次参与网站维护时，需要：
 
 - 一个 GitHub 账号；
-- 网站管理员发出的仓库协作者邀请；
+- 网站管理员发出的仓库协作者邀请（私信豆瓣@[BooM](https://www.douban.com/people/188674235/?_i=09803423EVgGdf)，告知我你的github账号就好；
 - GitHub Desktop；
 - VS Code；
 - Hugo Extended。
+
+软件可以直接点击下载：
 
 | 软件 | 用途 |
 | --- | --- |
@@ -285,23 +287,37 @@ Ctrl + Shift + F
 | [VS Code](https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-user) | 打开网站文件夹、编辑文章、运行预览命令 |
 | [Hugo](https://github.com/gohugoio/hugo/releases/download/v0.148.1/hugo_extended_0.148.1_windows-amd64.zip) | 在电脑上创建文章文件并预览网站 | 
 
-## 2.2 怎样检查 Hugo 是否安装成功？
+## 2.2 怎样安装软件？
 
-安装完成后：
+GitHub Desktop 和 VS Code 按照普通软件的方式安装即可。一路点击安装按钮，安装完成后打开软件即可使用。
 
-1. 打开 VS Code。
-2. 点击顶部菜单栏的 **终端 → 新建终端**。
-3. 在下方终端中输入：
+Hugo 稍微不同。下载后得到的是一个压缩包，需要先解压，再把 Hugo 所在的文件夹加入 Windows 的环境变量。
 
-```powershell
+1. 下载 Hugo Extended 压缩包。
+2. 将压缩包全部解压到本地文件夹，例如：`D:\Hugo`
+3. 打开 `D:\Hugo` 文件夹，确认里面可以看到：`hugo.exe`
+4. 点击 Windows 开始菜单，搜索：`环境变量`
+5. 打开 `编辑系统环境变量`。
+6. 在弹出的窗口中，点击右下角的 `环境变量`。
+7. 在上方的`用户变量`区域中，找到 `Path`。
+8. 选中 `Path`，点击 编辑。
+9. 点击 `新建`。
+10. 填入 Hugo 所在的文件夹路径：`D:\Hugo`
+11. 连续点击 确定，保存设置。
+12. 设置完成后，关闭 VS Code，再重新打开。
+
+## 2.3 怎样检查 Hugo 是否安装成功？
+打开 VS Code。
+点击顶部菜单栏的 终端 → 新建终端。
+在下方终端中输入：
 hugo version
-```
-
-4. 按下回车键。
+按下回车键。
 
 如果终端显示 Hugo 的版本号，说明 Hugo 已经安装成功。
 
-## 2.3 第一次怎样把网站下载到电脑？
+如果提示“无法识别 hugo 命令”，通常是环境变量还没有生效。可以检查 D:\Hugo 里面是否有 hugo.exe，然后关闭 VS Code 重新打开，再试一次。
+
+## 2.4 第一次怎样把网站下载到电脑？
 
 网站管理员需要先把你的 GitHub 账号加入仓库协作者。接受邀请后：
 
