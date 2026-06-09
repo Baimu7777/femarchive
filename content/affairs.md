@@ -1,5 +1,5 @@
 ---
-title: "组内事务"
+title: "全女评阅组 · 组内事务"
 description: "全女评审团成员审核与违规成员处理说明。"
 date: 2026-01-26
 draft: false
