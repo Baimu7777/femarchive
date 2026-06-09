@@ -10,7 +10,7 @@ build:
   list: never
   render: always
 ---
-入组前请阅读《[入组必看](https://herarchive.feminism-nv.space/rules/)》和《[组内事务](https://herarchive.feminism-nv.space/affairs/)》并填写[入组申请](https://herarchive.feminism-nv.space/rules/#%E4%B8%83%E5%85%A5%E7%BB%84%E7%94%B3%E8%AF%B7)
+入组前请阅读《[入组必看](https://herarchive.feminism-nv.space/rules/)》和《[组内事务](https://herarchive.feminism-nv.space/affairs/)》并填写[入组申请](https://herarchive.feminism-nv.space/rules/#%E4%B8%83%E5%85%A5%E7%BB%84%E7%94%B3%E8%AF%B7)。
 
 # 一、成员审核
 
