@@ -10,7 +10,7 @@ build:
   list: never
   render: always
 ---
-入组前请阅读《[入组必看](https://herarchive.feminism-nv.space/rules/)》和《[组内事务](https://herarchive.feminism-nv.space/affairs/)》并填写[入组申请](https://herarchive.feminism-nv.space/rules/#%E4%B8%83%E5%85%A5%E7%BB%84%E7%94%B3%E8%AF%B7)。
+入组前请阅读《[入组必看](/rules/)》和《[组内事务](/affairs/)》并填写[入组申请](/rules/#%E4%B8%83%E5%85%A5%E7%BB%84%E7%94%B3%E8%AF%B7)。
 
 # 一、成员审核
 
@@ -20,7 +20,17 @@ build:
 
 1. 主页有违反组规的地方，或选择题的答案错误，任意组员看到申请都可以直接将其退回。退回时需在退回界面向申请人写明退回理由。
 2. 若主页和选择题均无问题，接收人可将答案录入审核表格。本组使用谷歌文档进行存档。<br>
-    谷歌文档链接：[成员入组审核链接](https://www.douban.com/group/topic/490274891/)
+    {{< linkcard
+
+  url="https://www.douban.com/group/topic/490274891/"
+
+  site="女阅组文库"
+
+  title="谷歌文档"
+
+  desc="所有成员入组审核与存档处"
+
+>}}
 3. 录入审核表后，其她组员可对答案进行审核。<br>
     a. 审核后认为该成员<span style="color: green;"><strong>无问题</strong></span>，在通过栏标注自己的id；<br>
     b. 审核后认为<span style="color: orange;"><strong>有争议</strong></span>，可以在备注栏进行讨论，并在处理结果栏选择暂有争议。解决争议后取消暂有争议的勾选，并等待其她人审核结果；<br>
@@ -48,7 +58,7 @@ build:
 
 {{< linkcard
 
-  url="https://herarchive.feminism-nv.space/rules/"
+  url="/rules/"
 
   site="女阅组文库"
 
