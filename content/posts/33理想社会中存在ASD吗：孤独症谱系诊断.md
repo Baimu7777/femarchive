@@ -3,7 +3,7 @@ title: "理想社会中存在ASD吗：孤独症谱系诊断"
 description: "我们现在依然在虜社。很多时候，谈论疾病，只是谈论「征」、更加节省时间和解释成本地治疗罢了。人首先是人，不是某某患者，人的身份高于患者身份，人也不该否定患者身份，因噎废食。"
 date: 2026-07-27T09:31:05+08:00
 slug: "261033"
-draft: true
+draft: false
 comments: true
 author: "匿名"
 categories:
