@@ -4273,6 +4273,114 @@ i.star-outline svg {
   gap: 0.35rem;
 }
 
+/* 评论正文保持等宽，回复关系由标记和底色表达。 */
+#waline .wl-cards .wl-card-item {
+  display: block;
+  min-width: 0;
+  padding: 1rem 0;
+  scroll-margin-top: 110px;
+}
+
+#waline .wl-cards .wl-user {
+  --avatar-size: 32px;
+  position: absolute;
+  inset-inline-start: 0;
+  top: 1rem;
+  margin: 0;
+}
+
+#waline .wl-cards .wl-card {
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+#waline .wl-card .wl-head {
+  min-height: 32px;
+  padding-inline-start: 44px;
+  overflow: visible;
+  line-height: 1.75;
+}
+
+#waline .wl-card .wl-meta {
+  padding-inline-start: 44px;
+}
+
+#waline .wl-card .wl-reply {
+  min-width: 32px;
+  min-height: 32px;
+  justify-content: center;
+}
+
+#waline .wl-card .wl-content {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin: 0.65rem 0 0;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid rgba(169, 194, 170, 0.62);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.96);
+  font-size: 1rem;
+  line-height: 1.85;
+  overflow-wrap: anywhere;
+}
+
+#waline .wl-card .wl-content > div > :first-child {
+  margin-top: 0;
+}
+
+#waline .wl-card .wl-content > div > :last-child {
+  margin-bottom: 0;
+}
+
+#waline .wl-card .wl-quote {
+  width: auto;
+  margin: 0.35rem 0 0;
+  padding: 0;
+  border: 0;
+}
+
+#waline .wl-quote .wl-content {
+  border-color: rgba(64, 138, 113, 0.28);
+  background: #f1f7f2;
+}
+
+#waline .wl-card .wl-content .wl-reply-to {
+  display: block;
+  float: none;
+  margin: 0 0 0.65rem;
+  color: #285a48;
+  font-size: 0.84em;
+  line-height: 1.5;
+}
+
+#waline .wl-card .wl-content .wl-reply-to::before {
+  content: "回复 ";
+}
+
+#waline .wl-card .wl-content .wl-reply-to a {
+  font-weight: 700;
+}
+
+#waline .wl-card-item:target > .wl-card > .wl-content {
+  border-color: #408a71;
+  box-shadow: 0 0 0 2px rgba(64, 138, 113, 0.14);
+}
+
+@media (max-width: 560px) {
+  #waline .wl-card .wl-content {
+    padding: 0.8rem;
+    border-radius: 12px;
+  }
+
+  #waline .wl-card .wl-meta {
+    display: none;
+  }
+}
+
 .dropcap {
   float: left;
   font-size: 3.5rem;
