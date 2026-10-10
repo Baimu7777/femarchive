@@ -791,10 +791,12 @@ body.home-hero-dismissed .home-hero {
   flex-direction: column;
 }
 
-.section-card--allsis-banner {
+.home-shell > .section-card--allsis-banner {
   padding: 0;
   overflow: hidden;
-  background: var(--bg-card);
+  border-color: var(--line-mid);
+  background: #f3faf6;
+  scroll-margin-top: 24px;
 }
 
 .allsis-banner {
@@ -810,19 +812,21 @@ body.home-hero-dismissed .home-hero {
 .allsis-banner__body {
   position: relative;
   z-index: 1;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 18px;
+  display: grid;
+  gap: 16px;
 }
 
 .allsis-banner__copy {
   min-width: 0;
-  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px 16px;
 }
 
 .allsis-banner__title {
   margin: 0;
+  color: var(--accent-deep);
   font-size: clamp(1.42rem, 2vw, 1.86rem);
   line-height: 1.1;
   letter-spacing: -0.03em;
@@ -838,15 +842,73 @@ body.home-hero-dismissed .home-hero {
 }
 
 .allsis-banner__summary {
-  margin-top: 10px;
+  grid-column: 1 / -1;
+  margin-top: 0;
 }
 
 .allsis-banner__actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.allsis-entry {
+  min-width: 0;
+  min-height: 46px;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 12px;
+  color: var(--accent-deep);
+  background: rgba(64, 138, 113, 0.07);
+  text-decoration: none;
+}
+
+.allsis-entry:hover {
+  background: rgba(64, 138, 113, 0.13);
+  text-decoration: none;
+}
+
+.allsis-entry:focus-visible {
+  outline: 2px solid var(--accent-deep);
+  outline-offset: -3px;
+}
+
+.allsis-entry__title {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.allsis-entry--submit {
+  min-height: 36px;
   align-self: center;
+  justify-self: end;
+  padding: 8px 15px;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--accent-deep);
+}
+
+.allsis-entry--submit .allsis-entry__title {
+  font-size: 0.88rem;
+}
+
+.allsis-entry--submit:hover {
+  color: #fff;
+  background: var(--accent);
+}
+
+.allsis-entry--submit:focus-visible {
+  outline: 2px solid #fff;
+}
+
+@media (max-width: 760px) {
+  .allsis-banner__actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .woman-card {
