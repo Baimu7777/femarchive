@@ -3428,6 +3428,67 @@ body.home-hero-dismissed .home-hero {
   margin-bottom: 0;
 }
 
+.article-content .language-discussion-group {
+  min-width: 0;
+  margin: 2.1rem 0;
+  padding: 1.15rem 1.2rem 1.2rem;
+  border: 1px solid rgba(112, 150, 126, 0.48);
+  border-left: 4px solid #789985;
+  border-radius: 1.4rem;
+  background: rgba(231, 240, 231, 0.86);
+}
+
+.article-content .language-discussion-group--warm {
+  border-color: rgba(160, 155, 117, 0.48);
+  border-left-color: #aba875;
+  background: rgba(247, 243, 227, 0.9);
+}
+
+.article-content .language-discussion-group > h3 {
+  max-width: 100%;
+  margin: 0 0 0.95rem;
+  padding: 0.35em 0.65em;
+  background: rgba(64, 138, 113, 0.12);
+}
+
+.article-content .language-discussion-group--warm > h3 {
+  background: rgba(160, 155, 117, 0.14);
+}
+
+.language-discussion-group .mycard {
+  margin: 0.85rem 0;
+  padding: 1rem 1.15rem;
+  border-radius: 1.3rem;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: none;
+}
+
+.language-discussion-group > .mycard:first-child {
+  margin-top: 0;
+}
+
+.language-discussion-group > .mycard:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 720px) {
+  .article-content .language-discussion-group {
+    margin: 1.7rem 0;
+    padding: 0.9rem 0.65rem;
+    border-left-width: 3px;
+    border-radius: 1.1rem;
+  }
+
+  .article-content .language-discussion-group > h3 {
+    font-size: 1.05rem;
+  }
+
+  .language-discussion-group .mycard {
+    padding: 0.85rem 0.8rem;
+    border-radius: 1.1rem;
+  }
+}
+
 .douban-comments-title {
   display: inline-flex;
   align-items: center;
