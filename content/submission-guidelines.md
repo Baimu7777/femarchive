@@ -14,6 +14,6 @@ draft: false
 
 本站建立的初衷是记录大家的理论讨论，同时对散落在网络各处的女权文章进行整理与备份。因此不做授权要求，比起记住传播者，更重要的是理论本身的传播。
 
-**本站所有文章默认认可并践行12BT立场，包括反性缘部分。**
+**本站所有文章默认认可并践行14BT立场，包括反性缘部分。**
 
 <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeWkDUxAJ3jMPSuS2rifhgoAFeBEGSKV3aSvEEnjZiffOyyUA/viewform?embedded=true" width="960" height="1335" frameborder="0" marginheight="0" marginwidth="0">正在加载…</iframe>
