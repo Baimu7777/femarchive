@@ -15,3 +15,12 @@ resources/_gen/
 node_modules/
 npm-debug.log*
 fem.zip
+
+# Local server secrets and developer-only publishing records
+.env
+.env.*
+.publishing-private/
+.vercel/
+publishing/LOCAL-ACCEPTANCE.md
+docs/superpowers/plans/2026-10-20-hugo-publisher-installation.md
+docs/superpowers/plans/2026-10-20-publication-preflight.md
