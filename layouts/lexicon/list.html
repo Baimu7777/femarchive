@@ -1,0 +1,12 @@
+{{ define "main" }}
+<main class="archive-page"><div class="shell archive-shell"><section class="archive-panel">
+  <div class="archive-heading"><h1 class="archive-heading__title">{{ .Title }}</h1><p class="archive-heading__desc">{{ .Description }}</p></div>
+  <div class="archive-grid">
+    {{ range .RegularPages.ByTitle }}
+      {{ partial "card.html" (dict "page" .) }}
+    {{ else }}
+      <p class="empty-state">词条正在整理中。</p>
+    {{ end }}
+  </div>
+</section></div></main>
+{{ end }}

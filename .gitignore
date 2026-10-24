@@ -15,3 +15,9 @@ resources/_gen/
 node_modules/
 npm-debug.log*
 fem.zip
+
+# Private deployment configuration
+.env
+.env.*
+.vercel/
+.publishing-private/

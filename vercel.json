@@ -35,5 +35,12 @@
         }
       ]
     }
-  ]
+  ],
+  "installCommand": "npm ci",
+  "functions": {
+    "api/publishing.mjs": {
+      "maxDuration": 60,
+      "includeFiles": "publishing/**"
+    }
+  }
 }
