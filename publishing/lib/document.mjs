@@ -192,7 +192,12 @@ export function readDocument(bytes) {
 }
 export function writeDocument(value, body, previous, plan) {
   if (!previous) {
-    const metadata = { title: value.title, date: plan.date, categories: value.categories, tags: value.tags, url: `/lexicon/${plan.articleId}/` };
+    // Entries carry no taxonomy. Empty arrays would still render as front
+    // matter keys, so only write the ones that actually have values.
+    const metadata = { title: value.title, date: plan.date,
+      ...(value.categories.length ? { categories: value.categories } : {}),
+      ...(value.tags.length ? { tags: value.tags } : {}),
+      url: `/lexicon/${plan.articleId}/` };
     return Buffer.from(`---\n${yaml.dump(metadata, { lineWidth: -1, noRefs: true })}---\n\n${body}`);
   }
   const document = readDocument(previous), newline = document.newline;
