@@ -1,11 +1,10 @@
-import { readFileSync } from 'node:fs';
 import { S3Client } from '@aws-sdk/client-s3';
+import { catalog } from '../publishing/catalog.mjs';
 import { createReceiver } from '../publishing/lib/receiver.mjs';
 import { createGitHubRepository, validateGitConfig } from '../publishing/lib/github.mjs';
 import { createReceipts, createR2Objects } from '../publishing/lib/receipts.mjs';
 import { failure } from '../publishing/lib/errors.mjs';
 
-const catalog = JSON.parse(readFileSync(new URL('../publishing/catalog.json', import.meta.url), 'utf8'));
 const required = ['WEBSITE_PUBLISHING_TOKEN', 'WEBSITE_GITHUB_TOKEN', 'WEBSITE_GITHUB_OWNER', 'WEBSITE_GITHUB_REPO', 'WEBSITE_GITHUB_BRANCH', 'WEBSITE_PUBLIC_ORIGIN', 'WEBSITE_R2_ENDPOINT', 'WEBSITE_R2_BUCKET', 'WEBSITE_R2_ACCESS_KEY_ID', 'WEBSITE_R2_SECRET_ACCESS_KEY'];
 export function createConfiguredReceiver(env, { fetch: transport = globalThis.fetch } = {}) {
   try {

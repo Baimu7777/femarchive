@@ -4,7 +4,7 @@ The receiver writes reviewed content to `content/lexicon/<UUID>.md` and independ
 
 ## Deployment
 
-Use the existing Vercel project and confirm its repository and production branch. Node 24.x is pinned in package.json. `npm ci` installs the lockfile; the existing build script uses Hugo 0.148.1. The function includes `publishing/**`, including its catalog.
+Use the existing Vercel project and confirm its repository and production branch. Node 24.x is pinned in package.json. `npm ci` installs the lockfile; the existing build script uses Hugo 0.148.1. The function includes `publishing/**`. The public vocabulary is a static module, `publishing/catalog.mjs`, so the entry point reads no data file at import time, and the native image module is imported on demand inside the `asset` operation only. A runtime that cannot load it answers `asset` with 503 while `catalog`, `article` and `publish` keep working; nothing at module scope can turn a disabled receiver into a platform 500.
 
 First deploy with `WEBSITE_PUBLISHING_ENABLED=false` in every environment. The catalog endpoint `/api/publishing?operation=catalog` must return a generic 503 while disabled. Do not enable it merely to pass a health check.
 
@@ -31,4 +31,4 @@ New publications always use the lexicon directory. Updates retain existing websi
 
 ## Verification
 
-`npm test` runs synthetic receiver/adapter tests with in-memory external services. No production credentials are needed. Local testing is separate from GitHub, R2 and Vercel deployment acceptance. Never copy private diagnostics into the Hugo output.
+`npm test` runs synthetic receiver/adapter/entry tests with in-memory external services. The entry tests re-import the function in a child process whose resolver refuses the native image module, which is the deployment failure this receiver must survive. No production credentials are needed. Local testing is separate from GitHub, R2 and Vercel deployment acceptance. Never copy private diagnostics into the Hugo output.
