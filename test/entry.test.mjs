@@ -41,7 +41,7 @@ process.stdout.write(JSON.stringify(result));
 // The deployment runtime never carries the sender's configuration, so the
 // entry point is probed without any website variable in the real environment.
 const environment = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('WEBSITE_')));
-const run = env => JSON.parse(execFileSync(process.execPath, [probe, JSON.stringify(env)], { env: environment, encoding: 'utf8' }));
+const run = (env, flags = []) => JSON.parse(execFileSync(process.execPath, [...flags, probe, JSON.stringify(env)], { env: environment, encoding: 'utf8' }));
 
 test('entry point imports and answers without configuration when the image module is unavailable', () => {
   const result = run({});
@@ -55,6 +55,19 @@ test('configured non-image operations keep working while image publishing fails 
   const result = run(configured);
   assert.equal(result.catalog.status, 200);
   assert.ok(result.catalog.body.categories.includes('思考讨论'), 'the static vocabulary is served without a data file read');
+  assert.deepEqual(result.asset, { status: 503, body: unavailable });
+  assert.deepEqual(result.handler, { status: 503, body: unavailable });
+});
+
+// The deployment runtime starts Node with --no-experimental-require-module in
+// process.execArgv, which overrides NODE_OPTIONS. A CommonJS dependency that
+// requires an ESM-only package therefore loads here but not there, and the
+// whole function answers every request with a platform error instead of 503.
+test('entry point loads under the module flags the deployment runtime imposes', () => {
+  const result = run(configured, ['--no-experimental-require-module']);
+  assert.equal(result.fetchHandler, 'function');
+  assert.equal(result.catalog.status, 200);
+  assert.ok(result.catalog.body.categories.includes('思考讨论'));
   assert.deepEqual(result.asset, { status: 503, body: unavailable });
   assert.deepEqual(result.handler, { status: 503, body: unavailable });
 });

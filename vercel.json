@@ -36,7 +36,7 @@
       ]
     }
   ],
-  "installCommand": "npm ci",
+  "installCommand": "npm ci --omit=dev",
   "functions": {
     "api/publishing.mjs": {
       "maxDuration": 60,

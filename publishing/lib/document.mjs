@@ -1,5 +1,8 @@
 import yaml from 'js-yaml';
-import sanitizeHtml from 'sanitize-html';
+// Bundled CommonJS copy: the sanitizer itself is CommonJS and requires the
+// ESM-only htmlparser2, which the deployment runtime refuses. See
+// scripts/build-vendor.mjs.
+import sanitizeHtml from '../vendor/sanitize-html.cjs';
 import { parseDocument } from 'htmlparser2';
 import { marked } from 'marked';
 import { isDeepStrictEqual } from 'node:util';
