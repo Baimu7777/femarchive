@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createConfiguredReceiver } from '../api/publishing.mjs';
 import { createReceiver } from '../publishing/lib/receiver.mjs';
-import { catalog, request } from './helpers.mjs';
+import { catalog, request, gitService } from './helpers.mjs';
+import { catalog as siteCatalog } from '../publishing/catalog.mjs';
 
 const environment = {
   WEBSITE_PUBLISHING_ENABLED: 'true',
@@ -43,9 +44,9 @@ test('direct receiver fails closed for invalid tokens before repository or recei
 
 test('service token bounds accept 32 and 256 URL-safe characters with valid authentication', async () => {
   for (const token of ['A_0-'.repeat(8), 'a_Z-0'.repeat(51) + '_']) {
-    const handler = createConfiguredReceiver({ ...environment, WEBSITE_PUBLISHING_TOKEN: token });
+    const handler = createConfiguredReceiver({ ...environment, WEBSITE_PUBLISHING_TOKEN: token }, { fetch: gitService().fetch });
     const response = await handler(request('catalog', undefined, undefined, { authorization: `Bearer ${token}` }));
     assert.equal(response.status, 200);
-    assert.deepEqual(await response.json(), catalog);
+    assert.deepEqual(await response.json(), { categories: siteCatalog.categories, sharedTags: siteCatalog.sharedTags });
   }
 });

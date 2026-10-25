@@ -62,8 +62,9 @@
                 {{ range $categories }}
                   <a class="chip chip--category chip--link" href="{{ (printf "/categories/%s/" (. | urlize)) | relLangURL }}">{{ . }}</a>
                 {{ end }}
+                {{ $publicationPage := . }}
                 {{ range $tags }}
-                  <a class="chip chip--tag chip--link" href="{{ (printf "/tags/%s/" (. | urlize)) | relLangURL }}">#{{ . }}</a>
+                  {{ partial "publication-term-chip.html" (dict "page" $publicationPage "name" .) }}
                 {{ end }}
               </div>
             {{ end }}

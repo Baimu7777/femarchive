@@ -1,3 +1,4 @@
+{{ $publicationPage := . }}
 {{ $author := .Params.author | default site.Params.author.name | default "" }}
 {{ $toc := .TableOfContents }}
 {{ $hasTOC := gt (len (findRE "<li" (printf "%s" $toc))) 0 }}
@@ -51,7 +52,7 @@
           <span class="sidebar-meta__label">标签</span>
           <div class="sidebar-meta__value sidebar-meta__value--chips">
             {{ range . }}
-              <a class="chip chip--tag chip--link" href="{{ (printf "/tags/%s/" (. | urlize)) | relLangURL }}">#{{ . }}</a>
+              {{ partial "publication-term-chip.html" (dict "page" $publicationPage "name" .) }}
             {{ end }}
           </div>
         </div>
