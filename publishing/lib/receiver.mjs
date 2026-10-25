@@ -30,7 +30,7 @@ async function limitedBody(request, limit) {
   return Buffer.concat(chunks, size);
 }
 const validToken = token => typeof token === 'string' && /^[A-Za-z0-9_-]{32,256}$/.test(token);
-export function createReceiver({ token, repository, receipts, catalog }) {
+export function createReceiver({ token, repository, receipts, catalog, importedArticles = {} }) {
   const configured = validToken(token) && repository && receipts && catalog && Array.isArray(catalog.categories) && Array.isArray(catalog.sharedTags);
   const expected = Buffer.from(`Bearer ${token}`);
   async function authenticate(request) {
@@ -42,7 +42,17 @@ export function createReceiver({ token, repository, receipts, catalog }) {
     if (['origin', 'cookie', 'referer', 'sec-fetch-site', 'sec-fetch-dest', 'sec-fetch-user'].some(h => request.headers.has(h))) fail(403);
   }
   async function managed(id) {
-    const record = await receipts.getArticle(id);
+    let record = await receipts.getArticle(id);
+    // Explicit administrator import registry, never a client-provided field.
+    // Adopt only the exact reviewed Git blob, then use normal durable receipts.
+    if (!record && Object.hasOwn(importedArticles, id)) {
+      const revision = importedArticles[id];
+      if (!sha(revision)) fail(503);
+      const snapshot = await repository.snapshot();
+      const file = await repository.read(articlePath(id), snapshot.head);
+      if (!file || file.revision !== revision) fail(409);
+      record = await receipts.saveArticle(id, { path: articlePath(id) });
+    }
     if (!record) fail(404);
     if (record.path !== articlePath(id)) fail(503);
     return record;

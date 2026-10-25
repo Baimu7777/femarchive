@@ -359,3 +359,20 @@ check('GitHub encoding:none files use fixed-repo blob reads and never download U
   assert.ok(s.remote.calls.some(c => c.method === 'GET' && c.url.includes('/git/blobs/')));
   assert.ok(s.remote.calls.every(c => new URL(c.url).hostname === 'api.github.com'));
 });
+
+check('explicit batch import adopts only reviewed blobs and remains updateable', async () => {
+  const s = setup();
+  const original = await (await publish(s)).json();
+  const isolatedReceipts = modules[2].createReceipts(memoryObjects());
+  const imported = modules[0].createReceiver({token, repository:s.repository, receipts:isolatedReceipts, catalog, importedArticles:{[original.articleId]:original.revision}});
+  const read = await imported(request(`article&articleId=${original.articleId}`));
+  assert.equal(read.status,200);
+  const value = await read.json();
+  const updated = await imported(request('publish',{...fixture(),title:'Batch follow-up',articleId:original.articleId,expectedRevision:value.revision}));
+  assert.equal(updated.status,200);
+  assert.equal((await imported(request(`article&articleId=${original.articleId}`))).status,200);
+  const wrong = modules[0].createReceiver({token,repository:s.repository,receipts:modules[2].createReceipts(memoryObjects()),catalog,importedArticles:{[original.articleId]:original.revision}});
+  assert.equal((await wrong(request(`article&articleId=${original.articleId}`))).status,409);
+  const unknown = modules[0].createReceiver({token,repository:s.repository,receipts:modules[2].createReceipts(memoryObjects()),catalog});
+  assert.equal((await unknown(request(`article&articleId=${original.articleId}`))).status,404);
+});
