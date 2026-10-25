@@ -5490,10 +5490,10 @@ i.star-outline svg {
 .lexicon-group { display: grid; grid-template-columns: 2.6rem 1fr; gap: 0 1rem; align-items: start; }
 .lexicon-letter { margin: 0; font-size: .95rem; line-height: 2; color: var(--text-soft); font-weight: 700; }
 .lexicon-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: .3rem; }
-.lexicon-list a { position: relative; display: inline-block; padding-right: 1.5rem; font-size: 1rem; line-height: 2; text-decoration: none; border-bottom: 1px solid transparent; }
+.lexicon-list a { display: inline-flex; align-items: flex-start; gap: .22rem; font-size: 1rem; line-height: 2; text-decoration: none; border-bottom: 1px solid transparent; }
 .lexicon-list a:hover, .lexicon-list a:focus-visible { border-bottom-color: currentColor; }
 .lexicon-mark { display: inline-flex; align-items: center; justify-content: center; width: 1.05rem; height: 1.05rem; border-radius: 50%; font-size: .72rem; font-weight: 700; line-height: 1; }
-.lexicon-list .lexicon-mark { position: absolute; top: .35rem; right: 0; }
+.lexicon-list .lexicon-mark { flex: none; }
 .lexicon-mark--positive { color: var(--accent-deep); background: rgba(64, 138, 113, 0.16); }
 .lexicon-mark--negative { color: #7a5a12; background: rgba(122, 90, 18, 0.14); }
 
