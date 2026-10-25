@@ -20,7 +20,7 @@ export function validateArticle(value, catalog) {
   if (value.version !== 1 || value.confirmed !== true || !text(value.title, 300, true) || /[\r\n]/.test(value.title) || !text(value.html, 512 * 1024) || !strings(value.categories, 6, 100) || !strings(value.tags, 50, 100)) fail();
   if (value.categories.some(c => !catalog.categories.includes(c)) || value.tags.some(t => !catalog.sharedTags.includes(t))) fail();
   if ('initial' in value && !INDEX_LETTERS.has(value.initial)) fail();
-  if ('polarity' in value && !['positive', 'negative'].includes(value.polarity)) fail();
+  if ('polarity' in value && !['positive', 'negative', 'unmarked'].includes(value.polarity)) fail();
   if (!Array.isArray(value.comments) || value.comments.length > 100 || !value.comments.every(c => text(c, 10000, true))) fail();
   if (!Array.isArray(value.assets) || value.assets.length > 50 || !value.assets.every(uuid) || new Set(value.assets).size !== value.assets.length) fail();
   if ('articleId' in value || 'expectedRevision' in value) { if (!uuid(value.articleId) || !sha(value.expectedRevision)) fail(); }
@@ -194,29 +194,38 @@ export function writeDocument(value, body, previous, plan) {
     // matter keys, so only write the ones that actually have values.
     const metadata = { title: value.title, date: plan.date,
       ...(INDEX_LETTERS.has(value.initial) ? { initial: value.initial } : {}),
-      ...(['positive', 'negative'].includes(value.polarity) ? { polarity: value.polarity } : {}),
+      ...(['positive', 'negative', 'unmarked'].includes(value.polarity) ? { polarity: value.polarity } : {}),
       ...(value.categories.length ? { categories: value.categories } : {}),
       ...(value.tags.length ? { tags: value.tags } : {}),
       url: `/lexicon/${plan.articleId}/` };
     return Buffer.from(`---\n${yaml.dump(metadata, { lineWidth: -1, noRefs: true })}---\n\n${body}`);
   }
   const document = readDocument(previous), newline = document.newline;
-  const lines = document.raw.split(/\r?\n/);
-  const titleLines = lines.map((line, index) => /^(?:title|"title"|'title')\s*:/.test(line) ? index : -1).filter(index => index !== -1);
-  if (titleLines.length > 1 || (Object.hasOwn(document.metadata, 'title') && titleLines.length !== 1)) fail(409);
-  const encoded = `title: ${JSON.stringify(value.title)}`;
-  if (titleLines.length) {
-    const start = titleLines[0]; let end = start + 1;
-    while (end < lines.length && (/^[ \t]+\S/.test(lines[end]) || (/^\s*$/.test(lines[end]) && /^\s+\S/.test(lines[end + 1] ?? '')))) end++;
-    lines.splice(start, end - start, encoded);
-  } else lines.unshift(encoded);
+  let lines = document.raw.split(/\r?\n/);
+  // Keys the sender owns on every publication. An entry first published
+  // before one of them existed gains it on the next update; everything else
+  // in the front matter belongs to the website and must come through intact.
+  const managed = { title: value.title };
+  if (INDEX_LETTERS.has(value.initial)) managed.initial = value.initial;
+  if (['positive', 'negative', 'unmarked'].includes(value.polarity)) managed.polarity = value.polarity;
+  for (const [key, keyValue] of Object.entries(managed)) {
+    const pattern = new RegExp(`^(?:${key}|"${key}"|'${key}')\\s*:`);
+    const found = lines.map((line, index) => pattern.test(line) ? index : -1).filter(index => index !== -1);
+    if (found.length > 1 || (Object.hasOwn(document.metadata, key) && found.length !== 1)) fail(409);
+    const encoded = `${key}: ${JSON.stringify(keyValue)}`;
+    if (found.length) {
+      const start = found[0]; let end = start + 1;
+      while (end < lines.length && (/^[ \t]+\S/.test(lines[end]) || (/^\s*$/.test(lines[end]) && /^\s+\S/.test(lines[end + 1] ?? '')))) end++;
+      lines.splice(start, end - start, encoded);
+    } else lines = [encoded, ...lines];
+  }
   const raw = lines.join(newline);
   // Anchors, merge keys or unusual scalar syntax must never change other fields.
   let updated;
   try { updated = yaml.load(raw); } catch { fail(409); }
-  const oldFields = { ...document.metadata }; delete oldFields.title;
-  const newFields = { ...updated }; delete newFields.title;
-  if (updated.title !== value.title || !isDeepStrictEqual(oldFields, newFields)) fail(409);
+  const oldFields = { ...document.metadata }, newFields = { ...updated };
+  for (const key of Object.keys(managed)) { delete oldFields[key]; delete newFields[key]; }
+  if (Object.entries(managed).some(([key, keyValue]) => updated[key] !== keyValue) || !isDeepStrictEqual(oldFields, newFields)) fail(409);
   const prefix = document.source.startsWith('\uFEFF') ? '\uFEFF' : '';
   return Buffer.from(`${prefix}---${newline}${raw}${newline}---${newline}${newline}${body}`);
 }

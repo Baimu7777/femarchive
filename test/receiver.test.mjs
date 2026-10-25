@@ -103,6 +103,36 @@ check('simultaneous duplicate requests converge on the immutable reservation', a
   assert.equal(s.remote.files().size, 1);
 });
 
+check('an update adds listing keys the first publication predated, keeping website fields', async () => {
+  // The first publication of an older entry carries neither key; the next one
+  // must be able to add them without disturbing anything the website owns.
+  const s = setup();
+  const first = await (await publish(s)).json();
+  const path = articlePath(first.articleId);
+  assert.doesNotMatch(s.remote.text(path), /^initial:/m);
+  // Give the file a website-owned key so the update has something to keep.
+  s.remote.edit(path, s.remote.text(path).replace(/^url:/m, `weight: 4
+url:`));
+  const current = await (await s.receive(request(`article&articleId=${first.articleId}`))).json();
+  const update = await publish(s, { ...fixture(), initial: 'B', polarity: 'negative', articleId: first.articleId, expectedRevision: current.revision });
+  assert.equal(update.status, 200);
+  const front = yaml.load(s.remote.text(path).split('---')[1]);
+  assert.equal(front.initial, 'B');
+  assert.equal(front.polarity, 'negative');
+  assert.equal(front.weight, 4, 'website-owned fields survive');
+  assert.equal(front.url, `/lexicon/${first.articleId}/`);
+  // A second update keeps a single copy of each managed key.
+  const next = await (await s.receive(request(`article&articleId=${first.articleId}`))).json();
+  assert.equal((await publish(s, { ...fixture(), initial: 'C', polarity: 'positive', articleId: first.articleId, expectedRevision: next.revision })).status, 200);
+  const raw = s.remote.text(path).split('---')[1];
+  assert.equal((raw.match(/^initial:/gm) || []).length, 1);
+  assert.equal(yaml.load(raw).initial, 'C');
+  assert.equal(yaml.load(raw).polarity, 'positive');
+  const latest = await (await s.receive(request(`article&articleId=${first.articleId}`))).json();
+  assert.equal((await publish(s, { ...fixture(), initial: 'C', polarity: 'unmarked', articleId: first.articleId, expectedRevision: latest.revision })).status, 200);
+  assert.equal(yaml.load(s.remote.text(path).split('---')[1]).polarity, 'unmarked');
+});
+
 check('updates preserve raw YAML except title and require the current blob SHA', async () => {
   const s = setup(); const original = await (await publish(s)).json(); const path = articlePath(original.articleId);
   const front = '# website comment\ntitle: "Original" # title comment\ncategories: [理论分野]\ntags: [website-tag]\nslug: custom-slug\nurl: /custom-url/\ndate: 2020-01-01\nauthor: Site Editor\ncustom:\n  nested: true\n';

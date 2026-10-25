@@ -47,6 +47,7 @@
       while (index < value.length) {
         var hit = null, at = -1;
         for (var i = 0; i < titles.length; i++) {
+          if (entries.some(function (e) { return e.title === titles[i] && e.url === selfUrl; })) continue;
           var found = value.indexOf(titles[i], index);
           if (found !== -1 && (at === -1 || found < at)) { at = found; hit = titles[i]; }
         }
@@ -73,9 +74,10 @@
   // Comments live on the entry's own path, so a card and the entry page share
   // one thread. The client is fetched on first open and then just re-pointed.
   var walineHost = dialog.querySelector('[data-lexicon-waline]');
-  var waline = null, walineLoading = false;
+  var waline = null, walineLoading = false, commentPath = '';
   function showComments(entry) {
     if (!walineHost) return;
+    commentPath = entry.url;
     if (waline) { try { waline.update({ path: entry.url }); } catch (e) { /* keep the card usable */ } return; }
     if (walineLoading) return;
     walineLoading = true;
@@ -85,7 +87,7 @@
         serverURL: walineHost.getAttribute('data-server'),
         lang: walineHost.getAttribute('data-lang') || 'zh-CN',
         turnstileKey: walineHost.getAttribute('data-turnstile') || undefined,
-        path: entry.url,
+        path: commentPath,
         pageview: false,
         reaction: false,
         search: false,
@@ -106,7 +108,7 @@
     autoLink(contentNode, entry.url);
     backButton.hidden = stack.length < 2;
     showComments(entry);
-    contentNode.scrollTop = 0;
+    dialog.querySelector('.lexicon-dialog__body').scrollTop = 0;
     titleNode.focus();
   }
 
