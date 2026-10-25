@@ -1,13 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "npm ci --no-audit --no-fund",
   "buildCommand": "chmod a+x build.sh && ./build.sh",
   "outputDirectory": "public",
-  "functions": {
-    "api/publishing.mjs": {
-      "includeFiles": "publishing/catalog.json"
-    }
-  },
   "redirects": [
     {
       "source": "/allsis/topics/:topicId/:page(\\d+)\\.html",
@@ -41,5 +35,12 @@
         }
       ]
     }
-  ]
+  ],
+  "installCommand": "npm ci --omit=dev",
+  "functions": {
+    "api/publishing.mjs": {
+      "maxDuration": 60,
+      "includeFiles": "publishing/**"
+    }
+  }
 }

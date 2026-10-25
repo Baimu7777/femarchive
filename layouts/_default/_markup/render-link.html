@@ -1,0 +1,6 @@
+{{- $label := .Text -}}
+{{- $plain := .Text | plainify | htmlUnescape -}}
+{{- if and (eq .Page.Section "lexicon") (eq $plain .Destination) -}}
+  {{- with index site.Data.link_titles .Destination -}}{{- $label = . | htmlEscape | safeHTML -}}{{- end -}}
+{{- end -}}
+<a href="{{ .Destination | safeURL }}"{{ with .Title }} title="{{ . }}"{{ end }}>{{ $label | safeHTML }}</a>

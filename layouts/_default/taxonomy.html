@@ -1,5 +1,5 @@
 {{ define "main" }}
-  {{ $pages := .Pages }}
+  {{ $pages := where .Pages "Section" "ne" "lexicon" }}
   {{ if eq (.Data.Singular | default "") "category" }}
     {{ $pages = where .Pages "Section" "eq" "posts" }}
   {{ end }}

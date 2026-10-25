@@ -69,7 +69,7 @@ test('finding2: Base64 selected and unselected asset receipts cannot enter publi
 
 test('finding2: encoded private values in preserved YAML are rejected before replacement commits', async () => {
   const s = setup(), initial = await (await publish(s)).json(), asset = await upload(s);
-  const path = `content/posts/${initial.articleId}.md`;
+  const path = `content/lexicon/${initial.articleId}.md`;
   for (const isReceipt of [false, true]) {
     const key = randomUUID(), secret = isReceipt ? asset.receipt : key;
     for (const front of [`custom: ${Buffer.from(secret).toString('base64')}`, `url: /notes/${Buffer.from(secret).toString('base64url')}/`]) {
@@ -88,7 +88,7 @@ test('finding2: reversible-view exhaustion rejects without public or private wri
 test('finding2: ordinary Base64 public prose is allowed and does not change replay semantics', async () => {
   const s = setup(), key = randomUUID(), dto = { ...fixture(), title: Buffer.from('公开说明: ordinary public prose').toString('base64') };
   const first = await publish(s, dto, key); assert.equal(first.status, 200); const result = await first.json();
-  assert.ok(s.remote.text(`content/posts/${result.articleId}.md`).includes(dto.title));
+  assert.ok(s.remote.text(`content/lexicon/${result.articleId}.md`).includes(dto.title));
   const replay = await publish(s, dto, key); assert.equal(replay.status, 200); assert.deepEqual(await replay.json(), result);
   assert.equal(s.remote.calls.filter(c => c.method === 'PATCH').length, 1);
 });
@@ -124,7 +124,7 @@ test('finding2: binary Base64 containing an unselected private receipt is refuse
 
 test('finding2: binary Base64 in preserved metadata and permalinks is refused without writes', async () => {
   const s = setup(), asset = await upload(s), article = await (await publish(s)).json();
-  const path = `content/posts/${article.articleId}.md`;
+  const path = `content/lexicon/${article.articleId}.md`;
   for (const isReceipt of [false, true]) {
     const key = randomUUID(), secret = isReceipt ? asset.receipt : key;
     const encoded = Buffer.concat([Buffer.from([0xff]), Buffer.from(secret)]).toString('base64url');
@@ -145,7 +145,7 @@ test('finding2: binary Base64 without private values and ordinary English long w
     const response = await publish(s, { ...fixture(), title });
     assert.equal(response.status, 200);
     const result = await response.json();
-    assert.ok(s.remote.text(`content/posts/${result.articleId}.md`).includes(title));
+    assert.ok(s.remote.text(`content/lexicon/${result.articleId}.md`).includes(title));
   }
 });
 
@@ -164,7 +164,7 @@ movement position location rotation geometry equation fraction addition multiply
   const response = await publish(s, { ...fixture(), html: `<p>${words}</p>` });
   assert.equal(response.status, 200);
   const result = await response.json();
-  assert.ok(s.remote.text(`content/posts/${result.articleId}.md`).includes(words));
+  assert.ok(s.remote.text(`content/lexicon/${result.articleId}.md`).includes(words));
 });
 
 test('finding2: many safe binary Base64 tokens do not create recursive encoding branches', async () => {
@@ -172,7 +172,7 @@ test('finding2: many safe binary Base64 tokens do not create recursive encoding 
   const tokens = Array.from({ length: 80 }, (_, i) => Buffer.from([0xff, 0x80, 0xff, i, 0xff, 0x80]).toString('base64'));
   const response = await publish(s, { ...fixture(), html: `<p>${tokens.join(' ')}</p>` });
   assert.equal(response.status, 200);
-  const result = await response.json(), markdown = s.remote.text(`content/posts/${result.articleId}.md`);
+  const result = await response.json(), markdown = s.remote.text(`content/lexicon/${result.articleId}.md`);
   for (const token of tokens) assert.ok(markdown.includes(token));
 });
 
@@ -213,8 +213,8 @@ test('finding3: earlier request keys in preserved YAML and website URLs prevent 
     const s = setup(), prior = randomUUID();
     if (kind === 'publish') assert.equal((await publish(s, fixture(), prior)).status, 200);
     else await upload(s, prior);
-    const article = await (await publish(s)).json(), path = `content/posts/${article.articleId}.md`;
-    for (const front of [`custom: ${prior}`, `custom: ${Buffer.from(prior).toString('base64url')}`, `url: /posts/${prior}/`]) {
+    const article = await (await publish(s)).json(), path = `content/lexicon/${article.articleId}.md`;
+    for (const front of [`custom: ${prior}`, `custom: ${Buffer.from(prior).toString('base64url')}`, `url: /lexicon/${prior}/`]) {
       s.remote.edit(path, `---\ntitle: Existing\n${front}\n---\nExisting body\n`);
       await rejectWithoutWrites(s, { ...fixture(), articleId: article.articleId, expectedRevision: s.remote.files().get(path).sha });
     }
@@ -226,7 +226,7 @@ test('finding3: encoded earlier request keys in preserved permalinks cannot prod
     const s = setup(), prior = randomUUID();
     if (kind === 'publish') assert.equal((await publish(s, fixture(), prior)).status, 200);
     else await upload(s, prior);
-    const article = await (await publish(s)).json(), path = `content/posts/${article.articleId}.md`;
+    const article = await (await publish(s)).json(), path = `content/lexicon/${article.articleId}.md`;
     for (const encoding of ['base64', 'base64url']) {
       const encoded = Buffer.from(prior).toString(encoding);
       s.remote.edit(path, `---\ntitle: Existing\nurl: /notes/${encoded}/\n---\nExisting body\n`);
@@ -263,7 +263,7 @@ test('finding3: public managed article and image UUIDs are not confused with pri
   const imageId = image.path.split('/').at(-1).replace('.webp', '');
   const dto = { ...fixture(), title: first.articleId, comments: [imageId], assets: [image.receipt], html: `<img src="${image.path}">` };
   const response = await publish(s, dto); assert.equal(response.status, 200);
-  const result = await response.json(), markdown = s.remote.text(`content/posts/${result.articleId}.md`);
+  const result = await response.json(), markdown = s.remote.text(`content/lexicon/${result.articleId}.md`);
   assert.ok(markdown.includes(first.articleId)); assert.ok(markdown.includes(imageId));
   assert.ok(!markdown.includes(image.receipt));
 });
@@ -279,7 +279,7 @@ test('finding4: every image width/alignment survives publish-read-title-update w
     assert.ok(article.html.includes(`data-width="${width}"`)); assert.ok(article.html.includes(`data-align="${align}"`));
     const update = await publish(s, { ...dto, title: 'Updated title', html: article.html, articleId: initial.articleId, expectedRevision: article.revision });
     assert.equal(update.status, 200);
-    const result = await update.json(), markdown = s.remote.text(`content/posts/${result.articleId}.md`);
+    const result = await update.json(), markdown = s.remote.text(`content/lexicon/${result.articleId}.md`);
     assert.ok(markdown.includes(`style="width:${width}%;display:block;${margins[align]}"`));
     assert.match(markdown, /title: "Updated title"/); assert.ok(!markdown.includes(image.receipt));
   }
@@ -289,7 +289,7 @@ test('finding4: width-only and alignment-only defaults round-trip through public
   const s = setup(), image = await upload(s);
   for (const attrs of ['data-width="75"', 'data-align="right"']) {
     const dto = { ...fixture(), comments: [], assets: [image.receipt], html: `<img src="${image.path}" ${attrs}>` };
-    const initial = await (await publish(s, dto)).json(), path = `content/posts/${initial.articleId}.md`, original = s.remote.text(path).split('---\n').at(-1).trim();
+    const initial = await (await publish(s, dto)).json(), path = `content/lexicon/${initial.articleId}.md`, original = s.remote.text(path).split('---\n').at(-1).trim();
     const article = await (await s.receive(request(`article&articleId=${initial.articleId}`))).json();
     assert.doesNotMatch(article.html, /\sstyle=/i); assert.ok(article.html.includes(attrs));
     const update = await publish(s, { ...dto, title: 'New title', html: article.html, articleId: initial.articleId, expectedRevision: article.revision });
@@ -299,7 +299,7 @@ test('finding4: width-only and alignment-only defaults round-trip through public
 
 test('finding4: readback strips CSS and invalid layout metadata from website-managed HTML', async () => {
   const s = setup(), image = await upload(s), initial = await (await publish(s)).json();
-  s.remote.edit(`content/posts/${initial.articleId}.md`, `---\ntitle: Existing\n---\n<img src="${image.path}" data-width="101" data-align="invalid" style="position:fixed;background:url(https://never-fetch.example/x)">`);
+  s.remote.edit(`content/lexicon/${initial.articleId}.md`, `---\ntitle: Existing\n---\n<img src="${image.path}" data-width="101" data-align="invalid" style="position:fixed;background:url(https://never-fetch.example/x)">`);
   const read = await s.receive(request(`article&articleId=${initial.articleId}`)); assert.equal(read.status, 200);
   const article = await read.json(); assert.ok(article.html.includes(image.path));
   assert.doesNotMatch(article.html, /style=|data-width=|data-align=|never-fetch/);

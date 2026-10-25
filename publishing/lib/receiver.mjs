@@ -1,9 +1,17 @@
 import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
-import sharp from 'sharp';
 import { fail, response, failure, uuid, sha, articlePath, imagePath } from './errors.mjs';
 import { validateArticle, assertNoPrivateValues, assertNoPrivateText, publicBody, readDocument, writeDocument, articleURL, articleFields } from './document.mjs';
 
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
+let imageModule;
+// Loaded on demand. A disabled receiver and every non-image operation must not
+// depend on the native image module resolving in the deployment runtime; a
+// module-scope import answers each request with a platform error instead of a
+// generic 503.
+async function imageProcessor() {
+  if (!imageModule) { try { imageModule = (await import('sharp')).default; } catch { fail(503); } }
+  return imageModule;
+}
 const canonical = value => JSON.stringify(value, Object.keys(value).sort());
 async function limitedBody(request, limit) {
   const length = request.headers.get('content-length');
@@ -22,7 +30,7 @@ async function limitedBody(request, limit) {
   return Buffer.concat(chunks, size);
 }
 const validToken = token => typeof token === 'string' && /^[A-Za-z0-9_-]{32,256}$/.test(token);
-export function createReceiver({ token, repository, receipts, catalog }) {
+export function createReceiver({ token, repository, receipts, catalog, importedArticles = {} }) {
   const configured = validToken(token) && repository && receipts && catalog && Array.isArray(catalog.categories) && Array.isArray(catalog.sharedTags);
   const expected = Buffer.from(`Bearer ${token}`);
   async function authenticate(request) {
@@ -34,7 +42,17 @@ export function createReceiver({ token, repository, receipts, catalog }) {
     if (['origin', 'cookie', 'referer', 'sec-fetch-site', 'sec-fetch-dest', 'sec-fetch-user'].some(h => request.headers.has(h))) fail(403);
   }
   async function managed(id) {
-    const record = await receipts.getArticle(id);
+    let record = await receipts.getArticle(id);
+    // Explicit administrator import registry, never a client-provided field.
+    // Adopt only the exact reviewed Git blob, then use normal durable receipts.
+    if (!record && Object.hasOwn(importedArticles, id)) {
+      const revision = importedArticles[id];
+      if (!sha(revision)) fail(503);
+      const snapshot = await repository.snapshot();
+      const file = await repository.read(articlePath(id), snapshot.head);
+      if (!file || file.revision !== revision) fail(409);
+      record = await receipts.saveArticle(id, { path: articlePath(id) });
+    }
     if (!record) fail(404);
     if (record.path !== articlePath(id)) fail(503);
     return record;
@@ -114,9 +132,10 @@ export function createReceiver({ token, repository, receipts, catalog }) {
   async function asset(request, key) {
     if (request.headers.get('x-publishing-confirmed') !== '1' || request.headers.get('content-type')?.toLowerCase() !== 'image/webp') fail();
     const bytes = await limitedBody(request, 4 * 1024 * 1024);
+    const image = await imageProcessor();
     let processed;
     try {
-      const input = sharp(bytes, { limitInputPixels: 16_000_000, failOn: 'warning', animated: false });
+      const input = image(bytes, { limitInputPixels: 16_000_000, failOn: 'warning', animated: false });
       const metadata = await input.metadata();
       if (metadata.format !== 'webp' || (metadata.pages ?? 1) !== 1 || !metadata.width || !metadata.height || metadata.width * metadata.height > 16_000_000) fail();
       // sharp strips EXIF/XMP/ICC by default. Never use keepMetadata here.

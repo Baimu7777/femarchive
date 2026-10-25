@@ -18,5 +18,5 @@ export function failure(status) {
 }
 export const uuid = value => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(value);
 export const sha = value => typeof value === 'string' && /^[0-9a-f]{40}$/.test(value);
-export const articlePath = id => { if (!uuid(id)) fail(); return `content/posts/${id}.md`; };
+export const articlePath = id => { if (!uuid(id)) fail(); return `content/lexicon/${id}.md`; };
 export const imagePath = value => typeof value === 'string' && /^\/images\/articles\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.webp$/.test(value);

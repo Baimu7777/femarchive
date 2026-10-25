@@ -1,12 +1,17 @@
 import yaml from 'js-yaml';
-import sanitizeHtml from 'sanitize-html';
+// Bundled CommonJS copy: the sanitizer itself is CommonJS and requires the
+// ESM-only htmlparser2, which the deployment runtime refuses. See
+// scripts/build-vendor.mjs.
+import sanitizeHtml from '../vendor/sanitize-html.cjs';
 import { parseDocument } from 'htmlparser2';
 import { marked } from 'marked';
 import { isDeepStrictEqual } from 'node:util';
 import { isUtf8 } from 'node:buffer';
 import { fail, uuid, sha, imagePath } from './errors.mjs';
 
-const fields = ['version', 'confirmed', 'title', 'html', 'categories', 'tags', 'comments', 'assets', 'articleId', 'expectedRevision'];
+const fields = ['version', 'confirmed', 'title', 'html', 'initial', 'polarity', 'categories', 'tags', 'comments', 'assets', 'articleId', 'expectedRevision'];
+// Closed set: the index letter cannot carry anything the listing does not use.
+const INDEX_LETTERS = new Set(['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ', '⚑']);
 const control = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
 const text = (value, max, nonempty = false) => typeof value === 'string' && value.length <= max && !control.test(value) && (!nonempty || value.trim().length > 0);
 const strings = (value, maxItems, maxLength) => Array.isArray(value) && value.length <= maxItems && value.every(v => text(v, maxLength, true)) && new Set(value).size === value.length;
@@ -14,6 +19,8 @@ export function validateArticle(value, catalog) {
   if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).some(k => !fields.includes(k))) fail();
   if (value.version !== 1 || value.confirmed !== true || !text(value.title, 300, true) || /[\r\n]/.test(value.title) || !text(value.html, 512 * 1024) || !strings(value.categories, 6, 100) || !strings(value.tags, 50, 100)) fail();
   if (value.categories.some(c => !catalog.categories.includes(c)) || value.tags.some(t => !catalog.sharedTags.includes(t))) fail();
+  if ('initial' in value && !INDEX_LETTERS.has(value.initial)) fail();
+  if ('polarity' in value && !['positive', 'negative', 'unmarked'].includes(value.polarity)) fail();
   if (!Array.isArray(value.comments) || value.comments.length > 100 || !value.comments.every(c => text(c, 10000, true))) fail();
   if (!Array.isArray(value.assets) || value.assets.length > 50 || !value.assets.every(uuid) || new Set(value.assets).size !== value.assets.length) fail();
   if ('articleId' in value || 'expectedRevision' in value) { if (!uuid(value.articleId) || !sha(value.expectedRevision)) fail(); }
@@ -28,15 +35,9 @@ function safeLink(href) {
     const url = new URL(href);
     if (url.protocol !== 'https:' || url.username || url.password || url.port) return false;
     if (!/^[a-z0-9-]+(?:\.[a-z0-9-]+)+$/i.test(url.hostname) || /^[\d.]+$/.test(url.hostname) || /\.(?:local|localhost|internal|home|lan|test)$/.test(url.hostname)) return false;
-    if (/(?:^|\.)(?:douban\.com|twitter\.com|x\.com|instagram\.com|facebook\.com|weibo\.com)$/.test(url.hostname)) return false;
-    let path = url.pathname;
-    for (let depth = 0; depth < 16; depth++) {
-      if (/(?:^|\/)(?:@[^/]*|u|users?|members?|profiles?|people)(?:\/|$)/i.test(path)) return false;
-      const next = path.replace(/%([a-f0-9]{2})/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
-      if (next === path) break;
-      if (depth === 15) return false;
-      path = next;
-    }
+    // Links to a person's own page are allowed: keeping the forum out of the
+    // public copy is the sender's job, and it has the member identities to do
+    // it precisely. The receiver only enforces transport-level safety.
     // The URL parser percent-encodes raw angle brackets. Encode braces as well
     // so a citation cannot introduce Hugo shortcodes before Markdown rendering.
     return url.href.replace(/[{}]/g, c => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);
@@ -189,33 +190,49 @@ export function readDocument(bytes) {
 }
 export function writeDocument(value, body, previous, plan) {
   if (!previous) {
-    const metadata = { title: value.title, date: plan.date, categories: value.categories, tags: value.tags, url: `/posts/${plan.articleId}/` };
+    // Entries carry no taxonomy. Empty arrays would still render as front
+    // matter keys, so only write the ones that actually have values.
+    const metadata = { title: value.title, date: plan.date,
+      ...(INDEX_LETTERS.has(value.initial) ? { initial: value.initial } : {}),
+      ...(['positive', 'negative', 'unmarked'].includes(value.polarity) ? { polarity: value.polarity } : {}),
+      ...(value.categories.length ? { categories: value.categories } : {}),
+      ...(value.tags.length ? { tags: value.tags } : {}),
+      url: `/lexicon/${plan.articleId}/` };
     return Buffer.from(`---\n${yaml.dump(metadata, { lineWidth: -1, noRefs: true })}---\n\n${body}`);
   }
   const document = readDocument(previous), newline = document.newline;
-  const lines = document.raw.split(/\r?\n/);
-  const titleLines = lines.map((line, index) => /^(?:title|"title"|'title')\s*:/.test(line) ? index : -1).filter(index => index !== -1);
-  if (titleLines.length > 1 || (Object.hasOwn(document.metadata, 'title') && titleLines.length !== 1)) fail(409);
-  const encoded = `title: ${JSON.stringify(value.title)}`;
-  if (titleLines.length) {
-    const start = titleLines[0]; let end = start + 1;
-    while (end < lines.length && (/^[ \t]+\S/.test(lines[end]) || (/^\s*$/.test(lines[end]) && /^\s+\S/.test(lines[end + 1] ?? '')))) end++;
-    lines.splice(start, end - start, encoded);
-  } else lines.unshift(encoded);
+  let lines = document.raw.split(/\r?\n/);
+  // Keys the sender owns on every publication. An entry first published
+  // before one of them existed gains it on the next update; everything else
+  // in the front matter belongs to the website and must come through intact.
+  const managed = { title: value.title };
+  if (INDEX_LETTERS.has(value.initial)) managed.initial = value.initial;
+  if (['positive', 'negative', 'unmarked'].includes(value.polarity)) managed.polarity = value.polarity;
+  for (const [key, keyValue] of Object.entries(managed)) {
+    const pattern = new RegExp(`^(?:${key}|"${key}"|'${key}')\\s*:`);
+    const found = lines.map((line, index) => pattern.test(line) ? index : -1).filter(index => index !== -1);
+    if (found.length > 1 || (Object.hasOwn(document.metadata, key) && found.length !== 1)) fail(409);
+    const encoded = `${key}: ${JSON.stringify(keyValue)}`;
+    if (found.length) {
+      const start = found[0]; let end = start + 1;
+      while (end < lines.length && (/^[ \t]+\S/.test(lines[end]) || (/^\s*$/.test(lines[end]) && /^\s+\S/.test(lines[end + 1] ?? '')))) end++;
+      lines.splice(start, end - start, encoded);
+    } else lines = [encoded, ...lines];
+  }
   const raw = lines.join(newline);
   // Anchors, merge keys or unusual scalar syntax must never change other fields.
   let updated;
   try { updated = yaml.load(raw); } catch { fail(409); }
-  const oldFields = { ...document.metadata }; delete oldFields.title;
-  const newFields = { ...updated }; delete newFields.title;
-  if (updated.title !== value.title || !isDeepStrictEqual(oldFields, newFields)) fail(409);
+  const oldFields = { ...document.metadata }, newFields = { ...updated };
+  for (const key of Object.keys(managed)) { delete oldFields[key]; delete newFields[key]; }
+  if (Object.entries(managed).some(([key, keyValue]) => updated[key] !== keyValue) || !isDeepStrictEqual(oldFields, newFields)) fail(409);
   const prefix = document.source.startsWith('\uFEFF') ? '\uFEFF' : '';
   return Buffer.from(`${prefix}---${newline}${raw}${newline}---${newline}${newline}${body}`);
 }
 export function articleURL(origin, id, metadata) {
   let path = metadata?.url;
-  if (path === undefined && typeof metadata?.slug === 'string' && /^[a-zA-Z0-9_-]+$/.test(metadata.slug)) path = `/posts/${metadata.slug}/`;
-  if (path === undefined) path = `/posts/${id}/`;
+  if (path === undefined && typeof metadata?.slug === 'string' && /^[a-zA-Z0-9_-]+$/.test(metadata.slug)) path = `/lexicon/${metadata.slug}/`;
+  if (path === undefined) path = `/lexicon/${id}/`;
   if (typeof path !== 'string' || !path.startsWith('/') || path.startsWith('//') || /[\u0000-\u0020\u007f\\]/.test(path)) fail(409);
   const url = new URL(path, origin);
   if (url.origin !== origin || url.username || url.password) fail(409);

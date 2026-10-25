@@ -34,3 +34,12 @@ check('real R2 adapter uses immutable conditional private JSON objects', async (
   await assert.rejects(service.reserve('publish', key, 'b'.repeat(64), async () => ({})), { status: 409 });
   assert.ok(calls.every(c => c.input.Bucket === 'website-private')); assert.ok(calls.every(c => !c.input.ACL));
 });
+
+check('publishing credentials use the same bounded URL-safe alphabet as the sender', async () => {
+  const env = { WEBSITE_PUBLISHING_ENABLED: 'true', WEBSITE_PUBLISHING_TOKEN: token, WEBSITE_GITHUB_TOKEN: 'synthetic', WEBSITE_GITHUB_OWNER: 'site-owner', WEBSITE_GITHUB_REPO: 'site-repo', WEBSITE_GITHUB_BRANCH: 'main', WEBSITE_PUBLIC_ORIGIN: 'https://website.example', WEBSITE_R2_ENDPOINT: 'https://synthetic.r2.cloudflarestorage.com', WEBSITE_R2_BUCKET: 'website-private', WEBSITE_R2_ACCESS_KEY_ID: 'synthetic', WEBSITE_R2_SECRET_ACCESS_KEY: 'synthetic' };
+  for (const invalid of ['a'.repeat(31), 'a'.repeat(257), 'a'.repeat(32) + '+', 'a'.repeat(32) + '=', 'a'.repeat(32) + '/', 'a'.repeat(32) + ' ']) {
+    const response = await entry.createConfiguredReceiver({ ...env, WEBSITE_PUBLISHING_TOKEN: invalid })(request('catalog'));
+    assert.equal(response.status, 503);
+    assert.deepEqual(await response.json(), { error: 'UNAVAILABLE', message: 'Publishing unavailable.' });
+  }
+});

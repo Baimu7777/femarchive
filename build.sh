@@ -34,5 +34,8 @@ tar -C "${HOME}/.local" -xf "node-v${NODE_VERSION}-linux-x64.tar.xz"
 rm "node-v${NODE_VERSION}-linux-x64.tar.xz"
 export PATH="${HOME}/.local/node-v${NODE_VERSION}-linux-x64/bin:${PATH}"
 
+# Resolve bare reference URLs before rendering; failures retain their original labels.
+node scripts/link-titles.mjs
+
 # Avoid build differences from minified HTML when localhost is normal but production is not.
-hugo --gc --cleanDestinationDir --baseURL "https://${VERCEL_PROJECT_PRODUCTION_URL:-example.com}"
+hugo --gc --cleanDestinationDir --baseURL "${WEBSITE_PUBLIC_ORIGIN:-https://${VERCEL_PROJECT_PRODUCTION_URL:-example.com}}"

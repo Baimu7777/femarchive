@@ -19,7 +19,7 @@ function setup() {
 const publish = (s, value = fixture(), key) => s.receive(request('publish', value, key));
 const webp = () => sharp({ create: { width: 2, height: 2, channels: 3, background: '#884422' } }).withMetadata().webp().toBuffer();
 async function upload(s, bytes, key = randomUUID()) { return s.receive(request('asset', bytes ?? await webp(), key, { 'content-type': 'image/webp', 'x-publishing-confirmed': '1' })); }
-const articlePath = id => `content/posts/${id}.md`;
+const articlePath = id => `content/lexicon/${id}.md`;
 
 check('authentication, browser and confirmation gates make zero remote writes', async () => {
   const s = setup();
@@ -103,6 +103,36 @@ check('simultaneous duplicate requests converge on the immutable reservation', a
   assert.equal(s.remote.files().size, 1);
 });
 
+check('an update adds listing keys the first publication predated, keeping website fields', async () => {
+  // The first publication of an older entry carries neither key; the next one
+  // must be able to add them without disturbing anything the website owns.
+  const s = setup();
+  const first = await (await publish(s)).json();
+  const path = articlePath(first.articleId);
+  assert.doesNotMatch(s.remote.text(path), /^initial:/m);
+  // Give the file a website-owned key so the update has something to keep.
+  s.remote.edit(path, s.remote.text(path).replace(/^url:/m, `weight: 4
+url:`));
+  const current = await (await s.receive(request(`article&articleId=${first.articleId}`))).json();
+  const update = await publish(s, { ...fixture(), initial: 'B', polarity: 'negative', articleId: first.articleId, expectedRevision: current.revision });
+  assert.equal(update.status, 200);
+  const front = yaml.load(s.remote.text(path).split('---')[1]);
+  assert.equal(front.initial, 'B');
+  assert.equal(front.polarity, 'negative');
+  assert.equal(front.weight, 4, 'website-owned fields survive');
+  assert.equal(front.url, `/lexicon/${first.articleId}/`);
+  // A second update keeps a single copy of each managed key.
+  const next = await (await s.receive(request(`article&articleId=${first.articleId}`))).json();
+  assert.equal((await publish(s, { ...fixture(), initial: 'C', polarity: 'positive', articleId: first.articleId, expectedRevision: next.revision })).status, 200);
+  const raw = s.remote.text(path).split('---')[1];
+  assert.equal((raw.match(/^initial:/gm) || []).length, 1);
+  assert.equal(yaml.load(raw).initial, 'C');
+  assert.equal(yaml.load(raw).polarity, 'positive');
+  const latest = await (await s.receive(request(`article&articleId=${first.articleId}`))).json();
+  assert.equal((await publish(s, { ...fixture(), initial: 'C', polarity: 'unmarked', articleId: first.articleId, expectedRevision: latest.revision })).status, 200);
+  assert.equal(yaml.load(s.remote.text(path).split('---')[1]).polarity, 'unmarked');
+});
+
 check('updates preserve raw YAML except title and require the current blob SHA', async () => {
   const s = setup(); const original = await (await publish(s)).json(); const path = articlePath(original.articleId);
   const front = '# website comment\ntitle: "Original" # title comment\ncategories: [理论分野]\ntags: [website-tag]\nslug: custom-slug\nurl: /custom-url/\ndate: 2020-01-01\nauthor: Site Editor\ncustom:\n  nested: true\n';
@@ -125,10 +155,10 @@ check('unmanaged UUID files and arbitrary paths cannot be read or updated', asyn
 });
 
 check('branch race preserves external edits and does not silently rebase on retry', async () => {
-  const s = setup(), key = randomUUID(); s.remote.beforePatch = () => s.remote.edit('content/posts/legacy.md', 'external edit');
+  const s = setup(), key = randomUUID(); s.remote.beforePatch = () => s.remote.edit('content/lexicon/legacy.md', 'external edit');
   assert.equal((await publish(s, fixture(), key)).status, 409);
   const head = s.remote.head; assert.equal((await publish(s, fixture(), key)).status, 409);
-  assert.equal(s.remote.head, head); assert.equal(s.remote.text('content/posts/legacy.md'), 'external edit'); assert.equal(s.remote.files().size, 1);
+  assert.equal(s.remote.head, head); assert.equal(s.remote.text('content/lexicon/legacy.md'), 'external edit'); assert.equal(s.remote.files().size, 1);
 });
 
 check('selected WebP is reencoded without metadata and names are independently random', async () => {
@@ -155,7 +185,7 @@ check('asset timeout retry keeps original receipt and path even if branch later 
 
 check('unsafe HTML, arbitrary URLs, shortcodes and unselected assets never become public', async () => {
   const s = setup(); const uploaded = await (await upload(s)).json(); const before = s.remote.head;
-  const unsafe = ['<script>alert(1)</script>', '<iframe src="https://other.example"></iframe>', '<p onclick="x()">text</p>', '<img src="https://other.example/img.webp">', '<img src="/private.webp">', `<img src="${uploaded.path}">`, '<a href="https://forum.example/members/abc">profile</a>', '<a href="javascript:alert(1)">x</a>', '<a href="https://127.0.0.1/x">x</a>', '<!--private-canary--><p>x</p>'];
+  const unsafe = ['<script>alert(1)</script>', '<iframe src="https://other.example"></iframe>', '<p onclick="x()">text</p>', '<img src="https://other.example/img.webp">', '<img src="/private.webp">', `<img src="${uploaded.path}">`, '<a href="javascript:alert(1)">x</a>', '<a href="https://127.0.0.1/x">x</a>', '<!--private-canary--><p>x</p>'];
   for (const html of unsafe) assert.equal((await publish(s, { ...fixture(), html })).status, 400);
   assert.equal(s.remote.head, before);
   const response = await publish(s, { ...fixture(), html: '<p>{{&lt; unsafe &gt;}} &lt;img src=x onerror=y&gt;</p>', comments: ['<script>literal</script> {{< unsafe >}}'] }); assert.equal(response.status, 200);
@@ -209,12 +239,42 @@ check('editor links, underline, highlight, image layouts and ordered-list starts
   assert.equal(read.status, 200); assert.match((await read.json()).html, /data-width="50"/);
 });
 
-check('layout whitelist rejects arbitrary attrs, unsafe values and profile URL encodings', async () => {
+check('layout whitelist rejects arbitrary attrs and unsafe values', async () => {
   const s = setup(), image = await (await upload(s)).json(), before = s.remote.head;
   for (const html of [
-    '<a href="http://docs.example/x">x</a>', '<a href="https://user:pass@docs.example/x">x</a>', '<a href="https://docs.example/%6dembers/alice">x</a>', '<a href="https://docs.example/x" target="named-window">x</a>', '<a href="https://docs.example/x" rel="opener">x</a>', '<u style="color:red">x</u>', '<mark onclick="x()">x</mark>', '<ol start="-1"><li>x</li></ol>', '<ol start="1e9"><li>x</li></ol>',
+    '<a href="http://docs.example/x">x</a>', '<a href="https://user:pass@docs.example/x">x</a>', '<a href="https://docs.example/x" target="named-window">x</a>', '<a href="https://docs.example/x" rel="opener">x</a>', '<u style="color:red">x</u>', '<mark onclick="x()">x</mark>', '<ol start="-1"><li>x</li></ol>', '<ol start="1e9"><li>x</li></ol>',
     `<img src="${image.path}" data-width="101">`, `<img src="${image.path}" data-align="javascript:foo">`, `<img src="${image.path}" style="background:url(https://private.example)">`,
   ]) assert.equal((await publish(s, { ...fixture(), html, assets: [image.receipt] })).status, 400, html);
+  assert.equal(s.remote.head, before);
+});
+
+check('a link to a personal page is publishable; transport rules still apply', async () => {
+  // Keeping the forum out of the public copy is the sender side job: it holds
+  // the member identities and can refuse them precisely. The receiver only
+  // enforces transport-level safety, so an ordinary citation goes through.
+  const s = setup();
+  const allowed = await publish(s, { ...fixture(), html: '<p><a href="https://www.douban.com/people/someone/">主页</a> <a href="https://weibo.com/u/123">微博</a> <a href="https://www.whatsonweibo.com/a-story/">报道</a></p>' });
+  assert.equal(allowed.status, 200);
+  const markdown = s.remote.text(articlePath((await allowed.json()).articleId));
+  for (const href of ['douban.com/people/someone/', 'weibo.com/u/123', 'whatsonweibo.com/a-story/']) assert.ok(markdown.includes(href), href);
+  const before = s.remote.head;
+  for (const html of ['<a href="http://www.douban.com/people/someone/">x</a>', '<a href="https://127.0.0.1/people/x">x</a>', '<a href="https://host.local/people/x">x</a>']) {
+    assert.equal((await publish(s, { ...fixture(), html })).status, 400, html);
+  }
+  assert.equal(s.remote.head, before);
+});
+
+check('the index letter is written to front matter and limited to the listing buckets', async () => {
+  const s = setup();
+  const ok = await publish(s, { ...fixture(), initial: 'A' });
+  assert.equal(ok.status, 200);
+  assert.match(s.remote.text(articlePath((await ok.json()).articleId)), /^initial: A$/m);
+  // Omitting it stays valid, and anything outside the closed set is refused.
+  assert.equal((await publish(s, fixture())).status, 200);
+  const before = s.remote.head;
+  for (const initial of ['AA', 'a', '', '中', 1, null]) {
+    assert.equal((await publish(s, { ...fixture(), initial })).status, 400, String(initial));
+  }
   assert.equal(s.remote.head, before);
 });
 
@@ -260,7 +320,7 @@ check('an unselected private asset receipt cannot be pasted as public text', asy
 
 check('preserved website YAML and response URLs cannot leak this private request key', async () => {
   const s = setup(), initial = await (await publish(s)).json(), key = randomUUID(), path = articlePath(initial.articleId);
-  s.remote.edit(path, `---\ntitle: Existing\nauthor: ${key}\nurl: /posts/${key}/\n---\nExisting body\n`);
+  s.remote.edit(path, `---\ntitle: Existing\nauthor: ${key}\nurl: /lexicon/${key}/\n---\nExisting body\n`);
   const revision = s.remote.files().get(path).sha, before = s.remote.head;
   assert.equal((await publish(s, { ...fixture(), articleId: initial.articleId, expectedRevision: revision }, key)).status, 400);
   assert.equal(s.remote.head, before);
@@ -298,4 +358,21 @@ check('GitHub encoding:none files use fixed-repo blob reads and never download U
   assert.equal((await s.receive(request(`article&articleId=${result.articleId}`))).status, 200);
   assert.ok(s.remote.calls.some(c => c.method === 'GET' && c.url.includes('/git/blobs/')));
   assert.ok(s.remote.calls.every(c => new URL(c.url).hostname === 'api.github.com'));
+});
+
+check('explicit batch import adopts only reviewed blobs and remains updateable', async () => {
+  const s = setup();
+  const original = await (await publish(s)).json();
+  const isolatedReceipts = modules[2].createReceipts(memoryObjects());
+  const imported = modules[0].createReceiver({token, repository:s.repository, receipts:isolatedReceipts, catalog, importedArticles:{[original.articleId]:original.revision}});
+  const read = await imported(request(`article&articleId=${original.articleId}`));
+  assert.equal(read.status,200);
+  const value = await read.json();
+  const updated = await imported(request('publish',{...fixture(),title:'Batch follow-up',articleId:original.articleId,expectedRevision:value.revision}));
+  assert.equal(updated.status,200);
+  assert.equal((await imported(request(`article&articleId=${original.articleId}`))).status,200);
+  const wrong = modules[0].createReceiver({token,repository:s.repository,receipts:modules[2].createReceipts(memoryObjects()),catalog,importedArticles:{[original.articleId]:original.revision}});
+  assert.equal((await wrong(request(`article&articleId=${original.articleId}`))).status,409);
+  const unknown = modules[0].createReceiver({token,repository:s.repository,receipts:modules[2].createReceipts(memoryObjects()),catalog});
+  assert.equal((await unknown(request(`article&articleId=${original.articleId}`))).status,404);
 });

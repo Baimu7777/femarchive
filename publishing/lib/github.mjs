@@ -6,7 +6,7 @@ export function validateGitConfig({ owner, repo, branch, publicOrigin }) {
   const url = new URL(publicOrigin);
   if (url.protocol !== 'https:' || url.origin !== publicOrigin || url.username || url.password || url.port || !/^[a-z0-9-]+(?:\.[a-z0-9-]+)+$/i.test(url.hostname) || /\.(?:local|internal|localhost)$/.test(url.hostname) || /^[\d.]+$/.test(url.hostname)) fail(503);
 }
-const writablePath = value => (uuid(/^content\/posts\/(.+)\.md$/.exec(value)?.[1])) || (value.startsWith('static') && imagePath(value.slice(6)));
+const writablePath = value => (uuid(/^content\/lexicon\/(.+)\.md$/.exec(value)?.[1])) || (value.startsWith('static') && imagePath(value.slice(6)));
 
 export function createGitHubRepository({ token, owner, repo, branch, publicOrigin, fetch: transport = globalThis.fetch }) {
   validateGitConfig({ owner, repo, branch, publicOrigin });
