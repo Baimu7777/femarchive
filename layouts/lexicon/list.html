@@ -1,12 +1,30 @@
 {{ define "main" }}
-<main class="archive-page"><div class="shell archive-shell"><section class="archive-panel">
+{{ $pages := .RegularPages }}
+{{ $letters := slice "#" }}
+{{ range split "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "" }}{{ $letters = $letters | append . }}{{ end }}
+{{ $letters = $letters | append "⚑" }}
+<main class="archive-page"><div class="shell archive-shell"><section class="archive-panel archive-panel--plain">
   <div class="archive-heading"><h1 class="archive-heading__title">{{ .Title }}</h1><p class="archive-heading__desc">{{ .Description }}</p></div>
-  <div class="archive-grid">
-    {{ range .RegularPages.ByTitle }}
-      {{ partial "card.html" (dict "page" .) }}
-    {{ else }}
-      <p class="empty-state">词条正在整理中。</p>
-    {{ end }}
-  </div>
+  {{ if $pages }}
+    <p class="lexicon-count">共收录 {{ len $pages }} 个词条</p>
+    <div class="lexicon-index">
+      {{ range $letter := $letters }}
+        {{/* Entries published before the index letter existed carry none; keep
+             them reachable by listing them with the numeric group. */}}
+        {{ $group := where $pages "Params.initial" $letter }}
+        {{ if eq $letter "#" }}{{ $group = $group | union (where $pages "Params.initial" nil) }}{{ end }}
+        {{ with $group }}
+          <section class="lexicon-group" aria-label="{{ $letter }} 组">
+            <h2 class="lexicon-letter">{{ $letter }}</h2>
+            <ul class="lexicon-list">
+              {{ range .ByTitle }}<li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>{{ end }}
+            </ul>
+          </section>
+        {{ end }}
+      {{ end }}
+    </div>
+  {{ else }}
+    <p class="empty-state">词条正在整理中。</p>
+  {{ end }}
 </section></div></main>
 {{ end }}

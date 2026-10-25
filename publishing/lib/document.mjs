@@ -9,7 +9,9 @@ import { isDeepStrictEqual } from 'node:util';
 import { isUtf8 } from 'node:buffer';
 import { fail, uuid, sha, imagePath } from './errors.mjs';
 
-const fields = ['version', 'confirmed', 'title', 'html', 'categories', 'tags', 'comments', 'assets', 'articleId', 'expectedRevision'];
+const fields = ['version', 'confirmed', 'title', 'html', 'initial', 'categories', 'tags', 'comments', 'assets', 'articleId', 'expectedRevision'];
+// Closed set: the index letter cannot carry anything the listing does not use.
+const INDEX_LETTERS = new Set(['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ', '⚑']);
 const control = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
 const text = (value, max, nonempty = false) => typeof value === 'string' && value.length <= max && !control.test(value) && (!nonempty || value.trim().length > 0);
 const strings = (value, maxItems, maxLength) => Array.isArray(value) && value.length <= maxItems && value.every(v => text(v, maxLength, true)) && new Set(value).size === value.length;
@@ -17,6 +19,7 @@ export function validateArticle(value, catalog) {
   if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).some(k => !fields.includes(k))) fail();
   if (value.version !== 1 || value.confirmed !== true || !text(value.title, 300, true) || /[\r\n]/.test(value.title) || !text(value.html, 512 * 1024) || !strings(value.categories, 6, 100) || !strings(value.tags, 50, 100)) fail();
   if (value.categories.some(c => !catalog.categories.includes(c)) || value.tags.some(t => !catalog.sharedTags.includes(t))) fail();
+  if ('initial' in value && !INDEX_LETTERS.has(value.initial)) fail();
   if (!Array.isArray(value.comments) || value.comments.length > 100 || !value.comments.every(c => text(c, 10000, true))) fail();
   if (!Array.isArray(value.assets) || value.assets.length > 50 || !value.assets.every(uuid) || new Set(value.assets).size !== value.assets.length) fail();
   if ('articleId' in value || 'expectedRevision' in value) { if (!uuid(value.articleId) || !sha(value.expectedRevision)) fail(); }
@@ -189,6 +192,7 @@ export function writeDocument(value, body, previous, plan) {
     // Entries carry no taxonomy. Empty arrays would still render as front
     // matter keys, so only write the ones that actually have values.
     const metadata = { title: value.title, date: plan.date,
+      ...(INDEX_LETTERS.has(value.initial) ? { initial: value.initial } : {}),
       ...(value.categories.length ? { categories: value.categories } : {}),
       ...(value.tags.length ? { tags: value.tags } : {}),
       url: `/lexicon/${plan.articleId}/` };

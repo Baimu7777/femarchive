@@ -5473,3 +5473,13 @@ i.star-outline svg {
     padding: 1rem;
   }
 }
+
+/* 词条索引：按首字母分组的纯链接列表，与论坛词条页一致 */
+.lexicon-count { margin: 0 0 1.4rem; color: var(--muted); font-size: .8rem; }
+.lexicon-index { display: flex; flex-direction: column; gap: 1.6rem; }
+.lexicon-group { display: grid; grid-template-columns: 2.4rem 1fr; gap: 0 1rem; align-items: start; }
+.lexicon-letter { margin: 0; font-size: 1rem; line-height: 1.9; color: var(--muted); font-weight: 700; }
+.lexicon-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: .35rem; }
+.lexicon-list a { font-size: 1rem; line-height: 1.9; text-decoration: none; border-bottom: 1px solid transparent; }
+.lexicon-list a:hover, .lexicon-list a:focus-visible { border-bottom-color: currentColor; }
+@media (max-width: 560px) { .lexicon-group { grid-template-columns: 1.8rem 1fr; gap: 0 .6rem; } }

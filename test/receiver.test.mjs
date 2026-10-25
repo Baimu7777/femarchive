@@ -234,6 +234,20 @@ check('a link to a personal page is publishable; transport rules still apply', a
   assert.equal(s.remote.head, before);
 });
 
+check('the index letter is written to front matter and limited to the listing buckets', async () => {
+  const s = setup();
+  const ok = await publish(s, { ...fixture(), initial: 'A' });
+  assert.equal(ok.status, 200);
+  assert.match(s.remote.text(articlePath((await ok.json()).articleId)), /^initial: A$/m);
+  // Omitting it stays valid, and anything outside the closed set is refused.
+  assert.equal((await publish(s, fixture())).status, 200);
+  const before = s.remote.head;
+  for (const initial of ['AA', 'a', '', '中', 1, null]) {
+    assert.equal((await publish(s, { ...fixture(), initial })).status, 400, String(initial));
+  }
+  assert.equal(s.remote.head, before);
+});
+
 check('citation URL normalization prevents angle-bracket or shortcode interpolation', async () => {
   const s = setup();
   const response = await publish(s, { ...fixture(), html: '<p><a href="https://docs.example/a&gt;b?x=&lt;literal&gt;#note">Reference</a></p>' });
