@@ -5508,12 +5508,40 @@ i.star-outline svg {
 .lexicon-dialog__heading h2 { margin: 0; font-size: 1.9rem; }
 .lexicon-dialog__content h2 { margin: 1.8rem 0 .7rem; font-size: .9rem; letter-spacing: .04em; color: var(--accent-deep); }
 .lexicon-dialog__content h2:first-child { margin-top: 0; }
-.lexicon-dialog__content > h2:first-child + * { padding: 1.3rem 1.5rem; background: var(--bg-panel); border-radius: var(--radius-sm); }
-.lexicon-dialog__content ul { margin: .6rem 0; padding-left: 1.5rem; }
-.lexicon-dialog__content li { margin: .3rem 0; }
-.lexicon-dialog__content p { margin: .8rem 0; }
+/* The paragraph after a section heading is ordinary text, not a callout. */
+.lexicon-dialog__content h1 { margin: 1.9rem 0 .8rem; font-size: 1.45rem; line-height: 1.5; }
+.lexicon-dialog__content h3 { margin: 1.5rem 0 .6rem; font-size: 1.08rem; line-height: 1.6; }
+.lexicon-dialog__content ul, .lexicon-dialog__content ol { margin: .7rem 0; padding-left: 1.6rem; }
+.lexicon-dialog__content li { margin: .35rem 0; }
+.lexicon-dialog__content li::marker { color: var(--text-soft); }
+.lexicon-dialog__content p { margin: .95rem 0; }
+.lexicon-dialog__content blockquote { margin: 1.1rem 0; padding: .2rem 0 .2rem 1.1rem; border-left: 3px solid var(--line-mid); color: var(--text-soft); }
+.lexicon-dialog__content hr { margin: 1.6rem 0; border: 0; border-top: 1px solid var(--line-mid); }
+.lexicon-dialog__content img { max-width: 100%; height: auto; border-radius: var(--radius-sm); }
 .lexicon-dialog__content a { text-decoration: none; border-bottom: 1px solid currentColor; }
 .lexicon-reference { color: var(--accent-deep); }
+.lexicon-event { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 1.05rem; height: 1.05rem; color: #2f6b52; }
+.lexicon-event svg { width: 100%; height: 100%; }
+.lexicon-legend { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 1.1rem; margin: 0; padding: .6rem 0 0; color: var(--text-soft); font-size: .72rem; }
+.lexicon-legend span { display: inline-flex; align-items: center; gap: .3rem; }
+/* Colour and size come across as names from a closed set, never as CSS; the
+   archive paints them with its own palette. Keep in step with the forum's
+   src/lib/topics/text-style.ts. */
+mark[data-color="yellow"] { background: #f6e7a8; }
+mark[data-color="green"] { background: #cfe9cd; }
+mark[data-color="blue"] { background: #cfe0f5; }
+mark[data-color="pink"] { background: #f7d6e0; }
+mark[data-color="purple"] { background: #e2d7f3; }
+mark[data-color] { color: inherit; }
+span[data-color="red"] { color: #b3261e; }
+span[data-color="orange"] { color: #a85a0b; }
+span[data-color="green"] { color: #2f6b3a; }
+span[data-color="blue"] { color: #1f5aa6; }
+span[data-color="purple"] { color: #64399b; }
+span[data-color="gray"] { color: #6b6f68; }
+[data-size="sm"] { font-size: .85em; }
+[data-size="lg"] { font-size: 1.2em; }
+[data-size="xl"] { font-size: 1.45em; }
 @media (max-width: 560px) { .lexicon-group { grid-template-columns: 2rem 1fr; gap: 0 .6rem; } .lexicon-dialog__body { padding: 1.1rem 1.1rem 1.4rem; } }
 .lexicon-comments { margin-top: 2.2rem; padding-top: 1.4rem; border-top: 1px solid var(--line-mid); }
 .lexicon-comments h3 { margin: 0 0 1rem; font-size: .9rem; letter-spacing: .04em; color: var(--accent-deep); }

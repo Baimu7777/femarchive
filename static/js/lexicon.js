@@ -13,8 +13,15 @@
 
   var byUrl = Object.create(null);
   entries.forEach(function (entry) { byUrl[entry.url] = entry; });
-  // Longest title first so a term containing another is linked as a whole.
-  var titles = entries.map(function (e) { return e.title; }).sort(function (a, b) { return b.length - a.length; });
+  // Every name an entry answers to, its aliases included, longest first so a
+  // name containing another is linked as a whole.
+  var names = [];
+  entries.forEach(function (entry) {
+    [entry.title].concat(entry.aliases || []).forEach(function (name) {
+      if (name && String(name).trim()) names.push({ name: String(name), entry: entry });
+    });
+  });
+  names.sort(function (a, b) { return b.name.length - a.name.length; });
 
   var titleNode = dialog.querySelector('[data-lexicon-title]');
   var markNode = dialog.querySelector('[data-lexicon-mark]');
@@ -23,12 +30,18 @@
   var closeButton = dialog.querySelector('[data-lexicon-close]');
   var stack = [];
 
-  function markFor(polarity) {
-    if (polarity !== 'positive' && polarity !== 'negative') return '';
-    var cls = polarity === 'positive' ? 'lexicon-mark--positive' : 'lexicon-mark--negative';
-    var label = polarity === 'positive' ? '女权立场' : '反女权立场';
-    var sign = polarity === 'positive' ? '＋' : '－';
-    return '<span class="lexicon-mark ' + cls + '" title="' + label + '" aria-label="' + label + '">' + sign + '</span>';
+  var EVENT_MARK = '<span class="lexicon-event" title="事件" aria-label="事件"><svg aria-hidden="true" viewBox="0 0 16 16" focusable="false"><path d="M4 14V3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M4 3h7l-1.6 2.3L11 7.6H4z" fill="currentColor"/></svg></span>';
+
+  function markFor(entry) {
+    var html = '';
+    if (entry.polarity === 'positive' || entry.polarity === 'negative') {
+      var positive = entry.polarity === 'positive';
+      var cls = positive ? 'lexicon-mark--positive' : 'lexicon-mark--negative';
+      var label = positive ? '女权立场' : '反女权立场';
+      html += '<span class="lexicon-mark ' + cls + '" title="' + label + '" aria-label="' + label + '">' + (positive ? '＋' : '－') + '</span>';
+    }
+    if (entry.event) html += EVENT_MARK;
+    return html;
   }
 
   // Turn mentions of other entries into links that open their card. Only text
@@ -45,14 +58,13 @@
     targets.forEach(function (text) {
       var value = text.nodeValue, pieces = [], index = 0;
       while (index < value.length) {
-        var hit = null, at = -1;
-        for (var i = 0; i < titles.length; i++) {
-          if (entries.some(function (e) { return e.title === titles[i] && e.url === selfUrl; })) continue;
-          var found = value.indexOf(titles[i], index);
-          if (found !== -1 && (at === -1 || found < at)) { at = found; hit = titles[i]; }
+        var hit = null, at = -1, entry = null;
+        for (var i = 0; i < names.length; i++) {
+          if (names[i].entry.url === selfUrl) continue;
+          var found = value.indexOf(names[i].name, index);
+          if (found !== -1 && (at === -1 || found < at)) { at = found; hit = names[i].name; entry = names[i].entry; }
         }
         if (hit === null) break;
-        var entry = entries.filter(function (e) { return e.title === hit; })[0];
         if (!entry || entry.url === selfUrl) { index = at + hit.length; continue; }
         if (at > index) pieces.push(document.createTextNode(value.slice(index, at)));
         var link = document.createElement('a');
@@ -99,7 +111,7 @@
 
   function render(entry) {
     titleNode.textContent = entry.title;
-    markNode.innerHTML = markFor(entry.polarity);
+    markNode.innerHTML = markFor(entry);
     contentNode.innerHTML = entry.html;
     contentNode.querySelectorAll('a[href]').forEach(function (link) {
       if (!byUrl[link.getAttribute('href')]) { link.target = '_blank'; link.rel = 'noopener noreferrer nofollow'; }

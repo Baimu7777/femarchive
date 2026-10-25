@@ -9,7 +9,7 @@ import { isDeepStrictEqual } from 'node:util';
 import { isUtf8 } from 'node:buffer';
 import { fail, uuid, sha, imagePath } from './errors.mjs';
 
-const fields = ['version', 'confirmed', 'title', 'html', 'initial', 'polarity', 'categories', 'tags', 'comments', 'assets', 'articleId', 'expectedRevision'];
+const fields = ['version', 'confirmed', 'title', 'html', 'initial', 'polarity', 'isEvent', 'aliases', 'categories', 'tags', 'comments', 'assets', 'articleId', 'expectedRevision'];
 // Closed set: the index letter cannot carry anything the listing does not use.
 const INDEX_LETTERS = new Set(['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ', '⚑']);
 const control = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
@@ -21,14 +21,22 @@ export function validateArticle(value, catalog) {
   if (value.categories.some(c => !catalog.categories.includes(c)) || value.tags.some(t => !catalog.sharedTags.includes(t))) fail();
   if ('initial' in value && !INDEX_LETTERS.has(value.initial)) fail();
   if ('polarity' in value && !['positive', 'negative', 'unmarked'].includes(value.polarity)) fail();
+  if ('isEvent' in value && typeof value.isEvent !== 'boolean') fail();
+  if ('aliases' in value && !strings(value.aliases, 20, 50)) fail();
   if (!Array.isArray(value.comments) || value.comments.length > 100 || !value.comments.every(c => text(c, 10000, true))) fail();
   if (!Array.isArray(value.assets) || value.assets.length > 50 || !value.assets.every(uuid) || new Set(value.assets).size !== value.assets.length) fail();
   if ('articleId' in value || 'expectedRevision' in value) { if (!uuid(value.articleId) || !sha(value.expectedRevision)) fail(); }
   return value;
 }
 
-const allowedTags = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'mark', 's', 'del', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'ul', 'ol', 'li', 'pre', 'code', 'a', 'img', 'hr'];
-const allowedAttributes = { a: ['href', 'title', 'target', 'rel'], img: ['src', 'alt', 'title', 'data-width', 'data-align'], ol: ['start'] };
+const allowedTags = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'mark', 'span', 's', 'del', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'ul', 'ol', 'li', 'pre', 'code', 'a', 'img', 'hr'];
+const allowedAttributes = { a: ['href', 'title', 'target', 'rel'], img: ['src', 'alt', 'title', 'data-width', 'data-align'], ol: ['start'], span: ['data-color', 'data-size'], mark: ['data-color'] };
+// Colour and size arrive as names from a closed set, never as CSS: a stylesheet
+// from the sender would be arbitrary code on the public site. Keep these in step
+// with src/lib/topics/text-style.ts and with the theme that paints them.
+const TEXT_COLORS = ['red', 'orange', 'green', 'blue', 'purple', 'gray'];
+const HIGHLIGHT_COLORS = ['yellow', 'green', 'blue', 'pink', 'purple'];
+const TEXT_SIZES = ['sm', 'lg', 'xl'];
 function safeLink(href) {
   try {
     if (!href || /[\u0000-\u0020\u007f\\]/.test(href)) return false;
@@ -61,6 +69,8 @@ export function publicBody(html, comments, selectedPaths) {
       if (node.name === 'a' && ((node.attribs.target !== undefined && node.attribs.target !== '_blank') || (node.attribs.rel !== undefined && node.attribs.rel !== 'noopener noreferrer nofollow'))) fail();
       if (node.name === 'img' && (!imagePath(node.attribs.src) || !selectedPaths.includes(node.attribs.src))) fail();
       if (node.name === 'img' && ((node.attribs['data-width'] !== undefined && !['33', '50', '75', '100'].includes(node.attribs['data-width'])) || (node.attribs['data-align'] !== undefined && !['left', 'center', 'right'].includes(node.attribs['data-align'])))) fail();
+      if (node.name === 'span' && ((node.attribs['data-color'] !== undefined && !TEXT_COLORS.includes(node.attribs['data-color'])) || (node.attribs['data-size'] !== undefined && !TEXT_SIZES.includes(node.attribs['data-size'])))) fail();
+      if (node.name === 'mark' && node.attribs['data-color'] !== undefined && !HIGHLIGHT_COLORS.includes(node.attribs['data-color'])) fail();
       if (node.name === 'ol' && node.attribs.start !== undefined && !/^[1-9][0-9]{0,5}$/.test(node.attribs.start)) fail();
       validate(node.children ?? []);
     }
@@ -77,7 +87,17 @@ export function publicBody(html, comments, selectedPaths) {
         case 'br': return '  \n';
         case 'strong': case 'b': return `**${inner}**`;
         case 'em': case 'i': return `*${inner}*`;
-        case 'u': case 'mark': return `<${node.name}>${inner}</${node.name}>`;
+        case 'u': return `<u>${inner}</u>`;
+        // Raw inline HTML keeps the names; the theme decides what they look like.
+        case 'mark': {
+          const color = node.attribs['data-color'];
+          return `<mark${HIGHLIGHT_COLORS.includes(color) ? ` data-color="${color}"` : ''}>${inner}</mark>`;
+        }
+        case 'span': {
+          const color = node.attribs['data-color'], size = node.attribs['data-size'];
+          const marks = `${TEXT_COLORS.includes(color) ? ` data-color="${color}"` : ''}${TEXT_SIZES.includes(size) ? ` data-size="${size}"` : ''}`;
+          return marks ? `<span${marks}>${inner}</span>` : inner;
+        }
         case 'del': case 's': return `~~${inner}~~`;
         case 'h1': case 'h2': case 'h3': case 'h4': case 'h5': case 'h6': return `\n\n${'#'.repeat(Number(node.name[1]))} ${inner}\n\n`;
         case 'hr': return '\n\n---\n\n';
@@ -195,6 +215,8 @@ export function writeDocument(value, body, previous, plan) {
     const metadata = { title: value.title, date: plan.date,
       ...(INDEX_LETTERS.has(value.initial) ? { initial: value.initial } : {}),
       ...(['positive', 'negative', 'unmarked'].includes(value.polarity) ? { polarity: value.polarity } : {}),
+      ...(typeof value.isEvent === 'boolean' ? { event: value.isEvent } : {}),
+      ...(Array.isArray(value.aliases) && value.aliases.length ? { aliases: value.aliases } : {}),
       ...(value.categories.length ? { categories: value.categories } : {}),
       ...(value.tags.length ? { tags: value.tags } : {}),
       url: `/lexicon/${plan.articleId}/` };
@@ -208,6 +230,8 @@ export function writeDocument(value, body, previous, plan) {
   const managed = { title: value.title };
   if (INDEX_LETTERS.has(value.initial)) managed.initial = value.initial;
   if (['positive', 'negative', 'unmarked'].includes(value.polarity)) managed.polarity = value.polarity;
+  if (typeof value.isEvent === 'boolean') managed.event = value.isEvent;
+  if (Array.isArray(value.aliases)) managed.aliases = value.aliases;
   for (const [key, keyValue] of Object.entries(managed)) {
     const pattern = new RegExp(`^(?:${key}|"${key}"|'${key}')\\s*:`);
     const found = lines.map((line, index) => pattern.test(line) ? index : -1).filter(index => index !== -1);
@@ -225,7 +249,8 @@ export function writeDocument(value, body, previous, plan) {
   try { updated = yaml.load(raw); } catch { fail(409); }
   const oldFields = { ...document.metadata }, newFields = { ...updated };
   for (const key of Object.keys(managed)) { delete oldFields[key]; delete newFields[key]; }
-  if (Object.entries(managed).some(([key, keyValue]) => updated[key] !== keyValue) || !isDeepStrictEqual(oldFields, newFields)) fail(409);
+  // Deep comparison: a managed key may hold a list, not just a scalar.
+  if (Object.entries(managed).some(([key, keyValue]) => !isDeepStrictEqual(updated[key], keyValue)) || !isDeepStrictEqual(oldFields, newFields)) fail(409);
   const prefix = document.source.startsWith('\uFEFF') ? '\uFEFF' : '';
   return Buffer.from(`${prefix}---${newline}${raw}${newline}---${newline}${newline}${body}`);
 }
@@ -245,12 +270,21 @@ export function articleFields(document) {
       allowedTags, allowedAttributes, allowedSchemes: ['https'], allowProtocolRelative: false,
       // Editor input never accepts CSS. Keep only validated layout data so the
       // next confirmed publication can regenerate its fixed image style.
-      transformTags: { img: (tagName, attribs) => {
-        const layout = { ...attribs };
-        if (!['33', '50', '75', '100'].includes(layout['data-width'])) delete layout['data-width'];
-        if (!['left', 'center', 'right'].includes(layout['data-align'])) delete layout['data-align'];
-        return { tagName, attribs: layout };
-      } },
+      transformTags: {
+        img: (tagName, attribs) => {
+          const layout = { ...attribs };
+          if (!['33', '50', '75', '100'].includes(layout['data-width'])) delete layout['data-width'];
+          if (!['left', 'center', 'right'].includes(layout['data-align'])) delete layout['data-align'];
+          return { tagName, attribs: layout };
+        },
+        span: (tagName, attribs) => {
+          const marks = { ...attribs };
+          if (!TEXT_COLORS.includes(marks['data-color'])) delete marks['data-color'];
+          if (!TEXT_SIZES.includes(marks['data-size'])) delete marks['data-size'];
+          return { tagName, attribs: marks };
+        },
+        mark: (tagName, attribs) => ({ tagName, attribs: HIGHLIGHT_COLORS.includes(attribs['data-color']) ? { 'data-color': attribs['data-color'] } : {} }),
+      },
     }),
     categories: Array.isArray(document.metadata.categories) ? document.metadata.categories.filter(c => text(c, 100)) : [],
     tags: Array.isArray(document.metadata.tags) ? document.metadata.tags.filter(t => text(t, 100)) : [],

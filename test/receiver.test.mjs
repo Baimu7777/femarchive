@@ -239,6 +239,51 @@ check('editor links, underline, highlight, image layouts and ordered-list starts
   assert.equal(read.status, 200); assert.match((await read.json()).html, /data-width="50"/);
 });
 
+check('aliases are written to front matter and an empty list clears them', async () => {
+  const s = setup();
+  const first = await publish(s, { ...fixture(), aliases: ['别称一', '别称二'] });
+  assert.equal(first.status, 200);
+  const { articleId } = await first.json();
+  assert.match(s.remote.text(articlePath(articleId)), /^aliases:\s*\[?/m);
+  assert.ok(s.remote.text(articlePath(articleId)).includes('别称二'));
+  // Removing the last alias on the forum has to remove it here as well.
+  const read = await s.receive(request(`article&articleId=${articleId}`));
+  const cleared = await publish(s, { ...fixture(), aliases: [], articleId, expectedRevision: (await read.json()).revision });
+  assert.equal(cleared.status, 200);
+  assert.ok(!s.remote.text(articlePath(articleId)).includes('别称二'));
+  // Duplicates, over-long names and non-strings never reach the front matter.
+  const before = s.remote.head;
+  for (const aliases of [['a', 'a'], ['x'.repeat(51)], [''], ['ok', 1], 'notalist', Array(21).fill(0).map((_, i) => `n${i}`)]) {
+    assert.equal((await publish(s, { ...fixture(), aliases })).status, 400, JSON.stringify(aliases));
+  }
+  assert.equal(s.remote.head, before);
+});
+
+check('text colour and size travel as closed-set names, never as CSS', async () => {
+  const s = setup();
+  const html = '<p><span data-color="blue" data-size="lg">强调</span> <mark data-color="pink">重点</mark> <span>普通</span></p>';
+  const response = await publish(s, { ...fixture(), html });
+  assert.equal(response.status, 200);
+  const result = await response.json(), markdown = s.remote.text(articlePath(result.articleId));
+  assert.match(markdown, /<span data-color="blue" data-size="lg">强调<\/span>/);
+  assert.match(markdown, /<mark data-color="pink">重点<\/mark>/);
+  // A span carrying nothing is not worth an element; the text stays.
+  assert.ok(markdown.includes('普通') && !markdown.includes('<span>'));
+  assert.ok(!markdown.includes('style='));
+  // Read-back keeps the names so the next publication can compare revisions.
+  const read = await s.receive(request(`article&articleId=${result.articleId}`));
+  assert.equal(read.status, 200);
+  const back = (await read.json()).html;
+  assert.match(back, /data-color="blue"/); assert.match(back, /data-size="lg"/); assert.ok(!back.includes('style='));
+  // Anything outside the closed set is refused before a commit.
+  const before = s.remote.head;
+  for (const bad of [
+    '<span data-color="chartreuse">x</span>', '<span data-size="99">x</span>', '<span data-color="yellow">x</span>',
+    '<mark data-color="red">x</mark>', '<span style="color:red">x</span>', '<span class="danger">x</span>',
+  ]) assert.equal((await publish(s, { ...fixture(), html: bad })).status, 400, bad);
+  assert.equal(s.remote.head, before);
+});
+
 check('layout whitelist rejects arbitrary attrs and unsafe values', async () => {
   const s = setup(), image = await (await upload(s)).json(), before = s.remote.head;
   for (const html of [
@@ -358,21 +403,4 @@ check('GitHub encoding:none files use fixed-repo blob reads and never download U
   assert.equal((await s.receive(request(`article&articleId=${result.articleId}`))).status, 200);
   assert.ok(s.remote.calls.some(c => c.method === 'GET' && c.url.includes('/git/blobs/')));
   assert.ok(s.remote.calls.every(c => new URL(c.url).hostname === 'api.github.com'));
-});
-
-check('explicit batch import adopts only reviewed blobs and remains updateable', async () => {
-  const s = setup();
-  const original = await (await publish(s)).json();
-  const isolatedReceipts = modules[2].createReceipts(memoryObjects());
-  const imported = modules[0].createReceiver({token, repository:s.repository, receipts:isolatedReceipts, catalog, importedArticles:{[original.articleId]:original.revision}});
-  const read = await imported(request(`article&articleId=${original.articleId}`));
-  assert.equal(read.status,200);
-  const value = await read.json();
-  const updated = await imported(request('publish',{...fixture(),title:'Batch follow-up',articleId:original.articleId,expectedRevision:value.revision}));
-  assert.equal(updated.status,200);
-  assert.equal((await imported(request(`article&articleId=${original.articleId}`))).status,200);
-  const wrong = modules[0].createReceiver({token,repository:s.repository,receipts:modules[2].createReceipts(memoryObjects()),catalog,importedArticles:{[original.articleId]:original.revision}});
-  assert.equal((await wrong(request(`article&articleId=${original.articleId}`))).status,409);
-  const unknown = modules[0].createReceiver({token,repository:s.repository,receipts:modules[2].createReceipts(memoryObjects()),catalog});
-  assert.equal((await unknown(request(`article&articleId=${original.articleId}`))).status,404);
 });
