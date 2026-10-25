@@ -31,15 +31,9 @@ function safeLink(href) {
     const url = new URL(href);
     if (url.protocol !== 'https:' || url.username || url.password || url.port) return false;
     if (!/^[a-z0-9-]+(?:\.[a-z0-9-]+)+$/i.test(url.hostname) || /^[\d.]+$/.test(url.hostname) || /\.(?:local|localhost|internal|home|lan|test)$/.test(url.hostname)) return false;
-    if (/(?:^|\.)(?:douban\.com|twitter\.com|x\.com|instagram\.com|facebook\.com|weibo\.com)$/.test(url.hostname)) return false;
-    let path = url.pathname;
-    for (let depth = 0; depth < 16; depth++) {
-      if (/(?:^|\/)(?:@[^/]*|u|users?|members?|profiles?|people)(?:\/|$)/i.test(path)) return false;
-      const next = path.replace(/%([a-f0-9]{2})/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
-      if (next === path) break;
-      if (depth === 15) return false;
-      path = next;
-    }
+    // Links to a person's own page are allowed: keeping the forum out of the
+    // public copy is the sender's job, and it has the member identities to do
+    // it precisely. The receiver only enforces transport-level safety.
     // The URL parser percent-encodes raw angle brackets. Encode braces as well
     // so a citation cannot introduce Hugo shortcodes before Markdown rendering.
     return url.href.replace(/[{}]/g, c => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);

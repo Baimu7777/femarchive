@@ -155,7 +155,7 @@ check('asset timeout retry keeps original receipt and path even if branch later 
 
 check('unsafe HTML, arbitrary URLs, shortcodes and unselected assets never become public', async () => {
   const s = setup(); const uploaded = await (await upload(s)).json(); const before = s.remote.head;
-  const unsafe = ['<script>alert(1)</script>', '<iframe src="https://other.example"></iframe>', '<p onclick="x()">text</p>', '<img src="https://other.example/img.webp">', '<img src="/private.webp">', `<img src="${uploaded.path}">`, '<a href="https://forum.example/members/abc">profile</a>', '<a href="javascript:alert(1)">x</a>', '<a href="https://127.0.0.1/x">x</a>', '<!--private-canary--><p>x</p>'];
+  const unsafe = ['<script>alert(1)</script>', '<iframe src="https://other.example"></iframe>', '<p onclick="x()">text</p>', '<img src="https://other.example/img.webp">', '<img src="/private.webp">', `<img src="${uploaded.path}">`, '<a href="javascript:alert(1)">x</a>', '<a href="https://127.0.0.1/x">x</a>', '<!--private-canary--><p>x</p>'];
   for (const html of unsafe) assert.equal((await publish(s, { ...fixture(), html })).status, 400);
   assert.equal(s.remote.head, before);
   const response = await publish(s, { ...fixture(), html: '<p>{{&lt; unsafe &gt;}} &lt;img src=x onerror=y&gt;</p>', comments: ['<script>literal</script> {{< unsafe >}}'] }); assert.equal(response.status, 200);
@@ -209,12 +209,28 @@ check('editor links, underline, highlight, image layouts and ordered-list starts
   assert.equal(read.status, 200); assert.match((await read.json()).html, /data-width="50"/);
 });
 
-check('layout whitelist rejects arbitrary attrs, unsafe values and profile URL encodings', async () => {
+check('layout whitelist rejects arbitrary attrs and unsafe values', async () => {
   const s = setup(), image = await (await upload(s)).json(), before = s.remote.head;
   for (const html of [
-    '<a href="http://docs.example/x">x</a>', '<a href="https://user:pass@docs.example/x">x</a>', '<a href="https://docs.example/%6dembers/alice">x</a>', '<a href="https://docs.example/x" target="named-window">x</a>', '<a href="https://docs.example/x" rel="opener">x</a>', '<u style="color:red">x</u>', '<mark onclick="x()">x</mark>', '<ol start="-1"><li>x</li></ol>', '<ol start="1e9"><li>x</li></ol>',
+    '<a href="http://docs.example/x">x</a>', '<a href="https://user:pass@docs.example/x">x</a>', '<a href="https://docs.example/x" target="named-window">x</a>', '<a href="https://docs.example/x" rel="opener">x</a>', '<u style="color:red">x</u>', '<mark onclick="x()">x</mark>', '<ol start="-1"><li>x</li></ol>', '<ol start="1e9"><li>x</li></ol>',
     `<img src="${image.path}" data-width="101">`, `<img src="${image.path}" data-align="javascript:foo">`, `<img src="${image.path}" style="background:url(https://private.example)">`,
   ]) assert.equal((await publish(s, { ...fixture(), html, assets: [image.receipt] })).status, 400, html);
+  assert.equal(s.remote.head, before);
+});
+
+check('a link to a personal page is publishable; transport rules still apply', async () => {
+  // Keeping the forum out of the public copy is the sender side job: it holds
+  // the member identities and can refuse them precisely. The receiver only
+  // enforces transport-level safety, so an ordinary citation goes through.
+  const s = setup();
+  const allowed = await publish(s, { ...fixture(), html: '<p><a href="https://www.douban.com/people/someone/">主页</a> <a href="https://weibo.com/u/123">微博</a> <a href="https://www.whatsonweibo.com/a-story/">报道</a></p>' });
+  assert.equal(allowed.status, 200);
+  const markdown = s.remote.text(articlePath((await allowed.json()).articleId));
+  for (const href of ['douban.com/people/someone/', 'weibo.com/u/123', 'whatsonweibo.com/a-story/']) assert.ok(markdown.includes(href), href);
+  const before = s.remote.head;
+  for (const html of ['<a href="http://www.douban.com/people/someone/">x</a>', '<a href="https://127.0.0.1/people/x">x</a>', '<a href="https://host.local/people/x">x</a>']) {
+    assert.equal((await publish(s, { ...fixture(), html })).status, 400, html);
+  }
   assert.equal(s.remote.head, before);
 });
 
