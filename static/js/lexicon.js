@@ -70,6 +70,31 @@
     });
   }
 
+  // Comments live on the entry's own path, so a card and the entry page share
+  // one thread. The client is fetched on first open and then just re-pointed.
+  var walineHost = dialog.querySelector('[data-lexicon-waline]');
+  var waline = null, walineLoading = false;
+  function showComments(entry) {
+    if (!walineHost) return;
+    if (waline) { try { waline.update({ path: entry.url }); } catch (e) { /* keep the card usable */ } return; }
+    if (walineLoading) return;
+    walineLoading = true;
+    import('https://unpkg.com/@waline/client@v3/dist/waline.js').then(function (mod) {
+      waline = mod.init({
+        el: walineHost,
+        serverURL: walineHost.getAttribute('data-server'),
+        lang: walineHost.getAttribute('data-lang') || 'zh-CN',
+        turnstileKey: walineHost.getAttribute('data-turnstile') || undefined,
+        path: entry.url,
+        pageview: false,
+        reaction: false,
+        search: false,
+      });
+    }).catch(function () {
+      walineHost.textContent = '评论组件暂时无法加载。';
+    }).then(function () { walineLoading = false; });
+  }
+
   function render(entry) {
     titleNode.textContent = entry.title;
     markNode.innerHTML = markFor(entry.polarity);
@@ -80,6 +105,7 @@
     });
     autoLink(contentNode, entry.url);
     backButton.hidden = stack.length < 2;
+    showComments(entry);
     contentNode.scrollTop = 0;
     titleNode.focus();
   }

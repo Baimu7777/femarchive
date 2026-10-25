@@ -51,10 +51,18 @@
     <div class="lexicon-dialog__body">
       <div class="lexicon-dialog__heading"><h2 data-lexicon-title></h2><span data-lexicon-mark></span></div>
       <div class="lexicon-dialog__content" data-lexicon-content></div>
-    </div>
+{{ if site.Params.comments.enable }}      <section class="lexicon-comments" aria-label="评论区">
+        <h3>评论区</h3>
+        <div data-lexicon-waline
+             data-server="{{ site.Params.comments.serverURL }}"
+             data-lang="{{ site.Params.comments.lang | default "zh-CN" }}"
+             data-turnstile="{{ site.Params.comments.turnstileKey }}"></div>
+        <noscript><p class="muted">当前浏览器禁用了 JavaScript，评论组件无法显示。</p></noscript>
+      </section>
+{{ end }}    </div>
   </dialog>
   <script type="application/json" data-lexicon-data>{{ $entries | jsonify | safeJS }}</script>
-  <script src="{{ "js/lexicon.js" | relURL }}" defer></script>
+  <script src="{{ "js/lexicon.js" | relURL }}?v={{ now.Unix }}" defer></script>
   {{ else }}
     <p class="empty-state">词条正在整理中。</p>
   {{ end }}
