@@ -9,7 +9,7 @@ import { isDeepStrictEqual } from 'node:util';
 import { isUtf8 } from 'node:buffer';
 import { fail, uuid, sha, imagePath } from './errors.mjs';
 
-const fields = ['version', 'confirmed', 'title', 'html', 'initial', 'categories', 'tags', 'comments', 'assets', 'articleId', 'expectedRevision'];
+const fields = ['version', 'confirmed', 'title', 'html', 'initial', 'polarity', 'categories', 'tags', 'comments', 'assets', 'articleId', 'expectedRevision'];
 // Closed set: the index letter cannot carry anything the listing does not use.
 const INDEX_LETTERS = new Set(['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ', '⚑']);
 const control = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
@@ -20,6 +20,7 @@ export function validateArticle(value, catalog) {
   if (value.version !== 1 || value.confirmed !== true || !text(value.title, 300, true) || /[\r\n]/.test(value.title) || !text(value.html, 512 * 1024) || !strings(value.categories, 6, 100) || !strings(value.tags, 50, 100)) fail();
   if (value.categories.some(c => !catalog.categories.includes(c)) || value.tags.some(t => !catalog.sharedTags.includes(t))) fail();
   if ('initial' in value && !INDEX_LETTERS.has(value.initial)) fail();
+  if ('polarity' in value && !['positive', 'negative'].includes(value.polarity)) fail();
   if (!Array.isArray(value.comments) || value.comments.length > 100 || !value.comments.every(c => text(c, 10000, true))) fail();
   if (!Array.isArray(value.assets) || value.assets.length > 50 || !value.assets.every(uuid) || new Set(value.assets).size !== value.assets.length) fail();
   if ('articleId' in value || 'expectedRevision' in value) { if (!uuid(value.articleId) || !sha(value.expectedRevision)) fail(); }
@@ -193,6 +194,7 @@ export function writeDocument(value, body, previous, plan) {
     // matter keys, so only write the ones that actually have values.
     const metadata = { title: value.title, date: plan.date,
       ...(INDEX_LETTERS.has(value.initial) ? { initial: value.initial } : {}),
+      ...(['positive', 'negative'].includes(value.polarity) ? { polarity: value.polarity } : {}),
       ...(value.categories.length ? { categories: value.categories } : {}),
       ...(value.tags.length ? { tags: value.tags } : {}),
       url: `/lexicon/${plan.articleId}/` };

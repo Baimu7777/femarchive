@@ -1,28 +1,60 @@
 {{ define "main" }}
-{{ $pages := .RegularPages }}
+{{ $pages := .RegularPages.ByTitle }}
 {{ $letters := slice "#" }}
 {{ range split "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "" }}{{ $letters = $letters | append . }}{{ end }}
-{{ $letters = $letters | append "⚑" }}
-<main class="archive-page"><div class="shell archive-shell"><section class="archive-panel archive-panel--plain">
+{{/* Entries published before the index letter existed carry none; keep them
+     reachable by treating them as the numeric group. */}}
+{{ $entries := slice }}
+{{ range $pages }}
+  {{ $entries = $entries | append (dict "title" .Title "initial" (.Params.initial | default "#") "polarity" (.Params.polarity | default "") "url" .RelPermalink "html" .Content) }}
+{{ end }}
+{{ $used := slice }}
+{{ range $entries }}{{ $used = $used | append .initial }}{{ end }}
+<main class="archive-page"><div class="shell archive-shell"><section class="archive-panel archive-panel--plain lexicon-directory">
   <div class="archive-heading"><h1 class="archive-heading__title">{{ .Title }}</h1><p class="archive-heading__desc">{{ .Description }}</p></div>
-  {{ if $pages }}
-    <p class="lexicon-count">共收录 {{ len $pages }} 个词条</p>
-    <div class="lexicon-index">
-      {{ range $letter := $letters }}
-        {{/* Entries published before the index letter existed carry none; keep
-             them reachable by listing them with the numeric group. */}}
-        {{ $group := where $pages "Params.initial" $letter }}
-        {{ if eq $letter "#" }}{{ $group = $group | union (where $pages "Params.initial" nil) }}{{ end }}
-        {{ with $group }}
-          <section class="lexicon-group" aria-label="{{ $letter }} 组">
-            <h2 class="lexicon-letter">{{ $letter }}</h2>
-            <ul class="lexicon-list">
-              {{ range .ByTitle }}<li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>{{ end }}
-            </ul>
-          </section>
-        {{ end }}
-      {{ end }}
+  {{ if $entries }}
+  <div class="lexicon-toolbar">
+    <p>中文按拼音排列 · 数字归入 #</p>
+    <div class="lexicon-polarity" role="group" aria-label="按词条取向筛选">
+      <button type="button" data-polarity="" aria-pressed="true">未选择</button>
+      <button type="button" data-polarity="positive" aria-label="筛选女权立场"><span class="lexicon-symbol" aria-hidden="true">＋</span><span>女权立场</span></button>
+      <button type="button" class="lexicon-negative" data-polarity="negative" aria-label="筛选反女权立场"><span class="lexicon-symbol" aria-hidden="true">－</span><span>反女权立场</span></button>
     </div>
+  </div>
+  <div class="lexicon-letters" role="group" aria-label="按首字母筛选">
+    <button type="button" data-letter="" aria-pressed="true">全部</button>
+    {{ range $letter := $letters }}
+      {{ $has := in $used $letter }}
+      <button type="button" data-letter="{{ $letter }}" aria-pressed="false"{{ if not $has }} disabled{{ end }}>{{ $letter }}</button>
+    {{ end }}
+  </div>
+  <div class="lexicon-summary"><span data-lexicon-count>共收录 {{ len $entries }} 个词语</span><span class="muted">点击词语，展开了解 ↗</span></div>
+  <div class="lexicon-index">
+    {{ range $letter := $letters }}
+      {{ $group := where $entries "initial" $letter }}
+      {{ with $group }}
+        <section class="lexicon-group" data-letter="{{ $letter }}" aria-label="{{ $letter }} 组">
+          <h2 class="lexicon-letter">{{ $letter }}</h2>
+          <ul class="lexicon-list">
+            {{ range . }}<li><a href="{{ .url }}" data-lexicon-entry="{{ .url }}" data-polarity="{{ .polarity }}">{{ .title }}{{ if eq .polarity "positive" }}<span class="lexicon-mark lexicon-mark--positive" aria-label="女权立场" title="女权立场">＋</span>{{ else if eq .polarity "negative" }}<span class="lexicon-mark lexicon-mark--negative" aria-label="反女权立场" title="反女权立场">－</span>{{ end }}</a></li>{{ end }}
+          </ul>
+        </section>
+      {{ end }}
+    {{ end }}
+    <p class="empty-state" data-lexicon-empty hidden>没有符合条件的词语。</p>
+  </div>
+  <dialog class="lexicon-dialog" aria-label="词语详情">
+    <div class="lexicon-dialog__bar">
+      <nav class="lexicon-crumb"><button type="button" data-lexicon-back hidden>← 返回上一个</button><span>词条 / 词语详情</span></nav>
+      <button type="button" class="lexicon-close" data-lexicon-close aria-label="关闭">×</button>
+    </div>
+    <div class="lexicon-dialog__body">
+      <div class="lexicon-dialog__heading"><h2 data-lexicon-title></h2><span data-lexicon-mark></span></div>
+      <div class="lexicon-dialog__content" data-lexicon-content></div>
+    </div>
+  </dialog>
+  <script type="application/json" data-lexicon-data>{{ $entries | jsonify | safeJS }}</script>
+  <script src="{{ "js/lexicon.js" | relURL }}" defer></script>
   {{ else }}
     <p class="empty-state">词条正在整理中。</p>
   {{ end }}
