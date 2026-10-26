@@ -5514,7 +5514,17 @@ i.star-outline svg {
 .lexicon-dialog__content ul, .lexicon-dialog__content ol { margin: .7rem 0; padding-left: 1.6rem; }
 .lexicon-dialog__content li { margin: .35rem 0; }
 .lexicon-dialog__content li::marker { color: var(--text-soft); }
-.lexicon-dialog__content p { margin: .95rem 0; }
+.lexicon-dialog__content p { margin: 0 0 1.05em; }
+/* A blank line a member left between paragraphs is part of how the entry
+   reads; an empty paragraph would otherwise collapse to nothing. */
+.lexicon-dialog__content p:empty { min-height: .95em; }
+.lexicon-dialog__content > :last-child { margin-bottom: 0; }
+.lexicon-dialog__content strong { font-weight: 650; }
+.lexicon-dialog__content h3 { color: var(--accent-deep); font-weight: 650; }
+.lexicon-dialog__content h1 { font-weight: 650; }
+.lexicon-dialog__content :where(h1, h2, h3) + p { margin-top: 0; }
+.lexicon-dialog__content li { line-height: 1.85; }
+.lexicon-dialog__content blockquote p:last-child { margin-bottom: 0; }
 .lexicon-dialog__content blockquote { margin: 1.1rem 0; padding: .2rem 0 .2rem 1.1rem; border-left: 3px solid var(--line-mid); color: var(--text-soft); }
 .lexicon-dialog__content hr { margin: 1.6rem 0; border: 0; border-top: 1px solid var(--line-mid); }
 .lexicon-dialog__content img { max-width: 100%; height: auto; border-radius: var(--radius-sm); }

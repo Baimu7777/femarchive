@@ -120,8 +120,14 @@
     autoLink(contentNode, entry.url);
     backButton.hidden = stack.length < 2;
     showComments(entry);
-    dialog.querySelector('.lexicon-dialog__body').scrollTop = 0;
-    titleNode.focus();
+  }
+
+  // A card that is still closed cannot be scrolled: the browser restores the
+  // body's old offset when the dialog opens again, so the next entry would
+  // start where the previous one was left. Reset it once it is on screen.
+  function toTop() {
+    var body = dialog.querySelector('.lexicon-dialog__body');
+    if (body) body.scrollTop = 0;
   }
 
   function open(url, push) {
@@ -130,6 +136,9 @@
     if (push !== false) stack.push(url);
     render(entry);
     if (!dialog.open) dialog.showModal();
+    toTop();
+    titleNode.focus();
+    toTop();
     return true;
   }
 
