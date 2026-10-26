@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "chmod a+x build.sh && ./build.sh",
+  "ignoreCommand": "node scripts/skip-superseded-build.mjs",
   "outputDirectory": "public",
   "redirects": [
     {
