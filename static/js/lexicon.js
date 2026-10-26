@@ -1,5 +1,6 @@
 // 词条目录：字母与立场筛选、词语卡片、词条之间的自动互链与返回。
 // 行为对齐论坛的词条页；数据由页面内嵌的 JSON 提供，无需额外请求。
+// 自动互链与悬停预览在 lexicon-peek.js 里，和单独的词条页、文章共用。
 (function () {
   var root = document.querySelector('.lexicon-directory');
   if (!root) return;
@@ -13,16 +14,6 @@
 
   var byUrl = Object.create(null);
   entries.forEach(function (entry) { byUrl[entry.url] = entry; });
-  // Every name an entry answers to, its aliases included, longest first so a
-  // name containing another is linked as a whole.
-  var names = [];
-  entries.forEach(function (entry) {
-    [entry.title].concat(entry.aliases || []).forEach(function (name) {
-      if (name && String(name).trim()) names.push({ name: String(name), entry: entry });
-    });
-  });
-  names.sort(function (a, b) { return b.name.length - a.name.length; });
-
   var titleNode = dialog.querySelector('[data-lexicon-title]');
   var markNode = dialog.querySelector('[data-lexicon-mark]');
   var contentNode = dialog.querySelector('[data-lexicon-content]');
@@ -44,42 +35,12 @@
     return html;
   }
 
-  // Turn mentions of other entries into links that open their card. Only text
-  // nodes are touched, and never inside an existing link or a heading.
+  // Mentions of other entries become links that open their card; the shared
+  // script also shows a preview when the pointer rests on one.
   function autoLink(container, selfUrl) {
-    var skip = { A: 1, H1: 1, H2: 1, H3: 1, H4: 1, CODE: 1, PRE: 1 };
-    var walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
-    var targets = [], node;
-    while ((node = walker.nextNode())) {
-      var parent = node.parentNode, blocked = false;
-      while (parent && parent !== container) { if (skip[parent.nodeName]) { blocked = true; break; } parent = parent.parentNode; }
-      if (!blocked && node.nodeValue && node.nodeValue.trim()) targets.push(node);
-    }
-    targets.forEach(function (text) {
-      var value = text.nodeValue, pieces = [], index = 0;
-      while (index < value.length) {
-        var hit = null, at = -1, entry = null;
-        for (var i = 0; i < names.length; i++) {
-          if (names[i].entry.url === selfUrl) continue;
-          var found = value.indexOf(names[i].name, index);
-          if (found !== -1 && (at === -1 || found < at)) { at = found; hit = names[i].name; entry = names[i].entry; }
-        }
-        if (hit === null) break;
-        if (!entry || entry.url === selfUrl) { index = at + hit.length; continue; }
-        if (at > index) pieces.push(document.createTextNode(value.slice(index, at)));
-        var link = document.createElement('a');
-        link.href = entry.url;
-        link.className = 'lexicon-reference';
-        link.setAttribute('data-lexicon-entry', entry.url);
-        link.textContent = hit;
-        pieces.push(link);
-        index = at + hit.length;
-      }
-      if (!pieces.length) return;
-      if (index < value.length) pieces.push(document.createTextNode(value.slice(index)));
-      var fragment = document.createDocumentFragment();
-      pieces.forEach(function (piece) { fragment.appendChild(piece); });
-      text.parentNode.replaceChild(fragment, text);
+    if (!window.LexiconPeek) return;
+    window.LexiconPeek.load().then(function () {
+      if (contentNode === container && titleNode.textContent === byUrl[selfUrl].title) window.LexiconPeek.autoLink(container, selfUrl);
     });
   }
 
@@ -119,6 +80,7 @@
     });
     autoLink(contentNode, entry.url);
     backButton.hidden = stack.length < 2;
+    if (window.LexiconPeek) window.LexiconPeek.hide();
     showComments(entry);
   }
 

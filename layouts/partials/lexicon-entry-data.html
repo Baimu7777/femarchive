@@ -1,0 +1,4 @@
+{{- /* One entry as the hover preview and automatic links need it. The heading
+     "解释" opens every entry, so the preview starts after it. */ -}}
+{{- $text := replaceRE `^\s*解释\s*` "" (htmlUnescape (htmlUnescape .Plain)) | replaceRE `\s+` " " | strings.TrimSpace -}}
+{{- return (dict "title" .Title "polarity" (.Params.polarity | default "") "event" (eq .Params.event true) "aliases" (.Params.aliases | default slice) "url" .RelPermalink "text" (htmlUnescape (truncate 400 $text))) -}}

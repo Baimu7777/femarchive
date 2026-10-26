@@ -76,7 +76,7 @@
             {{ end }}
           </header>
 
-          <div class="article-content prose">
+          <div class="article-content prose"{{ if eq .Section "lexicon" }} data-lexicon-self="{{ .RelPermalink }}"{{ end }}>
             {{ .Content }}
           </div>
         </article>

@@ -5555,3 +5555,12 @@ span[data-color="gray"] { color: #6b6f68; }
 @media (max-width: 560px) { .lexicon-group { grid-template-columns: 2rem 1fr; gap: 0 .6rem; } .lexicon-dialog__body { padding: 1.1rem 1.1rem 1.4rem; } }
 .lexicon-comments { margin-top: 2.2rem; padding-top: 1.4rem; border-top: 1px solid var(--line-mid); }
 .lexicon-comments h3 { margin: 0 0 1rem; font-size: .9rem; letter-spacing: .04em; color: var(--accent-deep); }
+
+/* 词条悬停预览：与论坛词条页的预览一致，正文过长时在框内滚动。 */
+.lexicon-peek { position: fixed; z-index: 60; margin: 0; padding: 1.1rem 1.2rem; max-height: 250px; overflow-y: auto; background: #fff; border: 1px solid var(--line-mid); border-radius: 6px; box-shadow: 0 6px 22px rgba(9, 20, 19, 0.18); color: var(--text-main); text-align: left; font-size: 1rem; line-height: 1.6; }
+.lexicon-peek[hidden] { display: none; }
+.lexicon-peek__heading { display: flex; align-items: center; gap: .35rem; }
+.lexicon-peek__heading strong { font-size: 1rem; font-weight: 650; }
+.lexicon-peek p { margin: .55rem 0 .75rem; font-size: .88rem; line-height: 1.8; text-indent: 0; overflow-wrap: anywhere; }
+.lexicon-peek__hint { color: var(--text-soft); font-size: .73rem; }
+.article-content .lexicon-reference { text-decoration: none; border-bottom: 1px solid currentColor; }

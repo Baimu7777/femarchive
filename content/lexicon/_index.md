@@ -1,7 +1,7 @@
 ---
 title: 词条
 description: 整理中的词条与文章。
-outputs: [HTML]
+outputs: [HTML, JSON]
 build:
   list: never
   render: always

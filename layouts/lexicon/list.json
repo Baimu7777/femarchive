@@ -1,0 +1,3 @@
+{{- $entries := slice -}}
+{{- range .RegularPages.ByTitle -}}{{- $entries = $entries | append (partial "lexicon-entry-data.html" .) -}}{{- end -}}
+{{- $entries | jsonify -}}

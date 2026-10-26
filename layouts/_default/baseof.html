@@ -13,6 +13,7 @@
 {{ partial "footer.html" . }}
 <script src="{{ "js/site.js" | relURL }}?v={{ now.Unix }}" defer></script>
 <script src="{{ "js/code-copy.js" | relURL }}" defer></script>
+<script src="{{ "js/lexicon-peek.js" | relURL }}?v={{ now.Unix }}" defer data-lexicon-index="{{ "lexicon/index.json" | relURL }}"></script>
   {{ block "scripts" . }}{{ end }}
 
 </body>
