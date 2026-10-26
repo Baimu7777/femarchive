@@ -1,6 +1,8 @@
 import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
 import { fail, response, failure, uuid, sha, articlePath, imagePath } from './errors.mjs';
 import { validateArticle, assertNoPrivateValues, assertNoPrivateText, publicBody, readDocument, writeDocument, articleURL, articleFields } from './document.mjs';
+import { legacyPostFields } from './legacy-post.mjs';
+import { validExistingPostPath } from '../existing-posts.mjs';
 
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 const termRegistryPath = 'data/website-publication-terms.json';
@@ -33,8 +35,11 @@ async function limitedBody(request, limit) {
   return Buffer.concat(chunks, size);
 }
 const validToken = token => typeof token === 'string' && /^[A-Za-z0-9_-]{32,256}$/.test(token);
-export function createReceiver({ token, repository, receipts, catalog, importedArticles = {} }) {
-  const configured = validToken(token) && repository && receipts && catalog && Array.isArray(catalog.categories) && Array.isArray(catalog.sharedTags);
+export function createReceiver({ token, repository, receipts, catalog, importedArticles = {}, importedPosts = {} }) {
+  const imports = importedPosts && typeof importedPosts === 'object' && !Array.isArray(importedPosts) ? Object.entries(importedPosts) : [];
+  const validImports = Boolean(importedPosts) && typeof importedPosts === 'object' && !Array.isArray(importedPosts) && imports.length <= 50 && imports.every(([id, post]) => uuid(id) && post && validExistingPostPath(post.path) && sha(post.revision) && typeof post.title === 'string' && post.title.length <= 200 && !/[\r\n]/.test(post.title)) && new Set(imports.map(([, post]) => post.path)).size === imports.length;
+  const configured = validToken(token) && repository && receipts && catalog && Array.isArray(catalog.categories) && Array.isArray(catalog.sharedTags) && validImports;
+  const managedPath = (id, section) => section === 'posts' && Object.hasOwn(importedPosts, id) ? importedPosts[id].path : articlePath(id, section);
   const expected = Buffer.from(`Bearer ${token}`);
   async function authenticate(request) {
     if (!configured) fail(503);
@@ -46,6 +51,12 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
   }
   async function managed(id, section) {
     let record = await receipts.getArticle(id);
+    if (!record && section === 'posts' && Object.hasOwn(importedPosts, id)) {
+      const post = importedPosts[id], snapshot = await repository.snapshot();
+      const file = await repository.read(post.path, snapshot.head);
+      if (!file || file.revision !== post.revision) fail(409);
+      record = await receipts.saveArticle(id, { path: post.path });
+    }
     // The administrator import registry only covers legacy lexicon articles.
     if (!record && (!section || section === 'lexicon') && Object.hasOwn(importedArticles, id)) {
       const revision = importedArticles[id];
@@ -56,7 +67,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
       record = await receipts.saveArticle(id, { path: articlePath(id) });
     }
     if (!record) fail(404);
-    if (record.path !== articlePath(id, section)) fail(503);
+    if (record.path !== managedPath(id, section)) fail(503);
     return record;
   }
   async function assetsFor(value) {
@@ -165,7 +176,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
     const body = publicBody(value.html, value.comments, selected.map(a => a.path), value.presentation, value.commentImages);
     const fingerprint = digest(canonical(value));
     const plan = await receipts.reserve('publish', key, fingerprint, async () => {
-      const articleId = value.articleId ?? randomUUID(), path = articlePath(articleId, value.section);
+      const articleId = value.articleId ?? randomUUID(), path = managedPath(articleId, value.section);
       if (value.articleId) await managed(articleId, value.section);
       const base = await repository.snapshot();
       const previous = await repository.read(path, base.head);
@@ -180,7 +191,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
       await publicArtifacts([bytes.toString('utf8'), path, url, ...(tagBytes ? [tagBytes.toString('utf8')] : []), ...(termBytes ? [termBytes.toString('utf8')] : [])], [key, ...value.assets]);
       return { ...allocated, documentDigest: digest(bytes), url, termRegistryRevision: terms.revision, termRegistryDigest: termBytes ? digest(termBytes) : null };
     });
-    if (!uuid(plan.articleId) || plan.path !== articlePath(plan.articleId, value.section)) fail(503);
+    if (!uuid(plan.articleId) || plan.path !== managedPath(plan.articleId, value.section)) fail(503);
     return finish('publish', key, plan, async () => {
       const previous = await repository.read(plan.path, plan.base.head);
       if (plan.expectedRevision ? previous?.revision !== plan.expectedRevision : previous !== null) fail(409);
@@ -225,8 +236,19 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
       await authenticate(request);
       const params = new URL(request.url).searchParams, operation = params.get('operation');
       const allowed = operation === 'article' ? ['operation', 'articleId', 'section'] : ['operation'];
-      if ([...params.keys()].some(k => !allowed.includes(k) || params.getAll(k).length !== 1) || !['catalog', 'terms', 'article', 'asset', 'publish'].includes(operation)) fail();
-      if (request.method !== (['catalog', 'terms', 'article'].includes(operation) ? 'GET' : 'POST')) fail(405);
+      if ([...params.keys()].some(k => !allowed.includes(k) || params.getAll(k).length !== 1) || !['catalog', 'terms', 'articles', 'article', 'asset', 'publish'].includes(operation)) fail();
+      if (request.method !== (['catalog', 'terms', 'articles', 'article'].includes(operation) ? 'GET' : 'POST')) fail(405);
+      if (operation === 'articles') {
+        const base = await repository.snapshot(), articles = [];
+        for (const [articleId, post] of imports) {
+          const file = await repository.read(post.path, base.head);
+          if (!file) continue;
+          const document = readDocument(file.bytes);
+          articles.push({ articleId, title: typeof document.metadata.title === 'string' ? document.metadata.title : post.title, url: articleURL(repository.publicOrigin, articleId, document.metadata, 'posts') });
+        }
+        await publicArtifacts(articles.flatMap(article => [article.title, article.url]), []);
+        return response({ articles });
+      }
       if (operation === 'terms') {
         const base = await repository.snapshot(), registry = await termRegistry(base.head);
         const terms = new Map(normalizeTerms(catalog.terms ?? [], true).map(term => [term.articleId, term]));
@@ -243,10 +265,11 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
       }
       if (operation === 'article') {
         const id = params.get('articleId'), section = params.get('section') ?? 'lexicon'; if (!uuid(id) || !['posts', 'lexicon'].includes(section)) fail(); await managed(id, section);
-        const base = await repository.snapshot(), file = await repository.read(articlePath(id, section), base.head);
+        const base = await repository.snapshot(), file = await repository.read(managedPath(id, section), base.head);
         if (!file) fail(404);
         const document = readDocument(file.bytes);
-        return response({ articleId: id, revision: file.revision, url: articleURL(repository.publicOrigin, id, document.metadata, section), ...articleFields(document) });
+        const fields = section === 'posts' && Object.hasOwn(importedPosts, id) ? legacyPostFields(document) ?? articleFields(document) : articleFields(document);
+        return response({ articleId: id, revision: file.revision, url: articleURL(repository.publicOrigin, id, document.metadata, section), ...fields });
       }
       const key = request.headers.get('idempotency-key'); if (!uuid(key)) fail();
       return response(operation === 'publish' ? await publish(request, key) : await asset(request, key));

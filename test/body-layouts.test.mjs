@@ -82,3 +82,33 @@ test('body title attributes escape HTML and Hugo syntax and retain privacy valid
   const escaped = [...forbidden].map(c => `&#${c.charCodeAt(0)};`).join('');
   assert.throws(() => assertNoPrivateValues({ ...fixture(), html: `<div data-publication-layout="folded" data-title="${escaped}">Body</div>` }, [forbidden]), { status: 400 });
 });
+
+
+for (const tone of ['', ' data-tone="warm"']) for (const heading of ['', ' data-heading="none"']) test(`group metadata survives website write/read and title-only update: ${tone} ${heading}`, () => {
+  const html = `<h4>条目</h4><div data-publication-layout="grouped" data-title="补充讨论"${tone}${heading}><div data-publication-layout="card"><p>正文</p></div></div>`;
+  const value = { ...fixture(), html, comments: [] };
+  const body = publicBody(html, [], []);
+  assert.ok(body.includes(`class="language-discussion-group${tone ? ' language-discussion-group--warm' : ''}"`));
+  assert.equal(body.includes('<h3>补充讨论</h3>'), !heading);
+  const bytes = writeDocument(value, body, null, { articleId: randomUUID(), date: '2026-10-25T00:00:00Z' });
+  const read = articleFields(readDocument(bytes));
+  assert.equal(read.html.replace(/>\s+</g, "><").trim(), html);
+  const updatedBody = publicBody(read.html, [], []);
+  assert.equal(updatedBody, body);
+  const updated = writeDocument({ ...value, title: '新标题' }, updatedBody, bytes, {});
+  assert.equal(readDocument(updated).body.trim(), body.trim());
+  for (const altered of [body.replace('class="language-discussion-group', 'class="unexpected language-discussion-group'), body.replace('data-title="补充讨论"', 'data-title="补充讨论" data-tone="red"')]) {
+    assert.throws(() => articleFields({ body: altered, metadata: { title: 'Title' } }), { status: 409 });
+  }
+});
+
+test('rejects unknown or unsupported group color and heading metadata', () => {
+  for (const marker of [
+    'data-publication-layout="grouped" data-tone="red"',
+    'data-publication-layout="grouped" data-tone=""',
+    'data-publication-layout="card" data-tone="warm"',
+    'data-publication-layout="folded" data-heading="none"',
+    'data-publication-layout="grouped" data-heading="hidden"',
+    'data-publication-layout="grouped" data-tone="warm" data-tone="warm"',
+  ]) assert.throws(() => publicBody(`<div ${marker}><p>正文</p></div>`, [], []), { status: 400 });
+});

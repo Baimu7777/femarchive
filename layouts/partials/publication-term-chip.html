@@ -1,12 +1,14 @@
 {{- $page := .page -}}
 {{- $name := .name -}}
-{{- if in ($page.Params.related_terms | default (slice)) $name -}}
-  {{- $matches := where (where $page.Site.RegularPages "Section" "lexicon") "Title" $name -}}
-  {{- if gt (len $matches) 0 -}}
-    <a class="chip chip--tag chip--link" href="{{ (index $matches 0).RelPermalink }}">#{{ $name }}</a>
-  {{- else -}}
-    <span class="chip chip--tag" title="对应词条发布后自动关联">#{{ $name }}</span>
-  {{- end -}}
+{{- $matches := slice -}}
+{{- $key := lower (trim $name " \r\n\t") -}}
+{{- range where $page.Site.RegularPages "Section" "lexicon" -}}
+  {{- if eq (lower (trim .Title " \r\n\t")) $key -}}{{- $matches = $matches | append . -}}{{- end -}}
+{{- end -}}
+{{- if gt (len $matches) 0 -}}
+  <a class="chip chip--tag chip--link" href="{{ (index $matches 0).RelPermalink }}">#{{ $name }}</a>
+{{- else if in ($page.Params.related_terms | default (slice)) $name -}}
+  <span class="chip chip--tag" title="对应词条发布后自动关联">#{{ $name }}</span>
 {{- else -}}
   <a class="chip chip--tag chip--link" href="{{ (printf "/tags/%s/" ($name | urlize)) | relLangURL }}">#{{ $name }}</a>
 {{- end -}}

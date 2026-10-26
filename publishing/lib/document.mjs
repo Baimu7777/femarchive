@@ -9,7 +9,7 @@ import { isDeepStrictEqual } from 'node:util';
 import { isUtf8 } from 'node:buffer';
 import { fail, uuid, sha, imagePath } from './errors.mjs';
 
-const fields = ['presentation', 'section', 'version', 'confirmed', 'title', 'html', 'initial', 'polarity', 'categories', 'tags', 'newTags', 'replaceTags', 'comments', 'commentImages', 'relatedTerms', 'assets', 'articleId', 'expectedRevision'];
+const fields = ['presentation', 'section', 'version', 'confirmed', 'title', 'author', 'license', 'html', 'initial', 'polarity', 'categories', 'tags', 'newTags', 'replaceTags', 'comments', 'commentImages', 'relatedTerms', 'assets', 'articleId', 'expectedRevision'];
 // Closed set: the index letter cannot carry anything the listing does not use.
 const PRESENTATIONS = ['article', 'cards', 'discussion', 'quote', 'centered', 'grouped', 'highlight', 'folded'];
 const INDEX_LETTERS = new Set(['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ', '⚑']);
@@ -19,6 +19,7 @@ const strings = (value, maxItems, maxLength) => Array.isArray(value) && value.le
 export function validateArticle(value, catalog) {
   if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).some(k => !fields.includes(k))) fail();
   if (value.version !== 1 || value.confirmed !== true || !text(value.title, 300, true) || /[\r\n]/.test(value.title) || !text(value.html, 512 * 1024) || !strings(value.categories, 6, 100) || !strings(value.tags, 50, 100)) fail();
+  if (('author' in value && !text(value.author, 200, true)) || ('license' in value && !text(value.license, 300, true))) fail();
   if (value.categories.some(c => !catalog.categories.includes(c))) fail();
   if ('newTags' in value && (!strings(value.newTags, 50, 100) || value.newTags.some(t => !value.tags.includes(t)))) fail();
   if ('relatedTerms' in value && (!strings(value.relatedTerms, 50, 100) || value.relatedTerms.some(term => !value.tags.includes(term)))) fail();
@@ -37,7 +38,7 @@ export function validateArticle(value, catalog) {
 
 const BODY_LAYOUTS = new Set(['card', 'reply', 'quote', 'centered', 'grouped', 'highlight', 'folded']);
 const allowedTags = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'mark', 's', 'del', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'ul', 'ol', 'li', 'pre', 'code', 'a', 'img', 'hr', 'div'];
-const allowedAttributes = { a: ['href', 'title', 'target', 'rel'], img: ['src', 'alt', 'title', 'data-width', 'data-align'], ol: ['start'], div: ['data-publication-layout', 'data-title'] };
+const allowedAttributes = { a: ['href', 'title', 'target', 'rel'], img: ['src', 'alt', 'title', 'data-width', 'data-align'], ol: ['start'], div: ['data-publication-layout', 'data-title', 'data-tone', 'data-heading'] };
 function safeLink(href) {
   try {
     if (!href || /[\u0000-\u0020\u007f\\]/.test(href)) return false;
@@ -65,6 +66,7 @@ function validateBodyNodes(nodes, selectedPaths, status = 400) {
       if (!(allowedAttributes[node.name] ?? []).includes(key) || !text(value, 2000)) fail(status);
     }
     if (node.name === 'div' && (!BODY_LAYOUTS.has(node.attribs['data-publication-layout']) || (node.attribs['data-title'] !== undefined && (!text(node.attribs['data-title'], 100) || /[\r\n]/.test(node.attribs['data-title']))))) fail(status);
+    if (node.name === 'div' && ((node.attribs['data-tone'] !== undefined && (node.attribs['data-publication-layout'] !== 'grouped' || node.attribs['data-tone'] !== 'warm')) || (node.attribs['data-heading'] !== undefined && (node.attribs['data-publication-layout'] !== 'grouped' || node.attribs['data-heading'] !== 'none')))) fail(status);
     if (node.name === 'a' && !safeLink(node.attribs.href)) fail(status);
     if (node.name === 'a' && ((node.attribs.target !== undefined && node.attribs.target !== '_blank') || (node.attribs.rel !== undefined && node.attribs.rel !== 'noopener noreferrer nofollow'))) fail(status);
     if (node.name === 'img' && (!imagePath(node.attribs.src) || (selectedPaths && !selectedPaths.includes(node.attribs.src)))) fail(status);
@@ -77,14 +79,14 @@ function imageLayout(attributes) {
   const width = attributes['data-width'], align = attributes['data-align'];
   return `width:${width ?? '100'}%;display:block;margin-left:${align === 'left' ? '0' : 'auto'};margin-right:${align === 'right' ? '0' : 'auto'}`;
 }
-const bodyMarkerAttributes = attributes => ` data-publication-layout="${attributes['data-publication-layout']}"${attributes['data-title'] === undefined ? '' : ` data-title="${attribute(attributes['data-title'])}"`}`;
+const bodyMarkerAttributes = attributes => ` data-publication-layout="${attributes['data-publication-layout']}"${attributes['data-title'] === undefined ? '' : ` data-title="${attribute(attributes['data-title'])}"`}${attributes['data-tone'] === undefined ? '' : ` data-tone="${attribute(attributes['data-tone'])}"`}${attributes['data-heading'] === undefined ? '' : ` data-heading="${attribute(attributes['data-heading'])}"`}`;
 function bodyLayoutHTML(attributes, inner) {
   const marker = bodyMarkerAttributes(attributes), title = attributes['data-title'];
   switch (attributes['data-publication-layout']) {
     case 'card': case 'reply': return `<div${marker} class="mycard${attributes['data-publication-layout'] === 'reply' ? ' mycard--reply' : ''}"><div class="mycard__content">${inner}</div></div>`;
     case 'quote': return `<blockquote${marker} class="quote"><div class="quote-content">${inner}</div></blockquote>`;
     case 'centered': return `<blockquote${marker} class="quote-center">${inner}</blockquote>`;
-    case 'grouped': return `<section${marker} class="language-discussion-group"><h3>${attribute(title ?? '讨论摘录')}</h3>${inner}</section>`;
+    case 'grouped': return `<section${marker} class="language-discussion-group${attributes['data-tone'] === 'warm' ? ' language-discussion-group--warm' : ''}">${attributes['data-heading'] === 'none' ? '' : `<h3>${attribute(title ?? '讨论摘录')}</h3>`}${inner}</section>`;
     case 'highlight': return `<div${marker} class="text-highlight--block">${inner}</div>`;
     case 'folded': return `<details${marker}><summary>${attribute(title ?? '展开内容')}</summary>${inner}</details>`;
     default: fail();
@@ -274,7 +276,7 @@ export function writeDocument(value, body, previous, plan) {
   if (!previous) {
     // Entries carry no taxonomy. Empty arrays would still render as front
     // matter keys, so only write the ones that actually have values.
-    const metadata = { title: value.title, date: plan.date,
+    const metadata = { title: value.title, author: value.author ?? '豆瓣-女阅组', date: plan.date, license: value.license ?? '该作品版权归原作者所有。',
       ...(value.presentation ? { publication_layout: value.presentation } : {}),
       ...(INDEX_LETTERS.has(value.initial) ? { initial: value.initial } : {}),
       ...(['positive', 'negative', 'unmarked'].includes(value.polarity) ? { polarity: value.polarity } : {}),
@@ -290,6 +292,8 @@ export function writeDocument(value, body, previous, plan) {
   // before one of them existed gains it on the next update; everything else
   // in the front matter belongs to the website and must come through intact.
   const managed = { title: value.title };
+  if ('author' in value) managed.author = value.author;
+  if ('license' in value) managed.license = value.license;
   if (value.replaceTags === true) managed.tags = value.tags;
   if ('relatedTerms' in value) managed.related_terms = value.relatedTerms;
   if (value.presentation) managed.publication_layout = value.presentation;
@@ -412,9 +416,9 @@ function recoverBodyLayouts(source) {
     });
   }
   function recover(node) {
-    const mode = node.attribs['data-publication-layout'], title = node.attribs['data-title'];
+    const mode = node.attribs['data-publication-layout'], title = node.attribs['data-title'], tone = node.attribs['data-tone'], heading = node.attribs['data-heading'];
     if (!BODY_LAYOUTS.has(mode)) fail(409);
-    const attributes = { 'data-publication-layout': mode, ...(title === undefined ? {} : { 'data-title': title }) };
+    const attributes = { 'data-publication-layout': mode, ...(title === undefined ? {} : { 'data-title': title }), ...(tone === undefined ? {} : { 'data-tone': tone }), ...(heading === undefined ? {} : { 'data-heading': heading }) };
     let children = node.children ?? [];
     const outer = (name, classes) => { if (!tag(node, name, { ...attributes, ...(classes ? { class: classes } : {}) })) fail(409); };
     const unwrap = classes => {
@@ -427,9 +431,12 @@ function recoverBodyLayouts(source) {
       case 'centered': outer('blockquote', 'quote-center'); break;
       case 'highlight': outer('div', 'text-highlight--block'); break;
       case 'grouped':
-        outer('section', 'language-discussion-group');
-        if (!tag(children[0], 'h3') || plain(children[0]) !== (title ?? '讨论摘录')) fail(409);
-        children = children.slice(1); break;
+        outer('section', `language-discussion-group${tone === 'warm' ? ' language-discussion-group--warm' : ''}`);
+        if (heading !== 'none') {
+          if (!tag(children[0], 'h3') || plain(children[0]) !== (title ?? '讨论摘录')) fail(409);
+          children = children.slice(1);
+        }
+        break;
       case 'folded':
         outer('details');
         if (!tag(children[0], 'summary') || plain(children[0]) !== (title ?? '展开内容')) fail(409);
@@ -461,6 +468,9 @@ export function articleFields(document) {
   return {
     ...(PRESENTATIONS.includes(document.metadata.publication_layout) ? { presentation: document.metadata.publication_layout } : {}),
     title: text(document.metadata.title, 300) ? document.metadata.title : '',
+    author: text(document.metadata.author, 200, true) ? document.metadata.author : '豆瓣-女阅组',
+    date: document.metadata.date instanceof Date ? document.metadata.date.toISOString() : text(document.metadata.date, 100, true) ? document.metadata.date : '',
+    license: text(document.metadata.license, 300, true) ? document.metadata.license : '该作品版权归原作者所有。',
     html: sanitizeHtml(marked.parse(discussion.body, { async: false }), {
       allowedTags, allowedAttributes, allowedSchemes: ['https'], allowProtocolRelative: false,
       // Editor input never accepts CSS. Keep only validated layout data so the

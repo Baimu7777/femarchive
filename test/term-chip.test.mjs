@@ -13,8 +13,9 @@ test('term chips link current lexicon entries and resolve pending names on a lat
   try {
     for (const path of ['layouts/_default','layouts/partials','content/posts','content/lexicon']) await mkdir(join(root,path), {recursive:true});
     await copyFile(fileURLToPath(new URL('../layouts/partials/publication-term-chip.html', import.meta.url)), join(root,'layouts/partials/publication-term-chip.html'));
+    await copyFile(fileURLToPath(new URL('../layouts/partials/publication-term-articles.html', import.meta.url)), join(root,'layouts/partials/publication-term-articles.html'));
     await writeFile(join(root,'hugo.toml'), 'baseURL="https://archive.example.com/"\n');
-    await writeFile(join(root,'layouts/_default/single.html'), '{{ $page := . }}{{ range .Params.tags }}{{ partial "publication-term-chip.html" (dict "page" $page "name" .) }}{{ end }}');
+    await writeFile(join(root,'layouts/_default/single.html'), '{{ $page := . }}{{ range .Params.tags }}{{ partial "publication-term-chip.html" (dict "page" $page "name" .) }}{{ end }}{{ partial "publication-term-articles.html" . }}');
     await writeFile(join(root,'content/posts/article.md'), '---\ntitle: Article\ntags: [Known, Pending, Legacy]\nrelated_terms: [Known, Pending]\n---\nBody');
     await writeFile(join(root,'content/lexicon/existing.md'), '---\ntitle: Known\n---\nDefinition');
     execFileSync(hugo,['--source',root,'--quiet']);
@@ -23,8 +24,14 @@ test('term chips link current lexicon entries and resolve pending names on a lat
     assert.match(html, /<span[^>]*>#Pending<\/span>/);
     assert.match(html, /href="\/tags\/legacy\/"[^>]*>#Legacy<\/a>/);
     await writeFile(join(root,'content/lexicon/later.md'), '---\ntitle: Pending\n---\nLater definition');
+    await writeFile(join(root,'content/lexicon/from-tag.md'), '---\ntitle: legacy\n---\nCreated later from the lexicon page');
     execFileSync(hugo,['--source',root,'--quiet']);
     html = await readFile(join(root,'public/posts/article/index.html'),'utf8');
     assert.match(html, /href="\/lexicon\/later\/"[^>]*>#Pending<\/a>/);
+    assert.match(html, /href="\/lexicon\/from-tag\/"[^>]*>#Legacy<\/a>/);
+    const term = await readFile(join(root,'public/lexicon/from-tag/index.html'),'utf8');
+    assert.match(term, /aria-label="关联文章"/);
+    assert.match(term, /href="\/posts\/article\/"/);
+    assert.match(term, />Article<\/h3>/);
   } finally { await rm(root,{recursive:true,force:true}); }
 });

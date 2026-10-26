@@ -16,9 +16,9 @@ import { fileURLToPath } from 'node:url';
 export const vendorPath = new URL('../publishing/vendor/sanitize-html.cjs', import.meta.url);
 const packageRoot = fileURLToPath(new URL('..', import.meta.url));
 
-export async function buildVendor() {
+export async function buildVendor(resolveDir = packageRoot) {
   const result = await build({
-    stdin: { contents: "module.exports = require('sanitize-html');\n", resolveDir: packageRoot, sourcefile: 'vendor-entry.cjs', loader: 'js' },
+    stdin: { contents: "module.exports = require('sanitize-html');\n", resolveDir, sourcefile: fileURLToPath(new URL('../vendor-entry.cjs', import.meta.url)), loader: 'js' },
     absWorkingDir: packageRoot,
     bundle: true, platform: 'node', format: 'cjs', target: 'node22', legalComments: 'eof', write: false,
   });
@@ -26,7 +26,8 @@ export async function buildVendor() {
   // root. The installed website holds its dependencies there, while the forum
   // checkout resolves them from the repository root, so the labels would differ
   // between the two copies. Normalise them to keep the file reproducible.
-  return result.outputFiles[0].text.replace(/(?:\.\.\/)+node_modules\//g, 'node_modules/');
+  return result.outputFiles[0].text.replace(/(?:\.\.\/)+node_modules\//g, 'node_modules/')
+    .replace(/node_modules\/(?:[^/]+\/node_modules\/)+/g, 'node_modules/');
 }
 
 if (import.meta.url === `file://${process.argv[1]}` || fileURLToPath(import.meta.url) === process.argv[1]) {

@@ -1,4 +1,5 @@
 import { fail, sha, uuid, imagePath } from './errors.mjs';
+import { validExistingPostPath } from '../existing-posts.mjs';
 
 export function validateGitConfig({ owner, repo, branch, publicOrigin }) {
   if (![owner, repo].every(v => typeof v === 'string' && /^[A-Za-z0-9_-][A-Za-z0-9_.-]{0,99}$/.test(v) && !v.includes('..'))) fail(503);
@@ -6,11 +7,14 @@ export function validateGitConfig({ owner, repo, branch, publicOrigin }) {
   const url = new URL(publicOrigin);
   if (url.protocol !== 'https:' || url.origin !== publicOrigin || url.username || url.password || url.port || !/^[a-z0-9-]+(?:\.[a-z0-9-]+)+$/i.test(url.hostname) || /\.(?:local|internal|localhost)$/.test(url.hostname) || /^[\d.]+$/.test(url.hostname)) fail(503);
 }
-const writablePath = value => ['data/website-publication-tags.json', 'data/website-publication-terms.json'].includes(value) || (uuid(/^content\/(?:lexicon|posts)\/(.+)\.md$/.exec(value)?.[1])) || (value.startsWith('static') && imagePath(value.slice(6)));
+const defaultWritablePath = value => ['data/website-publication-tags.json', 'data/website-publication-terms.json'].includes(value) || (uuid(/^content\/(?:lexicon|posts)\/(.+)\.md$/.exec(value)?.[1])) || (value.startsWith('static') && imagePath(value.slice(6)));
 
-export function createGitHubRepository({ token, owner, repo, branch, publicOrigin, fetch: transport = globalThis.fetch }) {
+export function createGitHubRepository({ token, owner, repo, branch, publicOrigin, approvedPostPaths = [], fetch: transport = globalThis.fetch }) {
   validateGitConfig({ owner, repo, branch, publicOrigin });
   if (!token) fail(503);
+  if (!Array.isArray(approvedPostPaths) || approvedPostPaths.length > 50 || !approvedPostPaths.every(validExistingPostPath)) fail(503);
+  const approvedPaths = new Set(approvedPostPaths);
+  const writablePath = value => defaultWritablePath(value) || approvedPaths.has(value);
   const root = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/`;
   const branchPath = branch.split('/').map(encodeURIComponent).join('/');
   async function api(path, method = 'GET', body, missing = false, accept = 'application/vnd.github+json') {

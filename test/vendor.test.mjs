@@ -6,6 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
 let builder;
@@ -15,6 +16,15 @@ try { require.resolve('esbuild'); builder = await import('../scripts/build-vendo
 
 test('committed sanitizer bundle matches a fresh build of the pinned version', { skip: builder ? false : 'esbuild is not installed' }, async () => {
   assert.equal(await builder.buildVendor(), await readFile(builder.vendorPath, 'utf8'));
+});
+
+let forumRoot;
+try {
+  const manifest = JSON.parse(await readFile(new URL('../../../package.json', import.meta.url), 'utf8'));
+  if (manifest.name === 'co-governed-discussion-platform') forumRoot = fileURLToPath(new URL('../../../', import.meta.url));
+} catch { /* The receiver can also be installed as a standalone website package. */ }
+test('root and standalone dependency layouts produce the same sanitizer bundle', { skip: builder && forumRoot ? false : 'forum dependencies are not installed' }, async () => {
+  assert.equal(await builder.buildVendor(forumRoot), await builder.buildVendor());
 });
 
 test('the bundle carries the sanitizer the manifest pins and no ESM require', async () => {

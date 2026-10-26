@@ -1,0 +1,22 @@
+{{- if eq .Section "lexicon" -}}
+  {{- $key := lower (trim .Title " \r\n\t") -}}
+  {{- $articles := slice -}}
+  {{- range where .Site.RegularPages "Section" "posts" -}}
+    {{- $article := . -}}
+    {{- $matched := false -}}
+    {{- range (.Params.tags | default (slice)) -}}
+      {{- if eq (lower (trim (printf "%v" .) " \r\n\t")) $key -}}{{- $matched = true -}}{{- end -}}
+    {{- end -}}
+    {{- if $matched -}}{{- $articles = $articles | append $article -}}{{- end -}}
+  {{- end -}}
+  {{- if gt (len $articles) 0 -}}
+    <section class="article-related publication-term-articles" aria-label="关联文章">
+      <h2 class="article-related__title">关联文章</h2>
+      <div class="related-list article-related__list">
+        {{- range $articles -}}
+          <a class="related-item" href="{{ .RelPermalink }}"><h3 class="related-item__title">{{ .Title }}</h3></a>
+        {{- end -}}
+      </div>
+    </section>
+  {{- end -}}
+{{- end -}}

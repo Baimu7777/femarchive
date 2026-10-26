@@ -115,6 +115,29 @@ test('declared new selected tags become durable catalog entries in the article c
   assert.equal(s.remote.calls.filter(c => c.method === 'PATCH').length, 2);
 });
 
+test('article tags remain tags and cannot create lexicon entries or change the term registry', async () => {
+  const s = setup(['现有标签']);
+  const response = await publish(s, { ...fixture(), section: 'posts', tags: ['现有标签', '自创标签'], newTags: ['自创标签'], relatedTerms: [], author: '编辑署名' });
+  assert.equal(response.status, 200);
+  const result = await response.json();
+  const metadata = frontmatter(s.remote.text(`content/posts/${result.articleId}.md`));
+  assert.deepEqual(metadata.tags, ['现有标签', '自创标签']);
+  assert.deepEqual(metadata.related_terms, []);
+  assert.equal(metadata.author, '编辑署名');
+  assert.equal(metadata.license, '该作品版权归原作者所有。');
+  assert.equal(s.remote.text('data/website-publication-terms.json'), null);
+  assert.equal([...s.remote.files().keys()].filter(path => path.startsWith('content/lexicon/')).length, 0);
+  const read = await s.receive(request(`article&articleId=${result.articleId}&section=posts`));
+  const current = await read.json();
+  assert.equal(current.author, '编辑署名');
+  assert.equal(current.license, '该作品版权归原作者所有。');
+  const update = await publish(s, { ...fixture(), section: 'posts', articleId: result.articleId, expectedRevision: current.revision, author: '修改后的署名' });
+  assert.equal(update.status, 200);
+  const updated = frontmatter(s.remote.text(`content/posts/${result.articleId}.md`));
+  assert.equal(updated.author, '修改后的署名');
+  assert.deepEqual(updated.date, metadata.date);
+});
+
 test('new tags must be selected and explicit, and all public tag bytes undergo privacy checks', async () => {
   const s = setup(), before = s.remote.head;
   for (const value of [
