@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { request, token } from './helpers.mjs';
+import { request, token, gitService } from './helpers.mjs';
 let entry, receipts;
 try { entry = await import('../api/publishing.mjs'); receipts = await import('../publishing/lib/receipts.mjs'); } catch (error) { if (error.code !== 'ERR_MODULE_NOT_FOUND') throw error; }
 test('Vercel exposes a Web Request fetch handler', () => assert.equal(typeof entry?.default?.fetch, 'function'));
@@ -16,7 +16,7 @@ check('production factory is disabled for missing or invalid configuration witho
   }
   for (const value of [{ WEBSITE_PUBLISHING_ENABLED: 'false' }, { WEBSITE_PUBLIC_ORIGIN: 'http://localhost' }, { WEBSITE_R2_ENDPOINT: 'https://evil.example' }, { WEBSITE_PUBLISHING_TOKEN: 'short' }, { WEBSITE_GITHUB_BRANCH: '../other' }]) assert.equal((await entry.createConfiguredReceiver({ ...env, ...value })(request('catalog'))).status, 503);
   assert.equal(calls, 0);
-  assert.equal((await entry.createConfiguredReceiver(env)(request('catalog'))).status, 200);
+  assert.equal((await entry.createConfiguredReceiver(env, { fetch: gitService().fetch })(request('catalog'))).status, 200);
 });
 
 check('real R2 adapter uses immutable conditional private JSON objects', async () => {

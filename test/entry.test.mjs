@@ -27,10 +27,11 @@ const probe = join(directory, 'probe.mjs');
 writeFileSync(probe, `import { register } from 'node:module';
 register(${JSON.stringify(pathToFileURL(hook).href)});
 const entry = await import(${JSON.stringify(new URL('../api/publishing.mjs', import.meta.url).href)});
+const { gitService } = await import(${JSON.stringify(new URL('./helpers.mjs', import.meta.url).href)});
 const env = JSON.parse(process.argv[2]);
 const url = operation => 'https://website.example/api/publishing?operation=' + operation;
 const read = async response => ({ status: response.status, body: await response.json() });
-const receive = entry.createConfiguredReceiver(env, { fetch: () => { throw new Error('Real network forbidden in the entry probe'); } });
+const receive = entry.createConfiguredReceiver(env, { fetch: gitService().fetch });
 const result = { fetchHandler: typeof entry.default?.fetch };
 result.handler = await read(await entry.default.fetch(new Request(url('catalog'), { headers: { authorization: 'Bearer ' + ${JSON.stringify(token)} } })));
 result.catalog = await read(await receive(new Request(url('catalog'), { headers: { authorization: 'Bearer ' + ${JSON.stringify(token)} } })));
@@ -54,7 +55,7 @@ test('entry point imports and answers without configuration when the image modul
 test('configured non-image operations keep working while image publishing fails closed', () => {
   const result = run(configured);
   assert.equal(result.catalog.status, 200);
-  assert.ok(result.catalog.body.categories.includes('思考讨论'), 'the static vocabulary is served without a data file read');
+  assert.ok(result.catalog.body.categories.includes('思考讨论'), 'the baseline vocabulary is served with an empty Git tag registry');
   assert.deepEqual(result.asset, { status: 503, body: unavailable });
   assert.deepEqual(result.handler, { status: 503, body: unavailable });
 });

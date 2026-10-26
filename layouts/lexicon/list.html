@@ -6,7 +6,7 @@
      reachable by treating them as the numeric group. */}}
 {{ $entries := slice }}
 {{ range $pages }}
-  {{ $entries = $entries | append (dict "title" .Title "initial" (.Params.initial | default "#") "polarity" (.Params.polarity | default "") "event" (eq .Params.event true) "aliases" (.Params.aliases | default slice) "url" .RelPermalink "html" .Content) }}
+  {{ $entries = $entries | append (dict "title" .Title "initial" (.Params.initial | default "#") "polarity" (.Params.polarity | default "") "event" (eq .Params.event true) "aliases" (.Params.aliases | default slice) "url" .RelPermalink "html" (printf "%s%s" .Content (partial "publication-term-articles.html" .))) }}
 {{ end }}
 {{ $used := slice }}
 {{ range $entries }}{{ $used = $used | append .initial }}{{ end }}

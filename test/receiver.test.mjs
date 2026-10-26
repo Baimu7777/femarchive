@@ -35,11 +35,15 @@ check('authentication, browser and confirmation gates make zero remote writes', 
 check('strict DTO, query, types, key, catalog and revision validation precede storage', async () => {
   const s = setup();
   const values = ['topicId', 'source', 'memberId', 'identity', '__proto__', 'url'].map(key => JSON.parse(JSON.stringify(fixture()).replace(/}$/, `,"${key}":"private-canary"}`)));
-  values.push({ ...fixture(), comments: [{}] }, { ...fixture(), categories: ['unknown'] }, { ...fixture(), tags: ['not-shared'] }, { ...fixture(), version: 2 }, { ...fixture(), assets: ['bad'] }, { ...fixture(), articleId: randomUUID() }, { ...fixture(), expectedRevision: 'a'.repeat(40) });
+  values.push({ ...fixture(), comments: [{}] }, { ...fixture(), categories: ['unknown'] }, { ...fixture(), version: 2 }, { ...fixture(), assets: ['bad'] }, { ...fixture(), articleId: randomUUID() }, { ...fixture(), expectedRevision: 'a'.repeat(40) });
   for (const value of values) assert.equal((await publish(s, value)).status, 400);
   assert.equal((await publish(s, fixture(), 'not-uuid')).status, 400);
   assert.equal((await s.receive(new Request('https://website.example/api/publishing?operation=catalog&topicId=secret', { headers: { authorization: `Bearer ${token}` } }))).status, 400);
   assert.equal(s.objects.data.size, 0); assert.equal(s.remote.calls.length, 0);
+  // Dynamic catalog membership needs a read-only Git lookup; an undeclared
+  // unknown label still fails before reservations or public writes.
+  assert.equal((await publish(s, { ...fixture(), tags: ['not-shared'] })).status, 400);
+  assert.equal(s.objects.data.size, 0); assert.equal(s.remote.calls.filter(c => c.method !== 'GET').length, 0);
 });
 
 check('bounded raw bodies reject oversized, malformed, unconfirmed and non-WebP uploads', async () => {
@@ -89,7 +93,7 @@ check('timeout after successful branch update recovers without another article o
   assert.equal((await publish(s, fixture(), key)).status, 503);
   const head = s.remote.head;
   const response = await publish(s, fixture(), key); assert.equal(response.status, 200);
-  assert.equal(s.remote.head, head); assert.equal(s.remote.files().size, 1);
+  assert.equal(s.remote.head, head); assert.equal(s.remote.files().size, 2);
   assert.equal(s.remote.calls.filter(c => c.method === 'PATCH').length, 1);
   assert.equal(s.remote.calls.filter(c => c.method === 'POST' && c.url.endsWith('/git/commits')).length, 1);
   assert.ok(!JSON.stringify([...s.objects.data.values()]).includes('公开内容'));
@@ -100,7 +104,7 @@ check('simultaneous duplicate requests converge on the immutable reservation', a
   const responses = await Promise.all([publish(s, fixture(), key), publish(s, fixture(), key)]);
   for (const r of responses) assert.equal(r.status, 200);
   assert.deepEqual(await responses[0].json(), await responses[1].json());
-  assert.equal(s.remote.files().size, 1);
+  assert.equal(s.remote.files().size, 2);
 });
 
 check('an update adds listing keys the first publication predated, keeping website fields', async () => {

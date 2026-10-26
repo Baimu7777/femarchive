@@ -21,3 +21,6 @@ fem.zip
 .env.*
 .vercel/
 .publishing-private/
+publishing/LOCAL-ACCEPTANCE.md
+docs/superpowers/plans/2026-10-20-hugo-publisher-installation.md
+docs/superpowers/plans/2026-10-20-publication-preflight.md
