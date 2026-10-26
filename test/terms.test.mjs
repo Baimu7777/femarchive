@@ -106,10 +106,10 @@ test('malformed term registries fail closed and only the exact data path is writ
   assert.equal(s.remote.calls.filter(call => call.method !== 'GET').length, 0);
 });
 
-test('the shipped baseline contains the current twelve published lexicon titles and public paths', async () => {
+test('the shipped baseline contains the current published lexicon titles and public paths', async () => {
   const { catalog: shipped } = await import('../publishing/catalog.mjs');
-  assert.equal(shipped.terms?.length, 12);
-  assert.deepEqual(shipped.terms.map(term => term.title).sort(), ['屌', '姃友', '三争三反', '朔体', '6b4t', '14bt', '"占领男厕所"运动', '爱女', '卵腺', 'moonlight', '33F（争反准则）', '女本位'].sort());
+  assert.equal(shipped.terms?.length, 20);
+  assert.deepEqual(shipped.terms.map(term => term.title).sort(), ['屌', '姃友', '三争三反', '朔体', '6b4t', '14bt', '"占领男厕所"运动', '爱女', '卵腺', 'moonlight', '33F（争反准则）', '女本位', '中国 #MeToo 运动', '弦子诉朱军性骚扰案', '乌衣事件', '丰县生育八孩女子事件', '西安地铁男保安拖拽乘客事件', '占领男厕所行动', '女权五姐妹', '姐妹战疫安心行动'].sort());
   const s = setup(shipped.terms), response = await s.receive(request('terms'));
   assert.equal(response.status, 200);
   const result = await response.json();
