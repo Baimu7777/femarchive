@@ -231,15 +231,19 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
     if (!uuid(plan.receipt) || !imagePath(plan.publicPath) || plan.path !== `static${plan.publicPath}` || digest(processed) !== plan.imageDigest) fail(503);
     return finish('asset', key, plan, async () => [{ path: plan.path, bytes: processed }]);
   }
+  // Reads show what visitors see. Unreleased publications wait on the staging
+  // branch, and one item is never published twice inside a batch.
+  const visible = () => repository.published ? repository.published() : repository.snapshot();
   return async request => {
     try {
       await authenticate(request);
       const params = new URL(request.url).searchParams, operation = params.get('operation');
       const allowed = operation === 'article' ? ['operation', 'articleId', 'section'] : ['operation'];
-      if ([...params.keys()].some(k => !allowed.includes(k) || params.getAll(k).length !== 1) || !['catalog', 'terms', 'articles', 'article', 'asset', 'publish'].includes(operation)) fail();
+      if ([...params.keys()].some(k => !allowed.includes(k) || params.getAll(k).length !== 1) || !['catalog', 'terms', 'articles', 'article', 'asset', 'publish', 'release'].includes(operation)) fail();
       if (request.method !== (['catalog', 'terms', 'articles', 'article'].includes(operation) ? 'GET' : 'POST')) fail(405);
+      if (operation === 'release') return response(repository.release ? await repository.release() : { released: false });
       if (operation === 'articles') {
-        const base = await repository.snapshot(), articles = [];
+        const base = await visible(), articles = [];
         for (const [articleId, post] of imports) {
           const file = await repository.read(post.path, base.head);
           if (!file) continue;
@@ -250,7 +254,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
         return response({ articles });
       }
       if (operation === 'terms') {
-        const base = await repository.snapshot(), registry = await termRegistry(base.head);
+        const base = await visible(), registry = await termRegistry(base.head);
         const terms = new Map(normalizeTerms(catalog.terms ?? [], true).map(term => [term.articleId, term]));
         for (const term of registry.terms) terms.set(term.articleId, term);
         const publicTerms = [...terms.values()].map(({ title, url }) => ({ title, url }));
@@ -258,14 +262,14 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
         return response({ terms: publicTerms });
       }
       if (operation === 'catalog') {
-        const base = await repository.snapshot(), registry = await tagRegistry(base.head);
+        const base = await visible(), registry = await tagRegistry(base.head);
         const sharedTags = [...new Set([...catalog.sharedTags, ...registry.tags])];
         await publicArtifacts(sharedTags, []);
         return response({ categories: [...catalog.categories], sharedTags });
       }
       if (operation === 'article') {
         const id = params.get('articleId'), section = params.get('section') ?? 'lexicon'; if (!uuid(id) || !['posts', 'lexicon'].includes(section)) fail(); await managed(id, section);
-        const base = await repository.snapshot(), file = await repository.read(managedPath(id, section), base.head);
+        const base = await visible(), file = await repository.read(managedPath(id, section), base.head);
         if (!file) fail(404);
         const document = readDocument(file.bytes);
         const fields = section === 'posts' && Object.hasOwn(importedPosts, id) ? legacyPostFields(document) ?? articleFields(document) : articleFields(document);

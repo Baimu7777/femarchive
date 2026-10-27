@@ -12,7 +12,11 @@ export function createConfiguredReceiver(env, { fetch: transport = globalThis.fe
   try {
     if (env.WEBSITE_PUBLISHING_ENABLED !== 'true' || required.some(k => typeof env[k] !== 'string' || !env[k].trim() || /[\r\n]/.test(env[k]))) return () => failure(503);
     if (!/^[A-Za-z0-9_-]{32,256}$/.test(env.WEBSITE_PUBLISHING_TOKEN)) return () => failure(503);
-    const config = { owner: env.WEBSITE_GITHUB_OWNER, repo: env.WEBSITE_GITHUB_REPO, branch: env.WEBSITE_GITHUB_BRANCH, publicOrigin: env.WEBSITE_PUBLIC_ORIGIN, approvedPostPaths: Object.values(existingPosts).map(post => post.path) };
+    // Publications wait on a staging branch (no deployment) until the forum
+    // releases them together. WEBSITE_GITHUB_STAGING_BRANCH=off writes straight
+    // to the production branch again.
+    const staging = (env.WEBSITE_GITHUB_STAGING_BRANCH ?? 'publishing').trim();
+    const config = { owner: env.WEBSITE_GITHUB_OWNER, repo: env.WEBSITE_GITHUB_REPO, branch: env.WEBSITE_GITHUB_BRANCH, ...(staging && staging !== 'off' ? { stagingBranch: staging } : {}), publicOrigin: env.WEBSITE_PUBLIC_ORIGIN, approvedPostPaths: Object.values(existingPosts).map(post => post.path) };
     validateGitConfig(config);
     const endpoint = new URL(env.WEBSITE_R2_ENDPOINT);
     if (endpoint.origin !== env.WEBSITE_R2_ENDPOINT || endpoint.protocol !== 'https:' || endpoint.port || endpoint.username || endpoint.password || !/^[a-z0-9-]+\.r2\.cloudflarestorage\.com$/.test(endpoint.hostname) || !/^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$/.test(env.WEBSITE_R2_BUCKET)) return () => failure(503);

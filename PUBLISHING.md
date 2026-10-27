@@ -14,6 +14,7 @@ Configure server-side variables in the deployment platform:
 - `WEBSITE_PUBLISHING_TOKEN`: independent shared publishing credential, 32–256 ASCII letters, digits, `_` or `-`.
 - `WEBSITE_GITHUB_TOKEN`: Contents read/write for this website repository only.
 - `WEBSITE_GITHUB_OWNER`, `WEBSITE_GITHUB_REPO`, `WEBSITE_GITHUB_BRANCH`: one fixed existing target.
+- `WEBSITE_GITHUB_STAGING_BRANCH` (optional, default `publishing`): publications are committed to this branch, which `vercel.json` keeps from deploying, and the forum calls `operation=release` once per batch (or right after a single publication) to move the production branch to it in one push, so the site builds once. `off` writes straight to the production branch.
 - `WEBSITE_PUBLIC_ORIGIN`: canonical HTTPS origin, no trailing slash, path or port. The build script uses this for Hugo when set.
 - `WEBSITE_R2_ENDPOINT`: dedicated account HTTPS S3 endpoint, no trailing slash.
 - `WEBSITE_R2_BUCKET`: private receipt bucket; public access and public domains stay disabled.

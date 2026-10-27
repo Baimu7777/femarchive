@@ -9,8 +9,15 @@ export function validateGitConfig({ owner, repo, branch, publicOrigin }) {
 }
 const defaultWritablePath = value => ['data/website-publication-tags.json', 'data/website-publication-terms.json'].includes(value) || (uuid(/^content\/(?:lexicon|posts)\/(.+)\.md$/.exec(value)?.[1])) || (value.startsWith('static') && imagePath(value.slice(6)));
 
-export function createGitHubRepository({ token, owner, repo, branch, publicOrigin, approvedPostPaths = [], fetch: transport = globalThis.fetch }) {
+// `branch` is what the website builds from. With a `stagingBranch`, every
+// publication is committed there instead, where no deployment runs, and
+// `release()` moves the production branch to it in one push: a batch of
+// twenty items then builds the website once instead of twenty times. Reads
+// keep coming from the production branch, which is what visitors see.
+export function createGitHubRepository({ token, owner, repo, branch, stagingBranch, publicOrigin, approvedPostPaths = [], fetch: transport = globalThis.fetch }) {
   validateGitConfig({ owner, repo, branch, publicOrigin });
+  if (stagingBranch !== undefined) validateGitConfig({ owner, repo, branch: stagingBranch, publicOrigin });
+  if (stagingBranch === branch) stagingBranch = undefined;
   if (!token) fail(503);
   if (!Array.isArray(approvedPostPaths) || approvedPostPaths.length > 50 || !approvedPostPaths.every(validExistingPostPath)) fail(503);
   const approvedPaths = new Set(approvedPostPaths);
@@ -22,16 +29,51 @@ export function createGitHubRepository({ token, owner, repo, branch, publicOrigi
     if (result.status === 404 && missing) return null;
     if ([409, 422].includes(result.status)) fail(409);
     if (!result.ok) fail(503);
+    if (result.status === 204) return null;
     return result.json();
   }
   const validSHA = value => { if (!sha(value)) fail(503); return value; };
-  const currentHead = async () => validSHA((await api(`git/ref/heads/${branchPath}`)).object.sha);
+  const refPath = name => name.split('/').map(encodeURIComponent).join('/');
+  const headOf = async name => {
+    const ref = await api(`git/ref/heads/${refPath(name)}`, 'GET', undefined, true);
+    return ref ? validSHA(ref.object.sha) : null;
+  };
+  const productionHead = async () => (await headOf(branch)) ?? fail(503);
+  // Bring the staging branch up to everything the production branch has, so a
+  // publication never starts from an older copy than visitors see.
+  async function sync() {
+    const production = await productionHead();
+    const staging = await headOf(stagingBranch);
+    if (!staging) { await api('git/refs', 'POST', { ref: `refs/heads/${stagingBranch}`, sha: production }); return production; }
+    if (staging === production) return staging;
+    const comparison = await api(`compare/${production}...${staging}`);
+    if (comparison.status === 'ahead') return staging;
+    if (comparison.status === 'behind') { await api(`git/refs/heads/${refPath(stagingBranch)}`, 'PATCH', { sha: production, force: false }); return production; }
+    const merged = await api('merges', 'POST', { base: stagingBranch, head: production, commit_message: 'Merge website changes into pending publications' });
+    return merged ? validSHA(merged.sha) : validSHA(await headOf(stagingBranch));
+  }
+  const writeBranch = stagingBranch ?? branch;
+  const currentHead = async () => validSHA(await headOf(writeBranch) ?? (stagingBranch ? await sync() : fail(503)));
+  const snapshotOf = async head => {
+    const commit = await api(`git/commits/${head}`);
+    return { head, tree: validSHA(commit.tree.sha) };
+  };
   return {
     publicOrigin,
+    /** What visitors currently see; reads never depend on unreleased work. */
+    async published() { return snapshotOf(await productionHead()); },
+    /** Publish everything waiting on the staging branch in one push. */
+    async release() {
+      if (!stagingBranch) return { released: false };
+      const staging = await sync(), production = await productionHead();
+      if (staging === production) return { released: false };
+      await api(`git/refs/heads/${branchPath}`, 'PATCH', { sha: staging, force: false });
+      return { released: true };
+    },
     async snapshot() {
+      if (stagingBranch) await sync();
       const head = await currentHead();
-      const commit = await api(`git/commits/${head}`);
-      return { head, tree: validSHA(commit.tree.sha) };
+      return snapshotOf(head);
     },
     async read(path, head) {
       if (!writablePath(path)) fail(503); validSHA(head);
@@ -75,7 +117,7 @@ export function createGitHubRepository({ token, owner, repo, branch, publicOrigi
       }
       // A competing child of base cannot fast-forward to this candidate. Never
       // rebuild against a newer head; callers must read and reconfirm instead.
-      await api(`git/refs/heads/${branchPath}`, 'PATCH', { sha: candidate.commit, force: false });
+      await api(`git/refs/heads/${refPath(writeBranch)}`, 'PATCH', { sha: candidate.commit, force: false });
     },
   };
 }

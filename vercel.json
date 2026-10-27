@@ -43,5 +43,10 @@
       "maxDuration": 60,
       "includeFiles": "publishing/**"
     }
+  },
+  "git": {
+    "deploymentEnabled": {
+      "publishing": false
+    }
   }
 }
