@@ -1,11 +1,16 @@
 {{- if eq .Section "lexicon" -}}
-  {{- $key := lower (trim .Title " \r\n\t") -}}
+  {{/* A term answers to its own name and to every other name it records, so
+       an article tagged with any of them counts as related. The names
+       themselves are shown beside the title, not here. */}}
+  {{- $aliases := .Params.aliases | default (slice) -}}
+  {{- $keys := slice (lower (trim .Title " \r\n\t")) -}}
+  {{- range $aliases -}}{{- $keys = $keys | append (lower (trim (printf "%v" .) " \r\n\t")) -}}{{- end -}}
   {{- $articles := slice -}}
   {{- range where .Site.RegularPages "Section" "posts" -}}
     {{- $article := . -}}
     {{- $matched := false -}}
     {{- range (.Params.tags | default (slice)) -}}
-      {{- if eq (lower (trim (printf "%v" .) " \r\n\t")) $key -}}{{- $matched = true -}}{{- end -}}
+      {{- if in $keys (lower (trim (printf "%v" .) " \r\n\t")) -}}{{- $matched = true -}}{{- end -}}
     {{- end -}}
     {{- if $matched -}}{{- $articles = $articles | append $article -}}{{- end -}}
   {{- end -}}

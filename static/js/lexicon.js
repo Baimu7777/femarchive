@@ -17,6 +17,7 @@
   var titleNode = dialog.querySelector('[data-lexicon-title]');
   var markNode = dialog.querySelector('[data-lexicon-mark]');
   var contentNode = dialog.querySelector('[data-lexicon-content]');
+  var aliasNode = dialog.querySelector('[data-lexicon-aliases]');
   var backButton = dialog.querySelector('[data-lexicon-back]');
   var closeButton = dialog.querySelector('[data-lexicon-close]');
   var stack = [];
@@ -73,6 +74,13 @@
   function render(entry) {
     titleNode.textContent = entry.title;
     markNode.innerHTML = markFor(entry);
+    // The other names this entry is written about under belong beside its
+    // name, the same as on the entry's own page.
+    if (aliasNode) {
+      var aliases = (entry.aliases || []).filter(function (name) { return name && String(name).trim(); });
+      aliasNode.textContent = aliases.length ? '又称：' + aliases.join('、') : '';
+      aliasNode.hidden = !aliases.length;
+    }
     contentNode.innerHTML = entry.html;
     contentNode.querySelectorAll('a[href]').forEach(function (link) {
       if (!byUrl[link.getAttribute('href')]) { link.target = '_blank'; link.rel = 'noopener noreferrer nofollow'; }
@@ -85,11 +93,19 @@
   }
 
   // A card that is still closed cannot be scrolled: the browser restores the
-  // body's old offset when the dialog opens again, so the next entry would
-  // start where the previous one was left. Reset it once it is on screen.
+  // old offset when the dialog opens again, so the next entry would start
+  // where the previous one was left. Reset both the body and the dialog
+  // itself — an overflowing bar can leave the dialog its own offset — and do
+  // it again after layout, because images and the comment client arrive late.
+  var dialogBody = dialog.querySelector('.lexicon-dialog__body');
   function toTop() {
-    var body = dialog.querySelector('.lexicon-dialog__body');
-    if (body) body.scrollTop = 0;
+    if (dialogBody) dialogBody.scrollTop = 0;
+    dialog.scrollTop = 0;
+  }
+  function toTopSoon() {
+    toTop();
+    if (typeof requestAnimationFrame === 'function') requestAnimationFrame(toTop);
+    setTimeout(toTop, 0);
   }
 
   function open(url, push) {
@@ -100,7 +116,7 @@
     if (!dialog.open) dialog.showModal();
     toTop();
     titleNode.focus();
-    toTop();
+    toTopSoon();
     return true;
   }
 

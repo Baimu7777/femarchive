@@ -104,10 +104,10 @@ function bodyLayoutHTML(attributes, inner) {
 }
 // Layout regions use complete, closed HTML blocks so nested paragraphs and
 // images retain their structure inside the website's existing CSS containers.
-function bodyHTML(nodes, generated = true) {
+function bodyHTML(nodes, generated = true, linker = null) {
   return nodes.map(node => {
-    if (node.type === 'text') return attribute(node.data);
-    const inner = bodyHTML(node.children ?? [], generated);
+    if (node.type === 'text') return linker ? linker(node.data, attribute, (label, path) => `<a href="${attribute(path)}">${attribute(label)}</a>`) : attribute(node.data);
+    const inner = bodyHTML(node.children ?? [], generated, ['a', 'code', 'pre'].includes(node.name) ? null : linker);
     if (node.name === 'div') return generated ? bodyLayoutHTML(node.attribs, inner) : `<div${bodyMarkerAttributes(node.attribs)}>${inner}</div>`;
     let attributes = '';
     for (const key of allowedAttributes[node.name] ?? []) {
@@ -132,19 +132,45 @@ function validateMarkerSyntax(html) {
   }, { decodeEntities: true }).end(html);
 }
 
-export function publicBody(html, comments, selectedPaths, presentation, commentImages = comments.map(() => [])) {
+/** Mentions of a published term become links to its archive page, by its own
+ *  name or by any other name it is written about under. Text nodes only: an
+ *  existing link, code, a heading's attribute or a URL is never rewritten. The
+ *  longest name wins, and a Latin name is not matched inside a longer word.
+ *  `terms` is `[{ names, path }]`, already without the article's own record. */
+export function termLinker(terms = []) {
+  const names = terms.flatMap(term => (term.names ?? []).filter(name => typeof name === 'string' && name.trim()).map(name => ({ name: name.trim(), path: term.path })))
+    .sort((a, b) => b.name.length - a.name.length);
+  if (!names.length) return null;
+  const paths = new Map(names.map(item => [item.name.toLowerCase(), item.path]));
+  const pattern = new RegExp(names.map(item => item.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'giu');
+  return (value, plainText, link) => {
+    let rendered = '', end = 0;
+    for (const match of value.matchAll(pattern)) {
+      const start = match.index, label = match[0];
+      if (start < end) continue;
+      // A Latin name may adjoin Chinese prose, but not another Latin word.
+      if ((/^[a-z0-9_]/i.test(label) && /[a-z0-9_]$/i.test(value.slice(0, start)))
+        || (/[a-z0-9_]$/i.test(label) && /^[a-z0-9_]/i.test(value.slice(start + label.length)))) continue;
+      rendered += plainText(value.slice(end, start)) + link(label, paths.get(label.toLowerCase()));
+      end = start + label.length;
+    }
+    return end ? rendered + plainText(value.slice(end)) : plainText(value);
+  };
+}
+export function publicBody(html, comments, selectedPaths, presentation, commentImages = comments.map(() => []), terms = []) {
   if (commentImages.length !== comments.length || commentImages.some(images => images.some(path => !imagePath(path) || !selectedPaths.includes(path)))) fail();
+  const linker = termLinker(terms);
   validateMarkerSyntax(html);
   const root = parseDocument(html, { decodeEntities: true });
   validateBodyNodes(root.children, selectedPaths);
   // A second independent allowlist also normalizes malformed editor HTML.
   const clean = sanitizeHtml(html, { allowedTags, allowedAttributes, allowedSchemes: ['https'], allowProtocolRelative: false, disallowedTagsMode: 'discard' });
-  function render(nodes) {
+  function render(nodes, linking = linker) {
     return nodes.map(node => {
-      if (node.type === 'text') return escape(node.data);
-      const inner = render(node.children ?? []);
+      if (node.type === 'text') return linking ? linking(node.data, escape, (label, path) => `[${escape(label)}](<${path}>)`) : escape(node.data);
+      const inner = render(node.children ?? [], ['a', 'code', 'pre'].includes(node.name) ? null : linking);
       switch (node.name) {
-        case 'div': return `\n\n${bodyLayoutHTML(node.attribs, bodyHTML(node.children ?? []))}\n\n`;
+        case 'div': return `\n\n${bodyLayoutHTML(node.attribs, bodyHTML(node.children ?? [], true, linking))}\n\n`;
         case 'p': return `\n\n${inner}\n\n`;
         case 'br': return '  \n';
         case 'strong': case 'b': return `**${inner}**`;

@@ -3,7 +3,12 @@
 {{- $matches := slice -}}
 {{- $key := lower (trim $name " \r\n\t") -}}
 {{- range where $page.Site.RegularPages "Section" "lexicon" -}}
-  {{- if eq (lower (trim .Title " \r\n\t")) $key -}}{{- $matches = $matches | append . -}}{{- end -}}
+  {{- $entry := . -}}
+  {{/* An entry answers to its own name and to every other name it records. */}}
+  {{- $names := slice .Title | append (.Params.aliases | default (slice)) -}}
+  {{- range $names -}}
+    {{- if eq (lower (trim (printf "%v" .) " \r\n\t")) $key -}}{{- $matches = $matches | append $entry -}}{{- end -}}
+  {{- end -}}
 {{- end -}}
 {{- if gt (len $matches) 0 -}}
   <a class="chip chip--tag chip--link" href="{{ (index $matches 0).RelPermalink }}">#{{ $name }}</a>

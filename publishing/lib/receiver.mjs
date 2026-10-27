@@ -7,6 +7,9 @@ import { validExistingPostPath } from '../existing-posts.mjs';
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 const termRegistryPath = 'data/website-publication-terms.json';
 const tagRegistryPath = 'data/website-publication-tags.json';
+// One confirmed batch, one commit: twenty articles plus both registries stay
+// well inside a single tree and the request body limit below.
+const MAX_BATCH_ITEMS = 20;
 const validRegistryTags = value => Array.isArray(value) && value.length <= 1000 && value.every(tag => typeof tag === 'string' && tag.length > 0 && tag.length <= 100 && tag.trim().length > 0 && !/[\u0000-\u001f\u007f]/.test(tag)) && new Set(value).size === value.length;
 let imageModule;
 // Loaded on demand. A disabled receiver and every non-image operation must not
@@ -109,19 +112,28 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
     if (!validRegistryTags(tags)) fail(409);
     return { tags, revision: file.revision };
   }
+  // A record may also carry the other names the entry is written about under,
+  // so a mention of one links to it. A record without them stays byte-exact.
+  const validAliases = value => Array.isArray(value) && value.length <= 20 && value.every(name => typeof name === 'string' && name.trim() && name.length <= 50 && !/[\u0000-\u001f\u007f]/.test(name)) && new Set(value).size === value.length;
   function normalizeTerms(terms, baseline = false) {
     if (!Array.isArray(terms) || terms.length > 1000) fail(409);
     const ids = new Set();
     return terms.map(term => {
-      if (!term || typeof term !== 'object' || Array.isArray(term) || Object.keys(term).sort().join(',') !== 'articleId,title,url' || !uuid(term.articleId) || ids.has(term.articleId) || typeof term.title !== 'string' || !term.title.trim() || term.title.length > 300 || /[\u0000-\u001f\u007f]/.test(term.title) || typeof term.url !== 'string') fail(409);
+      const shape = term && typeof term === 'object' && !Array.isArray(term) ? Object.keys(term).sort().join(',') : '';
+      if (!['articleId,title,url', 'aliases,articleId,title,url'].includes(shape) || !uuid(term.articleId) || ids.has(term.articleId) || typeof term.title !== 'string' || !term.title.trim() || term.title.length > 300 || /[\u0000-\u001f\u007f]/.test(term.title) || typeof term.url !== 'string') fail(409);
+      if ('aliases' in term && !validAliases(term.aliases)) fail(409);
       ids.add(term.articleId);
       const url = baseline && term.url.startsWith('/') ? articleURL(repository.publicOrigin, term.articleId, { url: term.url }) : term.url;
       if (!url.startsWith(`${repository.publicOrigin}/`)) fail(409);
       const publicURL = articleURL(repository.publicOrigin, term.articleId, { url: url.slice(repository.publicOrigin.length) });
       if (publicURL !== url) fail(409);
-      return { articleId: term.articleId, title: term.title, url };
+      return { articleId: term.articleId, title: term.title, ...(term.aliases?.length ? { aliases: [...term.aliases] } : {}), url };
     });
   }
+  /** The term records this article's own body may link, its own left out. */
+  const linkableTerms = (terms, articleId) => terms.filter(term => term.articleId !== articleId)
+    .map(term => ({ names: [term.title, ...(term.aliases ?? [])], path: new URL(term.url).pathname }));
+  const articleBody = (value, selected, terms, articleId) => publicBody(value.html, value.comments, selected.map(a => a.path), value.presentation, value.commentImages, linkableTerms(terms, articleId));
   async function termRegistry(head) {
     const file = await repository.read(termRegistryPath, head);
     if (!file) return { terms: [], revision: null };
@@ -131,27 +143,33 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
       terms = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(file.bytes));
     } catch { fail(409); }
     const normalized = normalizeTerms(terms);
-    await publicArtifacts(normalized.flatMap(term => [term.articleId, term.title, term.url]), []);
+    await publicArtifacts(normalized.flatMap(term => [term.articleId, term.title, ...(term.aliases ?? []), term.url]), []);
     return { terms: normalized, revision: file.revision };
   }
+  const termsWith = (terms, articleId, value, url) => [...terms.filter(term => term.articleId !== articleId),
+    { articleId, title: value.title, ...(value.aliases?.length ? { aliases: [...value.aliases] } : {}), url }];
+  const termRegistryBytes = terms => Buffer.from(`${JSON.stringify(normalizeTerms(terms), null, 2)}\n`);
   function publicationTerms(value, registry, articleId, url) {
     if (value.section === 'posts') return null;
-    const terms = registry.terms.filter(term => term.articleId !== articleId);
-    terms.push({ articleId, title: value.title, url });
-    return Buffer.from(`${JSON.stringify(normalizeTerms(terms), null, 2)}\n`);
+    return termRegistryBytes(termsWith(registry.terms, articleId, value, url));
   }
-  function publicationTags(value, registry, previous) {
+  function tagAdditions(value, registryTags, previous) {
     const metadata = previous ? readDocument(previous).metadata : {};
     const previousTags = Array.isArray(metadata.tags) ? metadata.tags.filter(tag => typeof tag === 'string') : [];
-    const allowed = new Set([...catalog.sharedTags, ...registry.tags, ...previousTags, ...(value.newTags ?? [])]);
+    const allowed = new Set([...catalog.sharedTags, ...registryTags, ...previousTags, ...(value.newTags ?? [])]);
     if (value.tags.some(tag => !allowed.has(tag))) fail();
     // A legacy caller does not own website tags. Declared additions only become
     // vocabulary when this publication actually writes the selected tag set.
-    const additions = !previous || value.replaceTags === true ? (value.newTags ?? []).filter(tag => !catalog.sharedTags.includes(tag) && !registry.tags.includes(tag)) : [];
-    if (!additions.length) return null;
-    const tags = [...registry.tags, ...additions];
+    return !previous || value.replaceTags === true ? (value.newTags ?? []).filter(tag => !catalog.sharedTags.includes(tag) && !registryTags.includes(tag)) : [];
+  }
+  function tagRegistryBytes(tags) {
     if (!validRegistryTags(tags)) fail();
     return Buffer.from(`${JSON.stringify(tags, null, 2)}\n`);
+  }
+  function publicationTags(value, registry, previous) {
+    const additions = tagAdditions(value, registry.tags, previous);
+    if (!additions.length) return null;
+    return tagRegistryBytes([...registry.tags, ...additions]);
   }
   async function finish(kind, key, plan, buildFiles) {
     const result = await receipts.getResult(kind, key);
@@ -169,6 +187,18 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
     await receipts.saveArticle(plan.articleId, { path: plan.path });
     return receipts.saveResult(kind, key, { articleId: plan.articleId, revision: candidate.revisions[plan.path], url: plan.url });
   }
+  async function finishBatch(key, plan, buildFiles) {
+    const result = await receipts.getResult('publish', key);
+    if (result) return result;
+    let candidate = await receipts.getCandidate('publish', key);
+    if (!candidate) candidate = await receipts.saveCandidate('publish', key, await repository.prepare(plan.base, await buildFiles()));
+    if (candidate.base !== plan.base.head || plan.items.some(item => !sha(candidate.revisions?.[item.path]))) fail(503);
+    if (plan.tagRegistryDigest && !sha(candidate.revisions?.[tagRegistryPath])) fail(503);
+    if (plan.termRegistryDigest && !sha(candidate.revisions?.[termRegistryPath])) fail(503);
+    await repository.apply(candidate);
+    for (const item of plan.items) await receipts.saveArticle(item.articleId, { path: item.path });
+    return receipts.saveResult('publish', key, { items: plan.items.map(item => ({ articleId: item.articleId, revision: candidate.revisions[item.path], url: item.url })) });
+  }
   async function publish(request, key) {
     if (!/^application\/json(?:\s*;\s*charset=utf-8)?$/i.test(request.headers.get('content-type') ?? '')) fail();
     let value;
@@ -181,7 +211,6 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
     // persisted stages; candidate UUIDs come from the same reversible views.
     await rejectPrivate(candidateIds);
     const selected = await assetsFor(value);
-    const body = publicBody(value.html, value.comments, selected.map(a => a.path), value.presentation, value.commentImages);
     const fingerprint = digest(canonical(value));
     const plan = await receipts.reserve('publish', key, fingerprint, async () => {
       const articleId = value.articleId ?? randomUUID(), path = managedPath(articleId, value.section);
@@ -193,7 +222,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
       const registry = await tagRegistry(base.head), tagBytes = publicationTags(value, registry, previous?.bytes);
       await validateAssets(selected, base.head);
       const allocated = { articleId, path, base, date: new Date().toISOString(), expectedRevision: value.expectedRevision ?? null, tagRegistryRevision: registry.revision, tagRegistryDigest: tagBytes ? digest(tagBytes) : null };
-      const bytes = writeDocument(value, body, previous?.bytes, allocated);
+      const bytes = writeDocument(value, articleBody(value, selected, terms.terms, articleId), previous?.bytes, allocated);
       const url = articleURL(repository.publicOrigin, articleId, readDocument(bytes).metadata, value.section);
       const termBytes = publicationTerms(value, terms, articleId, url);
       await publicArtifacts([bytes.toString('utf8'), path, url, ...(tagBytes ? [tagBytes.toString('utf8')] : []), ...(termBytes ? [termBytes.toString('utf8')] : [])], [key, ...value.assets]);
@@ -210,10 +239,93 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
         if (registry.revision !== plan.tagRegistryRevision || (tagBytes ? digest(tagBytes) : null) !== plan.tagRegistryDigest) fail(409);
       } else if (tagBytes) fail(409); // Legacy plans may resume only without adding a new public file.
       await validateAssets(selected, plan.base.head);
-      const bytes = writeDocument(value, body, previous?.bytes, plan);
+      const bytes = writeDocument(value, articleBody(value, selected, terms.terms, plan.articleId), previous?.bytes, plan);
       if (digest(bytes) !== plan.documentDigest) fail(409);
       await publicArtifacts([bytes.toString('utf8'), plan.path, plan.url, ...(tagBytes ? [tagBytes.toString('utf8')] : []), ...(termBytes ? [termBytes.toString('utf8')] : [])], [key, ...value.assets]);
       return [{ path: plan.path, bytes }, ...(tagBytes ? [{ path: tagRegistryPath, bytes: tagBytes }] : []), ...(termBytes ? [{ path: termRegistryPath, bytes: termBytes }] : [])];
+    });
+  }
+  // One confirmed batch becomes exactly one commit. Every article, the term
+  // registry and the tag registry are written into a single tree, so twenty
+  // items cost one tree, one commit and one branch update instead of twenty
+  // of each, and `data/website-publication-terms.json` is rewritten once.
+  async function publishBatch(request, key) {
+    if (!/^application\/json(?:\s*;\s*charset=utf-8)?$/i.test(request.headers.get('content-type') ?? '')) fail();
+    let envelope;
+    try { envelope = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(await limitedBody(request, 2 * 1024 * 1024))); }
+    catch (error) { if (error.status) throw error; fail(); }
+    if (!envelope || typeof envelope !== 'object' || Array.isArray(envelope) || Object.keys(envelope).sort().join(',') !== 'confirmed,items,version'
+      || envelope.version !== 1 || envelope.confirmed !== true || !Array.isArray(envelope.items) || !envelope.items.length || envelope.items.length > MAX_BATCH_ITEMS) fail();
+    const items = envelope.items;
+    // Every receipt in the batch is private to every item: one article's body
+    // must not carry another's, and none of them may carry the batch key.
+    const batchReceipts = items.flatMap(item => Array.isArray(item?.assets) ? item.assets.filter(value => typeof value === 'string') : []);
+    const forbidden = [key, ...batchReceipts];
+    const prepared = [];
+    for (const value of items) {
+      validateArticle(value, catalog);
+      const candidateIds = assertNoPrivateValues(value, forbidden);
+      if (value.articleId === key || batchReceipts.includes(value.articleId)) fail();
+      await rejectPrivate(candidateIds);
+      prepared.push({ value, selected: await assetsFor(value) });
+    }
+    // Two items writing the same article would collapse into one tree entry,
+    // and the second would silently replace the first.
+    const targets = items.filter(item => item.articleId).map(item => item.articleId);
+    if (new Set(targets).size !== targets.length) fail(409);
+    const fingerprint = digest(items.map(canonical).join('\u0000'));
+    // Reserved in the same private namespace as a single publication, so
+    // request keys stay one closed set and no extra private lookup appears.
+    const plan = await receipts.reserve('publish', key, fingerprint, async () => {
+      const base = await repository.snapshot(), date = new Date().toISOString();
+      const terms = await termRegistry(base.head), registry = await tagRegistry(base.head);
+      let termList = terms.terms, tagList = registry.tags;
+      const planned = [], documents = [];
+      for (const { value, selected } of prepared) {
+        const articleId = value.articleId ?? randomUUID(), path = managedPath(articleId, value.section);
+        if (value.articleId) await managed(articleId, value.section);
+        const previous = await repository.read(path, base.head);
+        if (value.articleId ? previous?.revision !== value.expectedRevision : previous !== null) fail(409);
+        tagList = [...tagList, ...tagAdditions(value, tagList, previous?.bytes)];
+        await validateAssets(selected, base.head);
+        const allocated = { articleId, path, date, expectedRevision: value.expectedRevision ?? null };
+        const bytes = writeDocument(value, articleBody(value, selected, termList, articleId), previous?.bytes, allocated);
+        const url = articleURL(repository.publicOrigin, articleId, readDocument(bytes).metadata, value.section);
+        if (value.section !== 'posts') termList = termsWith(termList, articleId, value, url);
+        planned.push({ ...allocated, documentDigest: digest(bytes), url }); documents.push(bytes);
+      }
+      const tagBytes = tagList.length > registry.tags.length ? tagRegistryBytes(tagList) : null;
+      const termBytes = termList === terms.terms ? null : termRegistryBytes(termList);
+      await publicArtifacts([...documents.map(bytes => bytes.toString('utf8')), ...planned.flatMap(item => [item.path, item.url]),
+        ...(tagBytes ? [tagBytes.toString('utf8')] : []), ...(termBytes ? [termBytes.toString('utf8')] : [])], forbidden);
+      return { base, date, items: planned,
+        tagRegistryRevision: registry.revision, tagRegistryDigest: tagBytes ? digest(tagBytes) : null,
+        termRegistryRevision: terms.revision, termRegistryDigest: termBytes ? digest(termBytes) : null };
+    });
+    if (!Array.isArray(plan.items) || plan.items.length !== items.length) fail(503);
+    plan.items.forEach((item, index) => { if (!uuid(item.articleId) || item.path !== managedPath(item.articleId, items[index].section)) fail(503); });
+    return finishBatch(key, plan, async () => {
+      const terms = await termRegistry(plan.base.head), registry = await tagRegistry(plan.base.head);
+      let termList = terms.terms, tagList = registry.tags;
+      const files = [];
+      for (const [index, { value, selected }] of prepared.entries()) {
+        const target = plan.items[index];
+        const previous = await repository.read(target.path, plan.base.head);
+        if (target.expectedRevision ? previous?.revision !== target.expectedRevision : previous !== null) fail(409);
+        tagList = [...tagList, ...tagAdditions(value, tagList, previous?.bytes)];
+        await validateAssets(selected, plan.base.head);
+        const bytes = writeDocument(value, articleBody(value, selected, termList, target.articleId), previous?.bytes, target);
+        if (digest(bytes) !== target.documentDigest) fail(409);
+        if (value.section !== 'posts') termList = termsWith(termList, target.articleId, value, target.url);
+        files.push({ path: target.path, bytes });
+      }
+      const tagBytes = tagList.length > registry.tags.length ? tagRegistryBytes(tagList) : null;
+      const termBytes = termList === terms.terms ? null : termRegistryBytes(termList);
+      if (registry.revision !== plan.tagRegistryRevision || (tagBytes ? digest(tagBytes) : null) !== plan.tagRegistryDigest) fail(409);
+      if (terms.revision !== plan.termRegistryRevision || (termBytes ? digest(termBytes) : null) !== plan.termRegistryDigest) fail(409);
+      await publicArtifacts([...files.map(file => file.bytes.toString('utf8')), ...plan.items.flatMap(item => [item.path, item.url]),
+        ...(tagBytes ? [tagBytes.toString('utf8')] : []), ...(termBytes ? [termBytes.toString('utf8')] : [])], forbidden);
+      return [...files, ...(tagBytes ? [{ path: tagRegistryPath, bytes: tagBytes }] : []), ...(termBytes ? [{ path: termRegistryPath, bytes: termBytes }] : [])];
     });
   }
   async function asset(request, key) {
@@ -247,7 +359,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
       await authenticate(request);
       const params = new URL(request.url).searchParams, operation = params.get('operation');
       const allowed = operation === 'article' ? ['operation', 'articleId', 'section'] : ['operation'];
-      if ([...params.keys()].some(k => !allowed.includes(k) || params.getAll(k).length !== 1) || !['catalog', 'terms', 'articles', 'article', 'asset', 'publish', 'release'].includes(operation)) fail();
+      if ([...params.keys()].some(k => !allowed.includes(k) || params.getAll(k).length !== 1) || !['catalog', 'terms', 'articles', 'article', 'asset', 'publish', 'publish-batch', 'release'].includes(operation)) fail();
       if (request.method !== (['catalog', 'terms', 'articles', 'article'].includes(operation) ? 'GET' : 'POST')) fail(405);
       if (operation === 'release') return response(repository.release ? await repository.release() : { released: false });
       if (operation === 'articles') {
@@ -284,6 +396,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
         return response({ articleId: id, revision: file.revision, url: articleURL(repository.publicOrigin, id, document.metadata, section), ...fields });
       }
       const key = request.headers.get('idempotency-key'); if (!uuid(key)) fail();
+      if (operation === 'publish-batch') return response(await publishBatch(request, key));
       return response(operation === 'publish' ? await publish(request, key) : await asset(request, key));
     } catch (error) { return failure(error.status); }
   };

@@ -69,8 +69,14 @@
               </div>
             {{ end }}
           
-            <h1 class="article-hero__title">{{ .Title }}</h1>
-          
+            <h1 class="article-hero__title">{{ .Title }}{{ if eq .Section "lexicon" }}{{ partial "publication-term-marks.html" . }}{{ end }}</h1>
+
+            {{ if eq .Section "lexicon" }}
+              {{ with .Params.aliases }}
+                <p class="term-aliases">又称：{{ delimit . "、" }}</p>
+              {{ end }}
+            {{ end }}
+
             {{ with .Description }}
               <p class="article-hero__desc">{{ . }}</p>
             {{ end }}

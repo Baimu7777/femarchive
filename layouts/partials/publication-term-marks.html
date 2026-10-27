@@ -1,0 +1,16 @@
+{{- /* Marks shown beside a lexicon entry's name, on its own page and wherever
+       else the name appears. They come from the entry's front matter, which
+       the forum writes on every publication: `polarity` is one of positive /
+       negative / unmarked, and `event` is a flag. Nothing else is read.
+       Call it with the entry's page: {{ partial "publication-term-marks.html" . }}
+       The markup matches the directory listing, so one set of styles paints
+       every place a term's name is shown. */ -}}
+{{- $polarity := printf "%v" (.Params.polarity | default "unmarked") -}}
+{{- if eq $polarity "positive" -}}
+  <span class="lexicon-mark lexicon-mark--positive" aria-label="女权立场" title="女权立场">＋</span>
+{{- else if eq $polarity "negative" -}}
+  <span class="lexicon-mark lexicon-mark--negative" aria-label="反女权立场" title="反女权立场">－</span>
+{{- end -}}
+{{- if .Params.event -}}
+  <span class="lexicon-event" aria-label="事件" title="事件"><svg aria-hidden="true" viewBox="0 0 16 16" focusable="false"><path d="M4 14V3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M4 3h7l-1.6 2.3L11 7.6H4z" fill="currentColor"/></svg></span>
+{{- end -}}

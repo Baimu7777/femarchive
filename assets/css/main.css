@@ -5497,12 +5497,17 @@ i.star-outline svg {
 .lexicon-mark--negative { color: #7a5a12; background: rgba(122, 90, 18, 0.14); }
 
 .lexicon-dialog { width: min(960px, 95vw); max-height: 88vh; padding: 0; border: 1px solid var(--line-mid); border-radius: var(--radius-lg); background: var(--bg-card); color: var(--text-main); overflow: hidden; }
+/* Only the body scrolls. The bar takes the height it needs and the body gets
+   exactly the rest, so the card itself never keeps a scroll offset of its own
+   that the next entry would inherit. Guarded by [open] so the closed dialog
+   keeps the browser's own display: none. */
+.lexicon-dialog[open] { display: flex; flex-direction: column; }
 .lexicon-dialog::backdrop { background: rgba(9, 20, 19, 0.42); }
-.lexicon-dialog__bar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .9rem 1.2rem; border-bottom: 1px solid var(--line-mid); font-size: .78rem; color: var(--text-soft); }
+.lexicon-dialog__bar { flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .9rem 1.2rem; border-bottom: 1px solid var(--line-mid); font-size: .78rem; color: var(--text-soft); }
 .lexicon-crumb { display: flex; align-items: center; gap: .8rem; }
 .lexicon-crumb button { border: 0; background: none; color: var(--accent-deep); font-size: .78rem; cursor: pointer; padding: 0; }
 .lexicon-close { width: 2rem; height: 2rem; border: 1px solid var(--line-mid); border-radius: 50%; background: var(--bg-card); color: var(--text-main); font-size: 1.1rem; line-height: 1; cursor: pointer; }
-.lexicon-dialog__body { padding: 1.9rem 2.2rem 2.2rem; overflow-y: auto; max-height: calc(88vh - 3.4rem); font-size: 1.125rem; line-height: 1.95; }
+.lexicon-dialog__body { flex: 1 1 auto; min-height: 0; padding: 1.9rem 2.2rem 2.2rem; overflow-y: auto; overscroll-behavior: contain; font-size: 1.125rem; line-height: 1.95; }
 .lexicon-dialog__heading { display: flex; align-items: center; gap: .6rem; margin-bottom: 1.1rem; }
 .lexicon-dialog__heading h2 { margin: 0; font-size: 1.9rem; }
 .lexicon-dialog__content h2 { margin: 1.8rem 0 .7rem; font-size: .9rem; letter-spacing: .04em; color: var(--accent-deep); }
@@ -5531,6 +5536,14 @@ i.star-outline svg {
 .lexicon-reference { color: var(--accent-deep); }
 .lexicon-event { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 1.05rem; height: 1.05rem; color: #2f6b52; }
 .lexicon-event svg { width: 100%; height: 100%; }
+/* The other names an entry is written about under, shown right under its
+   name on the entry page and on its card. */
+.term-aliases { margin: .5rem 0 0; color: var(--text-soft); font-size: .82rem; line-height: 1.7; }
+.lexicon-dialog__heading + .term-aliases { margin: -.7rem 0 1.1rem; }
+/* The stance mark and event flag sit next to a heading, so they follow its
+   size instead of staying at the listing's small fixed one. */
+.article-hero__title .lexicon-mark,
+.article-hero__title .lexicon-event { width: .6em; height: .6em; margin-left: .25em; vertical-align: .18em; font-size: .62em; }
 .lexicon-legend { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 1.1rem; margin: 0; padding: .6rem 0 0; color: var(--text-soft); font-size: .72rem; }
 .lexicon-legend span { display: inline-flex; align-items: center; gap: .3rem; }
 /* Colour and size come across as names from a closed set, never as CSS; the
