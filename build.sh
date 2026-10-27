@@ -39,3 +39,6 @@ node scripts/link-titles.mjs
 
 # Avoid build differences from minified HTML when localhost is normal but production is not.
 hugo --gc --cleanDestinationDir --baseURL "${WEBSITE_PUBLIC_ORIGIN:-https://${VERCEL_PROJECT_PRODUCTION_URL:-example.com}}"
+
+# Share byte-identical archived images and ship the compressed full font.
+node scripts/optimize-deployment.mjs public

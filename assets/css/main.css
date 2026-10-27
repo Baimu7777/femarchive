@@ -1,7 +1,6 @@
 @font-face {
   font-family: "霞鹜文楷";
-  src: url("/fonts/霞鹜文楷.ttf") format("truetype"),
-       url("/fonts/%E9%9C%9E%E9%B9%9C%E6%96%87%E6%A5%B7.ttf") format("truetype");
+  src: url("/fonts/lxgw-wenkai.woff2") format("woff2");
   font-display: swap;
 }
 
