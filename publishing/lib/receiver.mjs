@@ -86,9 +86,17 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
       if (!file || file.revision !== record.revision) fail(409);
     }
   }
+  // Every published term's identifier appears in the term registry, so one
+  // publication checks the same identifiers several times. Within one request
+  // each is looked up once, sixteen at a time.
+  const lookups = new Map();
+  const isPrivate = id => { if (!lookups.has(id)) lookups.set(id, receipts.isPrivateIdentifier(id)); return lookups.get(id); };
+  async function rejectPrivate(ids) {
+    const list = [...ids];
+    for (let index = 0; index < list.length; index += 16) if ((await Promise.all(list.slice(index, index + 16).map(isPrivate))).some(Boolean)) fail();
+  }
   async function publicArtifacts(fields, forbidden) {
-    const ids = assertNoPrivateText(fields, forbidden);
-    for (const id of ids) if (await receipts.isPrivateIdentifier(id)) fail();
+    await rejectPrivate(assertNoPrivateText(fields, forbidden));
   }
   async function tagRegistry(head) {
     const file = await repository.read(tagRegistryPath, head);
@@ -171,7 +179,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
     if (value.articleId === key || value.assets.includes(value.articleId)) fail();
     // Unselected receipts and prior request keys remain private across all
     // persisted stages; candidate UUIDs come from the same reversible views.
-    for (const id of candidateIds) if (await receipts.isPrivateIdentifier(id)) fail();
+    await rejectPrivate(candidateIds);
     const selected = await assetsFor(value);
     const body = publicBody(value.html, value.comments, selected.map(a => a.path), value.presentation, value.commentImages);
     const fingerprint = digest(canonical(value));

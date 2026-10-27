@@ -31,11 +31,12 @@ export function createReceipts(objects) {
       if (!uuid(id)) fail();
       // Point lookups only: no bucket listing, forum context or private record
       // contents escape this boolean boundary. Public article IDs are excluded.
-      for (const namespace of ['assets', 'requests/asset', 'requests/publish', 'candidates/asset', 'candidates/publish', 'results/asset', 'results/publish']) {
-        if (await objects.get(`${namespace}/${id}`) !== null) return true;
-      }
+      // The seven point lookups run together; one after another they made a
+      // publication naming every published term take longer than the forum waits.
+      const found = await Promise.all(['assets', 'requests/asset', 'requests/publish', 'candidates/asset', 'candidates/publish', 'results/asset', 'results/publish']
+        .map(namespace => objects.get(`${namespace}/${id}`)));
       // Storage errors propagate so a failed check is never treated as absence.
-      return false;
+      return found.some(record => record !== null);
     },
   };
 }
