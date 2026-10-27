@@ -60,7 +60,8 @@ summaryLength = 28
     serverURL = "https://waline.feminism-nv.top/"
     lang = "zh-CN"
     emoji = ["https://unpkg.com/@waline/emojis@1.1.0/weibo"]
-    pageview = true
+    # 阅读量统计每次打开页面都要调用 Waline，暂时关闭以节省 Vercel 函数用量。
+    pageview = false
     reaction = false
     turnstileKey = "0x4AAAAAAC1QJzPCJtEGCRGL"
 
