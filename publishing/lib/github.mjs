@@ -86,8 +86,6 @@ export function createGitHubRepository({ token, owner, repo, branch, stagingBran
   }
   return {
     publicOrigin,
-    /** What visitors currently see; reads never depend on unreleased work. */
-    async published() { return snapshotOf(await productionHead()); },
     /** Publish everything waiting on the staging branch in one push. */
     async release() {
       if (!stagingBranch) return { released: false };
@@ -96,10 +94,12 @@ export function createGitHubRepository({ token, owner, repo, branch, stagingBran
       await api(`git/refs/heads/${branchPath}`, 'PATCH', { sha: staging, force: false });
       return { released: true };
     },
+    /** The branch publications are written on: the production branch, or the
+     *  staging branch brought up to it first. Reads answer from it too, so a
+     *  baseline the forum is given always matches what its next write starts
+     *  from, released or still waiting. */
     async snapshot() {
-      if (stagingBranch) await sync();
-      const head = await currentHead();
-      return snapshotOf(head);
+      return snapshotOf(validSHA(stagingBranch ? await sync() : await currentHead()));
     },
     read: readFile,
     async prepare(base, files) {

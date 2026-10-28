@@ -362,9 +362,15 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
     if (!uuid(plan.receipt) || !imagePath(plan.publicPath) || plan.path !== `static${plan.publicPath}` || digest(processed) !== plan.imageDigest) fail(503);
     return finish('asset', key, plan, async () => [{ path: plan.path, bytes: processed }]);
   }
-  // Reads show what visitors see. Unreleased publications wait on the staging
-  // branch, and one item is never published twice inside a batch.
-  const visible = () => repository.published ? repository.published() : repository.snapshot();
+  // Every read here becomes the baseline for the sender's next publication, so
+  // all of them answer from the branch that publication will be written on,
+  // including articles already committed and still waiting for release. The
+  // production branch alone let one unreleased commit strand an entry for
+  // good: the sender kept confirming the released revision, this receiver kept
+  // refusing it as a version conflict, and the release that would have cleared
+  // it only runs once a publication succeeds. Reading therefore brings the
+  // staging branch up to production first, exactly as writing does.
+  const readBase = () => repository.snapshot();
   return async request => {
     try {
       await authenticate(request);
@@ -374,7 +380,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
       if (request.method !== (['catalog', 'terms', 'articles', 'article'].includes(operation) ? 'GET' : 'POST')) fail(405);
       if (operation === 'release') return response(repository.release ? await repository.release() : { released: false });
       if (operation === 'articles') {
-        const base = await visible(), articles = [];
+        const base = await readBase(), articles = [];
         for (const [articleId, post] of imports) {
           const file = await repository.read(post.path, base.head);
           if (!file) continue;
@@ -385,7 +391,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
         return response({ articles });
       }
       if (operation === 'terms') {
-        const base = await visible(), registry = await termRegistry(base.head);
+        const base = await readBase(), registry = await termRegistry(base.head);
         const terms = new Map(normalizeTerms(catalog.terms ?? [], true).map(term => [term.articleId, term]));
         for (const term of registry.terms) terms.set(term.articleId, term);
         const publicTerms = [...terms.values()].map(({ title, url }) => ({ title, url }));
@@ -393,14 +399,14 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
         return response({ terms: publicTerms });
       }
       if (operation === 'catalog') {
-        const base = await visible(), registry = await tagRegistry(base.head);
+        const base = await readBase(), registry = await tagRegistry(base.head);
         const sharedTags = [...new Set([...catalog.sharedTags, ...registry.tags])];
         await publicArtifacts(sharedTags, []);
         return response({ categories: [...catalog.categories], sharedTags });
       }
       if (operation === 'article') {
         const id = params.get('articleId'), section = params.get('section') ?? 'lexicon'; if (!uuid(id) || !['posts', 'lexicon'].includes(section)) fail(); await managed(id, section);
-        const base = await visible(), file = await repository.read(managedPath(id, section), base.head);
+        const base = await readBase(), file = await repository.read(managedPath(id, section), base.head);
         if (!file) fail(404);
         const document = readDocument(file.bytes);
         const fields = section === 'posts' && Object.hasOwn(importedPosts, id) ? legacyPostFields(document) ?? articleFields(document) : articleFields(document);

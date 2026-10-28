@@ -19,6 +19,9 @@ export function memoryObjects() {
 const hash = (x) => createHash('sha1').update(x).digest('hex');
 export function gitService() {
   const blobs = new Map(), trees = new Map(), commits = new Map(), calls = [];
+  // Branches beside main, so a receiver configured with a staging branch (the
+  // deployment default) can look it up, create it and move it.
+  const refs = new Map();
   let sequence = 0;
   const initialTree = hash('initial-tree'); trees.set(initialTree, new Map());
   let head = hash('initial-head'); commits.set(head, { tree: { sha: initialTree }, parents: [] });
@@ -39,7 +42,11 @@ export function gitService() {
       const method = options.method || 'GET', body = options.body ? JSON.parse(options.body) : null;
       calls.push({ url, method, body, options });
       const ok = (v, status = 200) => new Response(JSON.stringify(v), { status });
-      if (route === 'git/ref/heads/main') return ok({ object: { sha: head } });
+      if (route.startsWith('git/ref/heads/')) {
+        const name = route.slice(14), sha = name === 'main' ? head : refs.get(name);
+        return sha ? ok({ object: { sha } }) : ok({}, 404);
+      }
+      if (route === 'git/refs' && method === 'POST') { refs.set(body.ref.slice(11), body.sha); return ok({ object: { sha: body.sha } }, 201); }
       if (route.startsWith('git/commits/') && method === 'GET') return ok(commits.get(route.slice(12)));
       if (route.startsWith('contents/') && method === 'GET') {
         const commit = commits.get(u.searchParams.get('ref')); const entry = trees.get(commit.tree.sha).get(route.slice(9));
@@ -53,6 +60,10 @@ export function gitService() {
         const [base, tip] = route.slice(8).split('...'); let cursor = tip;
         while (cursor && cursor !== base) cursor = commits.get(cursor)?.parents[0]?.sha;
         return ok({ status: cursor === base ? (tip === base ? 'identical' : 'ahead') : 'diverged' });
+      }
+      if (route.startsWith('git/refs/heads/') && method === 'PATCH' && route !== 'git/refs/heads/main') {
+        if (body.force !== false) return ok({}, 422);
+        refs.set(route.slice(15), body.sha); return ok({ object: { sha: body.sha } });
       }
       if (route === 'git/refs/heads/main' && method === 'PATCH') {
         if (api.beforePatch) { const action = api.beforePatch; api.beforePatch = null; action(); }
