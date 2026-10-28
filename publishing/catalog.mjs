@@ -92,11 +92,6 @@ export const catalog = {
       "url": "/lexicon/5dceb7b0-d636-4f74-930c-503a0bfbd198/"
     },
     {
-      "articleId": "68804458-b2d7-4041-8e42-748f3e23e05b",
-      "title": "\"占领男厕所\"运动",
-      "url": "/lexicon/68804458-b2d7-4041-8e42-748f3e23e05b/"
-    },
-    {
       "articleId": "699c5f59-d943-4046-9442-50e69e09f137",
       "title": "爱女",
       "url": "/lexicon/699c5f59-d943-4046-9442-50e69e09f137/"
