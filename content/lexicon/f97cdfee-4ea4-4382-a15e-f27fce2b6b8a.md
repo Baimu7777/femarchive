@@ -1,4 +1,5 @@
 ---
+related_terms: []
 aliases: ["米兔","中国米兔运动"]
 event: true
 license: "该作品版权归原作者所有。"
@@ -26,6 +27,10 @@ url: /lexicon/f97cdfee-4ea4-4382-a15e-f27fce2b6b8a/
 
 
 
+
+
+
+
 ## 运动背景
 
 
@@ -50,6 +55,10 @@ url: /lexicon/f97cdfee-4ea4-4382-a15e-f27fce2b6b8a/
 
 
 
+
+
+
+
 ### 2017年10月：国际 \#MeToo 运动兴起
 
 
@@ -63,6 +72,10 @@ url: /lexicon/f97cdfee-4ea4-4382-a15e-f27fce2b6b8a/
 
 
 国际 \#MeToo 运动的兴起也影响了中国女性的公开发声。罗茜茜后来表示，自己决定实名举报陈小武，与受到美国 \#MeToo 运动鼓舞有关。
+
+
+
+
 
 
 
@@ -90,6 +103,10 @@ url: /lexicon/f97cdfee-4ea4-4382-a15e-f27fce2b6b8a/
 
 
 
+
+
+
+
 ### 2018年1月2日起：“万人致信母校”反性骚扰行动
 
 
@@ -114,6 +131,10 @@ url: /lexicon/f97cdfee-4ea4-4382-a15e-f27fce2b6b8a/
 
 
 
+
+
+
+
 ### 2018年1月：\#MeToo在中国\# 话题遭到封禁
 
 
@@ -127,6 +148,10 @@ url: /lexicon/f97cdfee-4ea4-4382-a15e-f27fce2b6b8a/
 
 
 由于与 \#MeToo 相关的话题和帖文持续遭到删除，网民开始使用“米兔”“咪兔”等谐音，以及兔子和米饭等表情符号讨论有关事件。这些替代词逐渐成为中国 \#MeToo 运动的重要文化标识。
+
+
+
+
 
 
 
@@ -154,6 +179,10 @@ url: /lexicon/f97cdfee-4ea4-4382-a15e-f27fce2b6b8a/
 
 
 
+
+
+
+
 ### 2018年7月：\#MeToo 运动扩展至公益和媒体领域
 
 
@@ -170,11 +199,15 @@ url: /lexicon/f97cdfee-4ea4-4382-a15e-f27fce2b6b8a/
 
 
 
-7 月 26 日，弦子指控朱军性骚扰案引发广泛传播。 弦子的朋友“麦烧同学”将其有关 2014 年在央视实习期间遭主持人朱军性骚扰的自述发布至微博，引起全国关注。朱军否认指控，双方随后进入持续多年的民事诉讼程序。
+7 月 26 日，[弦子诉朱军性骚扰案](</lexicon/f539647a-522c-4aac-85e9-2063a58e41b6/>)引发广泛传播。 弦子的朋友“麦烧同学”将其有关 2014 年在央视实习期间遭主持人朱军性骚扰的自述发布至微博，引起全国关注。朱军否认指控，双方随后进入持续多年的民事诉讼程序。
 
 
 
 这些事件使 \#MeToo 从高校师生关系扩展到更多社会领域，也促使公众讨论公益机构、媒体行业及其他工作环境中的性别权力不平等问题。
+
+
+
+
 
 
 
@@ -198,6 +231,10 @@ url: /lexicon/f97cdfee-4ea4-4382-a15e-f27fce2b6b8a/
 
 
 
+
+
+
+
 ### 2018年下半年：举报者面临名誉权诉讼及网络压力
 
 
@@ -218,6 +255,10 @@ url: /lexicon/f97cdfee-4ea4-4382-a15e-f27fce2b6b8a/
 
 
 
+
+
+
+
 ## 运动持续与制度变化
 
 
@@ -234,11 +275,15 @@ url: /lexicon/f97cdfee-4ea4-4382-a15e-f27fce2b6b8a/
 
 
 
-民间编纂的[《中国米兔志（2018.1—2019.7）》](<https://cnlgbtdata.com/files/uploads/2021/05/ChinaMeTooComp.pdf>)收录了这一时期大量有关中国 \#MeToo 运动的举报、自述、报道及讨论文章，分为《中国米兔从高校开始》《中国米兔在各界》《中国米兔大讨论》三卷，总计超过 2,500 页。
+民间编纂的[中国米兔志](<https://cnlgbtdata.com/files/uploads/2021/05/ChinaMeTooComp.pdf>)收录了这一时期大量有关中国 \#MeToo 运动的举报、自述、报道及讨论文章，分为《中国米兔从高校开始》《中国米兔在各界》《中国米兔大讨论》三卷，总计超过 2,500 页。
 
 
 
 这些档案为追溯中国 \#MeToo 运动的传播和发展留下了重要资料。
+
+
+
+
 
 
 
@@ -266,11 +311,15 @@ url: /lexicon/f97cdfee-4ea4-4382-a15e-f27fce2b6b8a/
 
 
 
-### 2020年12月2日：弦子诉朱军案开庭，支持者到场声援
 
 
 
-2020 年 12 月 2 日，弦子诉朱军一般人格权纠纷案在北京市海淀区人民法院首次开庭。
+
+### 2020年12月2日：[弦子诉朱军案](</lexicon/f539647a-522c-4aac-85e9-2063a58e41b6/>)开庭，支持者到场声援
+
+
+
+2020 年 12 月 2 日，[弦子诉朱军一般人格权纠纷案](</lexicon/f539647a-522c-4aac-85e9-2063a58e41b6/>)在北京市海淀区人民法院首次开庭。
 
 
 
@@ -279,6 +328,10 @@ url: /lexicon/f97cdfee-4ea4-4382-a15e-f27fce2b6b8a/
 
 
 此次庭审成为 2018 年 \#MeToo 浪潮之后的重要公共事件，反映出中国反性骚扰行动在公开举报高峰结束后，继续通过司法诉讼和公众声援的方式延续。
+
+
+
+
 
 
 
@@ -291,6 +344,10 @@ url: /lexicon/f97cdfee-4ea4-4382-a15e-f27fce2b6b8a/
 
 
 2021 年 9 月 19 日，黄雪琴与劳工权益行动者王建兵在广州被警方带走。此后，两人被以涉嫌“煽动颠覆国家政权罪”拘捕。由于黄雪琴与中国 \#MeToo 运动有长期联系，其遭遇受到女权社群和国际人权组织关注。
+
+
+
+
 
 
 
@@ -318,6 +375,10 @@ url: /lexicon/f97cdfee-4ea4-4382-a15e-f27fce2b6b8a/
 
 
 
+
+
+
+
 ### 2022年10月30日：《妇女权益保障法》修订，细化反性骚扰措施
 
 
@@ -338,11 +399,15 @@ url: /lexicon/f97cdfee-4ea4-4382-a15e-f27fce2b6b8a/
 
 
 
+
+
+
+
 ## 延伸链接
 
 
 
-- [https://cnlgbtdata.com/files/uploads/2021/05/ChinaMeTooComp.pdf](<https://cnlgbtdata.com/files/uploads/2021/05/ChinaMeTooComp.pdf>)
-- [https://20.chinadigitaltimes.net/3754.html](<https://20.chinadigitaltimes.net/3754.html>)
-- [https://chinesefeminism.org/2021/04/05/%E4%B8%AD%E5%9B%BD%E9%9D%92%E5%B9%B4%E5%A5%B3%E6%9D%83%E8%BF%90%E5%8A%A8%E7%AE%80%E5%8F%B2-%E4%B8%8B2014-2019/](<https://chinesefeminism.org/2021/04/05/%E4%B8%AD%E5%9B%BD%E9%9D%92%E5%B9%B4%E5%A5%B3%E6%9D%83%E8%BF%90%E5%8A%A8%E7%AE%80%E5%8F%B2-%E4%B8%8B2014-2019/>)
-- [https://theinitium.com/20180226-mainland-metoo-zh-hans/](<https://theinitium.com/20180226-mainland-metoo-zh-hans/>)
+- [中国米兔志](<https://cnlgbtdata.com/files/uploads/2021/05/ChinaMeTooComp.pdf>)
+- [中国数字时代 - 米兔](<https://20.chinadigitaltimes.net/3754.html>)
+- [米米亚娜：中国青年女权运动简史，下篇（2014-2019）](<https://chinesefeminism.org/2021/04/05/%E4%B8%AD%E5%9B%BD%E9%9D%92%E5%B9%B4%E5%A5%B3%E6%9D%83%E8%BF%90%E5%8A%A8%E7%AE%80%E5%8F%B2-%E4%B8%8B2014-2019/>)
+- [中国版MeToo：性骚扰者被解雇後，她们想建立制度保护](<https://theinitium.com/20180226-mainland-metoo-zh-hans/>)
