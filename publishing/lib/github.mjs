@@ -58,6 +58,32 @@ export function createGitHubRepository({ token, owner, repo, branch, stagingBran
     const commit = await api(`git/commits/${head}`);
     return { head, tree: validSHA(commit.tree.sha) };
   };
+  const reads = new Map();
+  async function readFile(path, head) {
+    if (!writablePath(path)) fail(503); validSHA(head);
+    const key = `${head}:${path}`;
+    if (!reads.has(key)) {
+      const pending = readUncached(path, head);
+      reads.set(key, pending);
+      pending.catch(() => reads.delete(key));
+    }
+    return reads.get(key);
+  }
+  async function readUncached(path, head) {
+      if (!writablePath(path)) fail(503); validSHA(head);
+      const file = await api(`contents/${path.split('/').map(encodeURIComponent).join('/')}?ref=${head}`, 'GET', undefined, true, 'application/vnd.github.object+json');
+      if (!file) return null;
+      if (file.type !== 'file' && file.type !== 'blob') fail(409);
+      const revision = validSHA(file.sha);
+      if (!Number.isSafeInteger(file.size) || file.size < 0 || file.size > 8 * 1024 * 1024) fail(503);
+      // Contents object media omits bytes above 1 MiB. Construct a fixed-repo
+      // blob endpoint from the validated SHA; never follow download_url/git_url.
+      const blob = file.encoding === 'none' ? await api(`git/blobs/${revision}`) : file;
+      if (validSHA(blob.sha) !== revision || blob.encoding !== 'base64' || blob.size !== file.size || typeof blob.content !== 'string' || blob.content.length > 12 * 1024 * 1024) fail(503);
+      const bytes = Buffer.from(blob.content, 'base64');
+      if (bytes.length !== file.size) fail(503);
+      return { revision, bytes };
+  }
   return {
     publicOrigin,
     /** What visitors currently see; reads never depend on unreleased work. */
@@ -75,31 +101,21 @@ export function createGitHubRepository({ token, owner, repo, branch, stagingBran
       const head = await currentHead();
       return snapshotOf(head);
     },
-    async read(path, head) {
-      if (!writablePath(path)) fail(503); validSHA(head);
-      const file = await api(`contents/${path.split('/').map(encodeURIComponent).join('/')}?ref=${head}`, 'GET', undefined, true, 'application/vnd.github.object+json');
-      if (!file) return null;
-      if (file.type !== 'file' && file.type !== 'blob') fail(409);
-      const revision = validSHA(file.sha);
-      if (!Number.isSafeInteger(file.size) || file.size < 0 || file.size > 8 * 1024 * 1024) fail(503);
-      // Contents object media omits bytes above 1 MiB. Construct a fixed-repo
-      // blob endpoint from the validated SHA; never follow download_url/git_url.
-      const blob = file.encoding === 'none' ? await api(`git/blobs/${revision}`) : file;
-      if (validSHA(blob.sha) !== revision || blob.encoding !== 'base64' || blob.size !== file.size || typeof blob.content !== 'string' || blob.content.length > 12 * 1024 * 1024) fail(503);
-      const bytes = Buffer.from(blob.content, 'base64');
-      if (bytes.length !== file.size) fail(503);
-      return { revision, bytes };
-    },
+    read: readFile,
     async prepare(base, files) {
       validSHA(base.head); validSHA(base.tree);
       // Abort before creating blobs if an intervening branch edit is visible.
       if (await currentHead() !== base.head) fail(409);
       const tree = [], revisions = {};
-      for (const file of files) {
-        if (!writablePath(file.path)) fail(503);
-        const blob = await api('git/blobs', 'POST', { content: file.bytes.toString('base64'), encoding: 'base64' });
-        revisions[file.path] = validSHA(blob.sha);
-        tree.push({ path: file.path, mode: '100644', type: 'blob', sha: blob.sha });
+      // Bound GitHub writes while uploading independent blobs concurrently.
+      for (const file of files) if (!writablePath(file.path)) fail(503);
+      for (let offset = 0; offset < files.length; offset += 4) {
+        const entries = await Promise.all(files.slice(offset, offset + 4).map(async file => {
+          const blob = await api('git/blobs', 'POST', { content: file.bytes.toString('base64'), encoding: 'base64' });
+          revisions[file.path] = validSHA(blob.sha);
+          return { path: file.path, mode: '100644', type: 'blob', sha: blob.sha };
+        }));
+        tree.push(...entries);
       }
       const newTree = await api('git/trees', 'POST', { base_tree: base.tree, tree });
       const identity = { name: 'Website Editor', email: 'editor@website.invalid' };
