@@ -281,6 +281,17 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
       const terms = await termRegistry(base.head), registry = await tagRegistry(base.head);
       let termList = terms.terms, tagList = registry.tags;
       const planned = [], documents = [];
+      // Resolve independent update baselines in bounded groups. The repository
+      // caches by immutable commit, so validation below reuses the same bytes.
+      for (let offset = 0; offset < prepared.length; offset += 4) {
+        await Promise.all(prepared.slice(offset, offset + 4).map(async ({ value, selected }) => {
+          if (value.articleId) {
+            await managed(value.articleId, value.section);
+            await repository.read(managedPath(value.articleId, value.section), base.head);
+          }
+          await validateAssets(selected, base.head);
+        }));
+      }
       for (const { value, selected } of prepared) {
         const articleId = value.articleId ?? randomUUID(), path = managedPath(articleId, value.section);
         if (value.articleId) await managed(articleId, value.section);
