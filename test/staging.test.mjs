@@ -66,6 +66,7 @@ function setup() {
   return { remote, receive };
 }
 const publish = (s, value) => s.receive(request('publish', value, randomUUID()));
+const readArticle = async (s, articleId) => (await s.receive(request(`article&articleId=${articleId}`))).json();
 const release = async s => (await s.receive(new Request('https://website.example/api/publishing?operation=release', { method: 'POST', headers: { authorization: `Bearer ${token}` } }))).json();
 const mainPatches = s => s.remote.calls.filter(call => call.method === 'PATCH' && call.route === 'git/refs/heads/main').length;
 
@@ -102,11 +103,36 @@ test('a staging branch behind production catches up before the next publication'
   assert.deepEqual(await release(s), { released: true });
 });
 
-test('reads show production, never unreleased work', async () => {
+test('reads show production as well as the work waiting for release', async () => {
   const s = setup();
   s.remote.edit('main', 'data/website-publication-tags.json', '["生产标签"]\n');
   await publish(s, { ...fixture(), tags: ['新标签'], newTags: ['新标签'] });
   const listing = await (await s.receive(request('catalog'))).json();
   assert.ok(listing.sharedTags.includes('生产标签'));
-  assert.ok(!listing.sharedTags.includes('新标签'), 'a tag waiting for release is not offered yet');
+  assert.ok(listing.sharedTags.includes('新标签'), 'a tag already committed is offered instead of being created twice');
+});
+
+test('an article reads back as soon as it is published, before any release', async () => {
+  const s = setup();
+  const created = await (await publish(s, { ...fixture(), title: '待上线词条' })).json();
+  const article = await readArticle(s, created.articleId);
+  assert.equal(article.articleId, created.articleId);
+  assert.equal(article.revision, created.revision, 'the baseline matches the copy the next update will be written on');
+  assert.equal(article.title, '待上线词条');
+});
+
+// One unreleased commit used to make every later update of that entry fail as
+// a version conflict, and the release that would have cleared it only runs
+// after a publication succeeds: the entry could never be updated again.
+test('one update follows another while the batch is still waiting for release', async () => {
+  const s = setup();
+  const created = await (await publish(s, { ...fixture(), title: '词条' })).json();
+  const first = await readArticle(s, created.articleId);
+  const update = await publish(s, { ...fixture(), title: '第二版', articleId: created.articleId, expectedRevision: first.revision });
+  assert.equal(update.status, 200);
+  const second = await readArticle(s, created.articleId);
+  const again = await publish(s, { ...fixture(), title: '第三版', articleId: created.articleId, expectedRevision: second.revision });
+  assert.equal(again.status, 200, 'a second update is not refused as a conflict');
+  assert.deepEqual(await release(s), { released: true });
+  assert.match(s.remote.text('main', `content/lexicon/${created.articleId}.md`), /第三版/);
 });
