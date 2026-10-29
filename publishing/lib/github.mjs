@@ -105,12 +105,15 @@ export function createGitHubRepository({ token, owner, repo, branch, stagingBran
     async prepare(base, files) {
       validSHA(base.head); validSHA(base.tree);
       // Abort before creating blobs if an intervening branch edit is visible.
-      if (await currentHead() !== base.head) fail(409);
+      if (await currentHead() !== base.head) fail(409, 'BRANCH_MOVED');
       const tree = [], revisions = {};
       // Bound GitHub writes while uploading independent blobs concurrently.
       for (const file of files) if (!writablePath(file.path)) fail(503);
       for (let offset = 0; offset < files.length; offset += 4) {
         const entries = await Promise.all(files.slice(offset, offset + 4).map(async file => {
+          // A removal carries no bytes: its tree entry clears the path instead
+          // of naming a blob, so one commit can delete while it writes.
+          if (file.bytes === null) return { path: file.path, mode: '100644', type: 'blob', sha: null };
           const blob = await api('git/blobs', 'POST', { content: file.bytes.toString('base64'), encoding: 'base64' });
           revisions[file.path] = validSHA(blob.sha);
           return { path: file.path, mode: '100644', type: 'blob', sha: blob.sha };

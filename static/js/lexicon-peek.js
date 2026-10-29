@@ -195,9 +195,21 @@
   window.addEventListener('scroll', function (event) { if (event.target !== peek) hide(); }, true);
   window.addEventListener('resize', hide);
 
-  // A standalone entry page links the other entries it mentions.
+  // Article bodies link the entries they mention; an entry page links the
+  // other entries it mentions, never itself.
   var own = document.querySelector('[data-lexicon-self]');
   if (own) load().then(function () { autoLink(own, own.getAttribute('data-lexicon-self')); });
+
+  // Arriving at an entry from somewhere else on the site, offer the way back.
+  var ret = document.querySelector('[data-lexicon-return]');
+  if (ret) {
+    var from = null;
+    try { from = document.referrer ? new URL(document.referrer) : null; } catch (e) { from = null; }
+    if (from && from.origin === window.location.origin && from.pathname !== window.location.pathname) {
+      ret.hidden = false;
+      ret.querySelector('button').addEventListener('click', function () { window.history.back(); });
+    }
+  }
 
   window.LexiconPeek = { load: load, autoLink: autoLink, hide: hide };
 })();

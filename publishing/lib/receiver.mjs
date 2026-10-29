@@ -10,6 +10,13 @@ const tagRegistryPath = 'data/website-publication-tags.json';
 // One confirmed batch, one commit: twenty articles plus both registries stay
 // well inside a single tree and the request body limit below.
 const MAX_BATCH_ITEMS = 20;
+// Every image of one confirmed send is written in the same commit as the rest
+// of that send's images, so twenty pictures no longer cost twenty trees,
+// twenty commits and twenty updates of a branch that is released once. The
+// body stays small enough for one function request; a heavier selection is
+// split by the sender into as few groups as these bounds allow.
+const MAX_BATCH_ASSETS = 20;
+const MAX_BATCH_ASSET_BYTES = 4 * 1024 * 1024;
 const validRegistryTags = value => Array.isArray(value) && value.length <= 1000 && value.every(tag => typeof tag === 'string' && tag.length > 0 && tag.length <= 100 && tag.trim().length > 0 && !/[\u0000-\u001f\u007f]/.test(tag)) && new Set(value).size === value.length;
 let imageModule;
 // Loaded on demand. A disabled receiver and every non-image operation must not
@@ -57,7 +64,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
     if (!record && section === 'posts' && Object.hasOwn(importedPosts, id)) {
       const post = importedPosts[id], snapshot = await repository.snapshot();
       const file = await repository.read(post.path, snapshot.head);
-      if (!file || file.revision !== post.revision) fail(409);
+      if (!file || file.revision !== post.revision) fail(409, 'IMPORTED_POST_CHANGED');
       record = await receipts.saveArticle(id, { path: post.path });
     }
     // The administrator import registry only covers legacy lexicon articles.
@@ -66,7 +73,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
       if (!sha(revision)) fail(503);
       const snapshot = await repository.snapshot();
       const file = await repository.read(articlePath(id), snapshot.head);
-      if (!file || file.revision !== revision) fail(409);
+      if (!file || file.revision !== revision) fail(409, 'IMPORTED_POST_CHANGED');
       record = await receipts.saveArticle(id, { path: articlePath(id) });
     }
     if (!record) fail(404);
@@ -86,7 +93,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
   async function validateAssets(selected, head) {
     for (const record of selected) {
       const file = await repository.read(`static${record.path}`, head);
-      if (!file || file.revision !== record.revision) fail(409);
+      if (!file || file.revision !== record.revision) fail(409, 'ASSET_MISSING');
     }
   }
   // Every published term's identifier appears in the term registry, so one
@@ -104,29 +111,32 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
   async function tagRegistry(head) {
     const file = await repository.read(tagRegistryPath, head);
     if (!file) return { tags: [], revision: null };
+    // Outside the try: a refusal thrown inside it was caught by its own catch
+    // and reported as an unreadable registry, hiding the size that refused it.
+    if (file.bytes.length > 256 * 1024) fail(409, 'TAG_REGISTRY_FULL');
     let tags;
     try {
-      if (file.bytes.length > 256 * 1024) fail(409);
       tags = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(file.bytes));
-    } catch { fail(409); }
-    if (!validRegistryTags(tags)) fail(409);
+    } catch { fail(409, 'TAG_REGISTRY_INVALID'); }
+    if (!validRegistryTags(tags)) fail(409, 'TAG_REGISTRY_INVALID');
     return { tags, revision: file.revision };
   }
   // A record may also carry the other names the entry is written about under,
   // so a mention of one links to it. A record without them stays byte-exact.
   const validAliases = value => Array.isArray(value) && value.length <= 20 && value.every(name => typeof name === 'string' && name.trim() && name.length <= 50 && !/[\u0000-\u001f\u007f]/.test(name)) && new Set(value).size === value.length;
-  function normalizeTerms(terms, baseline = false) {
-    if (!Array.isArray(terms) || terms.length > 1000) fail(409);
+  function normalizeTerms(terms, baseline = false, reason = 'TERM_REGISTRY_INVALID') {
+    if (!Array.isArray(terms)) fail(409, reason);
+    if (terms.length > 1000) fail(409, 'TERM_REGISTRY_FULL');
     const ids = new Set();
     return terms.map(term => {
       const shape = term && typeof term === 'object' && !Array.isArray(term) ? Object.keys(term).sort().join(',') : '';
-      if (!['articleId,title,url', 'aliases,articleId,title,url'].includes(shape) || !uuid(term.articleId) || ids.has(term.articleId) || typeof term.title !== 'string' || !term.title.trim() || term.title.length > 300 || /[\u0000-\u001f\u007f]/.test(term.title) || typeof term.url !== 'string') fail(409);
-      if ('aliases' in term && !validAliases(term.aliases)) fail(409);
+      if (!['articleId,title,url', 'aliases,articleId,title,url'].includes(shape) || !uuid(term.articleId) || ids.has(term.articleId) || typeof term.title !== 'string' || !term.title.trim() || term.title.length > 300 || /[\u0000-\u001f\u007f]/.test(term.title) || typeof term.url !== 'string') fail(409, reason);
+      if ('aliases' in term && !validAliases(term.aliases)) fail(409, reason);
       ids.add(term.articleId);
       const url = baseline && term.url.startsWith('/') ? articleURL(repository.publicOrigin, term.articleId, { url: term.url }) : term.url;
-      if (!url.startsWith(`${repository.publicOrigin}/`)) fail(409);
+      if (!url.startsWith(`${repository.publicOrigin}/`)) fail(409, reason);
       const publicURL = articleURL(repository.publicOrigin, term.articleId, { url: url.slice(repository.publicOrigin.length) });
-      if (publicURL !== url) fail(409);
+      if (publicURL !== url) fail(409, reason);
       return { articleId: term.articleId, title: term.title, ...(term.aliases?.length ? { aliases: [...term.aliases] } : {}), url };
     });
   }
@@ -137,18 +147,18 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
   async function termRegistry(head) {
     const file = await repository.read(termRegistryPath, head);
     if (!file) return { terms: [], revision: null };
+    if (file.bytes.length > 512 * 1024) fail(409, 'TERM_REGISTRY_FULL');
     let terms;
     try {
-      if (file.bytes.length > 512 * 1024) fail(409);
       terms = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(file.bytes));
-    } catch { fail(409); }
+    } catch { fail(409, 'TERM_REGISTRY_INVALID'); }
     const normalized = normalizeTerms(terms);
     await publicArtifacts(normalized.flatMap(term => [term.articleId, term.title, ...(term.aliases ?? []), term.url]), []);
     return { terms: normalized, revision: file.revision };
   }
   const termsWith = (terms, articleId, value, url) => [...terms.filter(term => term.articleId !== articleId),
     { articleId, title: value.title, ...(value.aliases?.length ? { aliases: [...value.aliases] } : {}), url }];
-  const termRegistryBytes = terms => Buffer.from(`${JSON.stringify(normalizeTerms(terms), null, 2)}\n`);
+  const termRegistryBytes = terms => Buffer.from(`${JSON.stringify(normalizeTerms(terms, false, 'TERM_RECORD_INVALID'), null, 2)}\n`);
   function publicationTerms(value, registry, articleId, url) {
     if (value.section === 'posts') return null;
     return termRegistryBytes(termsWith(registry.terms, articleId, value, url));
@@ -163,7 +173,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
     return !previous || value.replaceTags === true ? (value.newTags ?? []).filter(tag => !catalog.sharedTags.includes(tag) && !registryTags.includes(tag)) : [];
   }
   function tagRegistryBytes(tags) {
-    if (!validRegistryTags(tags)) fail();
+    if (!validRegistryTags(tags)) fail(409, 'TAG_RECORD_INVALID');
     return Buffer.from(`${JSON.stringify(tags, null, 2)}\n`);
   }
   function publicationTags(value, registry, previous) {
@@ -217,7 +227,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
       if (value.articleId) await managed(articleId, value.section);
       const base = await repository.snapshot();
       const previous = await repository.read(path, base.head);
-      if (value.articleId ? previous?.revision !== value.expectedRevision : previous !== null) fail(409);
+      if (value.articleId ? previous?.revision !== value.expectedRevision : previous !== null) fail(409, value.articleId ? 'ARTICLE_CHANGED' : 'ARTICLE_EXISTS');
       const terms = await termRegistry(base.head);
       const registry = await tagRegistry(base.head), tagBytes = publicationTags(value, registry, previous?.bytes);
       await validateAssets(selected, base.head);
@@ -231,16 +241,16 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
     if (!uuid(plan.articleId) || plan.path !== managedPath(plan.articleId, value.section)) fail(503);
     return finish('publish', key, plan, async () => {
       const previous = await repository.read(plan.path, plan.base.head);
-      if (plan.expectedRevision ? previous?.revision !== plan.expectedRevision : previous !== null) fail(409);
+      if (plan.expectedRevision ? previous?.revision !== plan.expectedRevision : previous !== null) fail(409, plan.expectedRevision ? 'ARTICLE_CHANGED' : 'ARTICLE_EXISTS');
       const terms = await termRegistry(plan.base.head), termBytes = Object.hasOwn(plan, 'termRegistryDigest') ? publicationTerms(value, terms, plan.articleId, plan.url) : null;
-      if (Object.hasOwn(plan, 'termRegistryDigest') && (terms.revision !== plan.termRegistryRevision || (termBytes ? digest(termBytes) : null) !== plan.termRegistryDigest)) fail(409);
+      if (Object.hasOwn(plan, 'termRegistryDigest') && (terms.revision !== plan.termRegistryRevision || (termBytes ? digest(termBytes) : null) !== plan.termRegistryDigest)) fail(409, 'TERM_REGISTRY_CHANGED');
       const registry = await tagRegistry(plan.base.head), tagBytes = publicationTags(value, registry, previous?.bytes);
       if (Object.hasOwn(plan, 'tagRegistryDigest')) {
-        if (registry.revision !== plan.tagRegistryRevision || (tagBytes ? digest(tagBytes) : null) !== plan.tagRegistryDigest) fail(409);
-      } else if (tagBytes) fail(409); // Legacy plans may resume only without adding a new public file.
+        if (registry.revision !== plan.tagRegistryRevision || (tagBytes ? digest(tagBytes) : null) !== plan.tagRegistryDigest) fail(409, 'TAG_REGISTRY_CHANGED');
+      } else if (tagBytes) fail(409, 'LEGACY_PLAN'); // Legacy plans may resume only without adding a new public file.
       await validateAssets(selected, plan.base.head);
       const bytes = writeDocument(value, articleBody(value, selected, terms.terms, plan.articleId), previous?.bytes, plan);
-      if (digest(bytes) !== plan.documentDigest) fail(409);
+      if (digest(bytes) !== plan.documentDigest) fail(409, 'DOCUMENT_CHANGED');
       await publicArtifacts([bytes.toString('utf8'), plan.path, plan.url, ...(tagBytes ? [tagBytes.toString('utf8')] : []), ...(termBytes ? [termBytes.toString('utf8')] : [])], [key, ...value.assets]);
       return [{ path: plan.path, bytes }, ...(tagBytes ? [{ path: tagRegistryPath, bytes: tagBytes }] : []), ...(termBytes ? [{ path: termRegistryPath, bytes: termBytes }] : [])];
     });
@@ -272,7 +282,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
     // Two items writing the same article would collapse into one tree entry,
     // and the second would silently replace the first.
     const targets = items.filter(item => item.articleId).map(item => item.articleId);
-    if (new Set(targets).size !== targets.length) fail(409);
+    if (new Set(targets).size !== targets.length) fail(409, 'DUPLICATE_ARTICLE');
     const fingerprint = digest(items.map(canonical).join('\u0000'));
     // Reserved in the same private namespace as a single publication, so
     // request keys stay one closed set and no extra private lookup appears.
@@ -292,11 +302,11 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
           await validateAssets(selected, base.head);
         }));
       }
-      for (const { value, selected } of prepared) {
+      for (const [index, { value, selected }] of prepared.entries()) {
         const articleId = value.articleId ?? randomUUID(), path = managedPath(articleId, value.section);
         if (value.articleId) await managed(articleId, value.section);
         const previous = await repository.read(path, base.head);
-        if (value.articleId ? previous?.revision !== value.expectedRevision : previous !== null) fail(409);
+        if (value.articleId ? previous?.revision !== value.expectedRevision : previous !== null) fail(409, value.articleId ? 'ARTICLE_CHANGED' : 'ARTICLE_EXISTS', index);
         tagList = [...tagList, ...tagAdditions(value, tagList, previous?.bytes)];
         await validateAssets(selected, base.head);
         const allocated = { articleId, path, date, expectedRevision: value.expectedRevision ?? null };
@@ -322,45 +332,144 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
       for (const [index, { value, selected }] of prepared.entries()) {
         const target = plan.items[index];
         const previous = await repository.read(target.path, plan.base.head);
-        if (target.expectedRevision ? previous?.revision !== target.expectedRevision : previous !== null) fail(409);
+        if (target.expectedRevision ? previous?.revision !== target.expectedRevision : previous !== null) fail(409, target.expectedRevision ? 'ARTICLE_CHANGED' : 'ARTICLE_EXISTS', index);
         tagList = [...tagList, ...tagAdditions(value, tagList, previous?.bytes)];
         await validateAssets(selected, plan.base.head);
         const bytes = writeDocument(value, articleBody(value, selected, termList, target.articleId), previous?.bytes, target);
-        if (digest(bytes) !== target.documentDigest) fail(409);
+        if (digest(bytes) !== target.documentDigest) fail(409, 'DOCUMENT_CHANGED', index);
         if (value.section !== 'posts') termList = termsWith(termList, target.articleId, value, target.url);
         files.push({ path: target.path, bytes });
       }
       const tagBytes = tagList.length > registry.tags.length ? tagRegistryBytes(tagList) : null;
       const termBytes = termList === terms.terms ? null : termRegistryBytes(termList);
-      if (registry.revision !== plan.tagRegistryRevision || (tagBytes ? digest(tagBytes) : null) !== plan.tagRegistryDigest) fail(409);
-      if (terms.revision !== plan.termRegistryRevision || (termBytes ? digest(termBytes) : null) !== plan.termRegistryDigest) fail(409);
+      if (registry.revision !== plan.tagRegistryRevision || (tagBytes ? digest(tagBytes) : null) !== plan.tagRegistryDigest) fail(409, 'TAG_REGISTRY_CHANGED');
+      if (terms.revision !== plan.termRegistryRevision || (termBytes ? digest(termBytes) : null) !== plan.termRegistryDigest) fail(409, 'TERM_REGISTRY_CHANGED');
       await publicArtifacts([...files.map(file => file.bytes.toString('utf8')), ...plan.items.flatMap(item => [item.path, item.url]),
         ...(tagBytes ? [tagBytes.toString('utf8')] : []), ...(termBytes ? [termBytes.toString('utf8')] : [])], forbidden);
       return [...files, ...(tagBytes ? [{ path: tagRegistryPath, bytes: tagBytes }] : []), ...(termBytes ? [{ path: termRegistryPath, bytes: termBytes }] : [])];
     });
   }
-  async function asset(request, key) {
-    if (request.headers.get('x-publishing-confirmed') !== '1' || request.headers.get('content-type')?.toLowerCase() !== 'image/webp') fail();
-    const bytes = await limitedBody(request, 4 * 1024 * 1024);
+  async function processImage(bytes) {
     const image = await imageProcessor();
-    let processed;
     try {
       const input = image(bytes, { limitInputPixels: 16_000_000, failOn: 'warning', animated: false });
       const metadata = await input.metadata();
       if (metadata.format !== 'webp' || (metadata.pages ?? 1) !== 1 || !metadata.width || !metadata.height || metadata.width * metadata.height > 16_000_000) fail();
       // sharp strips EXIF/XMP/ICC by default. Never use keepMetadata here.
-      processed = await input.rotate().webp({ quality: 85 }).toBuffer();
+      const processed = await input.rotate().webp({ quality: 85 }).toBuffer();
       if (processed.length > 4 * 1024 * 1024) fail(413);
+      return processed;
     } catch (error) { if (error.status) throw error; fail(); }
+  }
+  async function asset(request, key) {
+    if (request.headers.get('x-publishing-confirmed') !== '1' || request.headers.get('content-type')?.toLowerCase() !== 'image/webp') fail();
+    const bytes = await limitedBody(request, 4 * 1024 * 1024);
+    const processed = await processImage(bytes);
     const plan = await receipts.reserve('asset', key, digest(bytes), async () => {
       const receipt = randomUUID(), publicPath = `/images/articles/${randomUUID()}.webp`, path = `static${publicPath}`;
       await publicArtifacts([publicPath], [key, receipt]);
       const base = await repository.snapshot();
-      if (await repository.read(path, base.head)) fail(409);
+      if (await repository.read(path, base.head)) fail(409, 'ASSET_PATH_TAKEN');
       return { receipt, publicPath, path, base, imageDigest: digest(processed) };
     });
     if (!uuid(plan.receipt) || !imagePath(plan.publicPath) || plan.path !== `static${plan.publicPath}` || digest(processed) !== plan.imageDigest) fail(503);
     return finish('asset', key, plan, async () => [{ path: plan.path, bytes: processed }]);
+  }
+  /** Every image in one request, one commit. Each keeps its own request key,
+   *  and that key's result is recorded too, so a later single upload of the
+   *  same image is recognised instead of writing a second copy. */
+  async function finishAssetBatch(key, plan, processed) {
+    const result = await receipts.getResult('asset', key);
+    if (result) return result;
+    let candidate = await receipts.getCandidate('asset', key);
+    if (!candidate) candidate = await receipts.saveCandidate('asset', key, await repository.prepare(plan.base, plan.items.map((item, index) => ({ path: item.path, bytes: processed[index] }))));
+    if (candidate.base !== plan.base.head || plan.items.some(item => !sha(candidate.revisions?.[item.path]))) fail(503);
+    await repository.apply(candidate);
+    for (const item of plan.items) {
+      await receipts.saveAsset(item.receipt, { path: item.publicPath, revision: candidate.revisions[item.path] });
+      await receipts.saveResult('asset', item.requestKey, { receipt: item.receipt, path: item.publicPath });
+    }
+    return receipts.saveResult('asset', key, { images: plan.items.map(item => ({ receipt: item.receipt, path: item.publicPath })) });
+  }
+  async function assetBatch(request, key) {
+    if (request.headers.get('x-publishing-confirmed') !== '1') fail();
+    if (!/^application\/json(?:\s*;\s*charset=utf-8)?$/i.test(request.headers.get('content-type') ?? '')) fail();
+    let envelope;
+    try { envelope = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(await limitedBody(request, 6 * 1024 * 1024))); }
+    catch (error) { if (error.status) throw error; fail(); }
+    if (!envelope || typeof envelope !== 'object' || Array.isArray(envelope) || Object.keys(envelope).sort().join(',') !== 'confirmed,images,version'
+      || envelope.version !== 1 || envelope.confirmed !== true || !Array.isArray(envelope.images) || !envelope.images.length || envelope.images.length > MAX_BATCH_ASSETS) fail();
+    const requested = envelope.images;
+    if (requested.some(entry => !entry || typeof entry !== 'object' || Array.isArray(entry) || Object.keys(entry).sort().join(',') !== 'requestKey,webp'
+      || !uuid(entry.requestKey) || entry.requestKey === key || typeof entry.webp !== 'string' || !entry.webp.length)) fail();
+    if (new Set(requested.map(entry => entry.requestKey)).size !== requested.length) fail();
+    const keys = requested.map(entry => entry.requestKey);
+    const processed = [], fingerprints = [];
+    let total = 0;
+    for (const entry of requested) {
+      const bytes = Buffer.from(entry.webp, 'base64');
+      if (bytes.length < 12) fail();
+      total += bytes.length;
+      if (total > MAX_BATCH_ASSET_BYTES) fail(413);
+      fingerprints.push(entry.requestKey + ':' + digest(bytes));
+      processed.push(await processImage(bytes));
+    }
+    const plan = await receipts.reserve('asset', key, digest(fingerprints.join('\u0000')), async () => {
+      const base = await repository.snapshot();
+      const items = requested.map(entry => {
+        const receipt = randomUUID(), publicPath = `/images/articles/${randomUUID()}.webp`;
+        return { requestKey: entry.requestKey, receipt, publicPath, path: `static${publicPath}` };
+      });
+      await publicArtifacts(items.map(item => item.publicPath), [key, ...keys, ...items.map(item => item.receipt)]);
+      for (const item of items) if (await repository.read(item.path, base.head)) fail(409, 'ASSET_PATH_TAKEN');
+      return { base, items, imageDigests: processed.map(digest) };
+    });
+    if (!Array.isArray(plan.items) || plan.items.length !== requested.length || !Array.isArray(plan.imageDigests) || plan.imageDigests.length !== processed.length
+      || plan.items.some((item, index) => !uuid(item.receipt) || !imagePath(item.publicPath) || item.path !== `static${item.publicPath}` || item.requestKey !== keys[index])
+      || plan.imageDigests.some((value, index) => value !== digest(processed[index]))) fail(503);
+    return finishAssetBatch(key, plan, processed);
+  }
+  /** Removing an article has the same shape as publishing one: the baseline is
+   *  confirmed first, the file and its term record go in one commit, and the
+   *  result is kept, so resending the same key answers without deleting twice. */
+  async function remove(request, key) {
+    if (!/^application\/json(?:\s*;\s*charset=utf-8)?$/i.test(request.headers.get('content-type') ?? '')) fail();
+    let value;
+    try { value = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(await limitedBody(request, 4096))); }
+    catch (error) { if (error.status) throw error; fail(); }
+    if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).sort().join(',') !== 'articleId,confirmed,expectedRevision,section,version'
+      || value.version !== 1 || value.confirmed !== true || !uuid(value.articleId) || value.articleId === key
+      || !sha(value.expectedRevision) || !['posts', 'lexicon'].includes(value.section)) fail();
+    await rejectPrivate([value.articleId]);
+    await managed(value.articleId, value.section);
+    const removalPlan = async base => {
+      const path = managedPath(value.articleId, value.section);
+      const previous = await repository.read(path, base.head);
+      if (!previous) fail(404);
+      if (previous.revision !== value.expectedRevision) fail(409, 'ARTICLE_CHANGED');
+      const terms = await termRegistry(base.head);
+      const remaining = terms.terms.filter(term => term.articleId !== value.articleId);
+      return { path, terms, termBytes: remaining.length === terms.terms.length ? null : termRegistryBytes(remaining) };
+    };
+    const plan = await receipts.reserve('publish', key, digest(canonical(value)), async () => {
+      const base = await repository.snapshot();
+      const { path, terms, termBytes } = await removalPlan(base);
+      return { base, path, articleId: value.articleId, expectedRevision: value.expectedRevision, removal: true,
+        termRegistryRevision: terms.revision, termRegistryDigest: termBytes ? digest(termBytes) : null };
+    });
+    if (plan.removal !== true || plan.articleId !== value.articleId || plan.path !== managedPath(value.articleId, value.section)) fail(503);
+    const result = await receipts.getResult('publish', key);
+    if (result) return result;
+    let candidate = await receipts.getCandidate('publish', key);
+    if (!candidate) {
+      const { termBytes, terms } = await removalPlan(plan.base);
+      if (terms.revision !== plan.termRegistryRevision || (termBytes ? digest(termBytes) : null) !== plan.termRegistryDigest) fail(409, 'TERM_REGISTRY_CHANGED');
+      candidate = await receipts.saveCandidate('publish', key, await repository.prepare(plan.base,
+        [{ path: plan.path, bytes: null }, ...(termBytes ? [{ path: termRegistryPath, bytes: termBytes }] : [])]));
+    }
+    if (candidate.base !== plan.base.head) fail(503);
+    await repository.apply(candidate);
+    return receipts.saveResult('publish', key, { articleId: plan.articleId, removed: true });
   }
   // Every read here becomes the baseline for the sender's next publication, so
   // all of them answer from the branch that publication will be written on,
@@ -376,7 +485,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
       await authenticate(request);
       const params = new URL(request.url).searchParams, operation = params.get('operation');
       const allowed = operation === 'article' ? ['operation', 'articleId', 'section'] : ['operation'];
-      if ([...params.keys()].some(k => !allowed.includes(k) || params.getAll(k).length !== 1) || !['catalog', 'terms', 'articles', 'article', 'asset', 'publish', 'publish-batch', 'release'].includes(operation)) fail();
+      if ([...params.keys()].some(k => !allowed.includes(k) || params.getAll(k).length !== 1) || !['catalog', 'terms', 'articles', 'article', 'asset', 'asset-batch', 'publish', 'publish-batch', 'delete', 'release'].includes(operation)) fail();
       if (request.method !== (['catalog', 'terms', 'articles', 'article'].includes(operation) ? 'GET' : 'POST')) fail(405);
       if (operation === 'release') return response(repository.release ? await repository.release() : { released: false });
       if (operation === 'articles') {
@@ -414,7 +523,9 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
       }
       const key = request.headers.get('idempotency-key'); if (!uuid(key)) fail();
       if (operation === 'publish-batch') return response(await publishBatch(request, key));
+      if (operation === 'asset-batch') return response(await assetBatch(request, key));
+      if (operation === 'delete') return response(await remove(request, key));
       return response(operation === 'publish' ? await publish(request, key) : await asset(request, key));
-    } catch (error) { return failure(error.status); }
+    } catch (error) { return failure(error.status, error.reason, error.item); }
   };
 }

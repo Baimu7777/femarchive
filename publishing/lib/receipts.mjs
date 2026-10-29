@@ -12,11 +12,17 @@ export function createReceipts(objects) {
   }
   return {
     async reserve(kind, key, digest, allocate) {
+      // Two kinds only. A batch of images reserves under 'asset' and a removal
+      // under 'publish', each with its own random key: a new namespace would
+      // add a point lookup to isPrivateIdentifier below for every identifier
+      // checked, and these keys are already covered by the two it reads.
       if (!['asset', 'publish'].includes(kind) || !uuid(key) || !/^[a-f0-9]{64}$/.test(digest)) fail();
       const path = `requests/${kind}/${key}`;
       let record = await objects.get(path);
       if (!record) record = await once(path, { digest, plan: await allocate() });
-      if (record.digest !== digest) fail(409);
+      // The same request key came back carrying different content: honouring
+      // it would publish two different copies under one reservation.
+      if (record.digest !== digest) fail(409, 'REQUEST_REUSED');
       return record.plan;
     },
     getCandidate: (kind, key) => objects.get(`candidates/${kind}/${key}`),

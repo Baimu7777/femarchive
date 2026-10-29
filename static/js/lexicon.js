@@ -24,6 +24,17 @@
 
   var EVENT_MARK = '<span class="lexicon-event" title="事件" aria-label="事件"><svg aria-hidden="true" viewBox="0 0 16 16" focusable="false"><path d="M4 14V3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M4 3h7l-1.6 2.3L11 7.6H4z" fill="currentColor"/></svg></span>';
 
+  // 已经有人讨论过的词条，在立场和事件标记旁边再挂一个带条数的小对话框。
+  var counts = Object.create(null);
+  function commentMark(total) {
+    if (!total) return '';
+    var shown = total > 99 ? '99+' : String(total);
+    var label = total + ' 条评论';
+    return '<span class="lexicon-talk lexicon-talk--' + shown.length + '" title="' + label + '" aria-label="' + label + '">'
+      + '<svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 13.8214 2.48697 15.5291 3.33782 17L2.5 21.5L7 20.6622C8.47087 21.513 10.1786 22 12 22Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      + '<span class="lexicon-talk__count">' + shown + '</span></span>';
+  }
+
   function markFor(entry) {
     var html = '';
     if (entry.polarity === 'positive' || entry.polarity === 'negative') {
@@ -33,6 +44,7 @@
       html += '<span class="lexicon-mark ' + cls + '" title="' + label + '" aria-label="' + label + '">' + (positive ? '＋' : '－') + '</span>';
     }
     if (entry.event) html += EVENT_MARK;
+    html += commentMark(counts[entry.url]);
     return html;
   }
 
@@ -141,7 +153,25 @@
   var pagerPages = root.querySelector('[data-lexicon-pages]');
   var prevButton = root.querySelector('[data-lexicon-prev]');
   var nextButton = root.querySelector('[data-lexicon-next]');
-  var letter = '', polarity = '', page = 1;
+  var searchForm = root.querySelector('[data-lexicon-search]');
+  var searchInput = searchForm && searchForm.querySelector('.search-box__input');
+  var searchClear = searchForm && searchForm.querySelector('[data-lexicon-search-clear]');
+  var letter = '', polarity = '', query = '', page = 1;
+
+  // A word matches on its own name, the names it is also written about under,
+  // and the opening of its explanation.
+  function haystack(entry) {
+    if (entry.search === undefined) {
+      entry.search = [entry.title].concat(entry.aliases || []).concat([entry.text || '']).join(' ').toLowerCase();
+    }
+    return entry.search;
+  }
+
+  function matches(link) {
+    if (!query) return true;
+    var entry = link && byUrl[link.getAttribute('data-lexicon-entry')];
+    return !!entry && haystack(entry).indexOf(query) !== -1;
+  }
 
   // Only the numbers around the current page are worth showing once the
   // directory grows; the gaps collapse into an ellipsis.
@@ -191,7 +221,8 @@
       Array.prototype.slice.call(group.querySelectorAll('li')).forEach(function (item) {
         var link = item.querySelector('[data-lexicon-entry]');
         var ok = (!letter || group.getAttribute('data-letter') === letter)
-          && (!polarity || (link && link.getAttribute('data-polarity') === polarity));
+          && (!polarity || (link && link.getAttribute('data-polarity') === polarity))
+          && matches(link);
         item.hidden = true;
         if (ok) matched.push(item);
       });
@@ -223,6 +254,27 @@
     });
   }
 
+  if (searchForm) {
+    searchForm.addEventListener('submit', function (event) { event.preventDefault(); });
+  }
+  if (searchInput) {
+    searchInput.addEventListener('input', function () {
+      query = searchInput.value.trim().toLowerCase();
+      if (searchClear) searchClear.hidden = !searchInput.value;
+      apply();
+    });
+    searchInput.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && searchInput.value) { event.stopPropagation(); searchInput.value = ''; searchInput.dispatchEvent(new Event('input')); }
+    });
+  }
+  if (searchClear) {
+    searchClear.addEventListener('click', function () {
+      searchInput.value = '';
+      searchInput.dispatchEvent(new Event('input'));
+      searchInput.focus();
+    });
+  }
+
   function bind(selector, attribute, set) {
     var buttons = Array.prototype.slice.call(root.querySelectorAll(selector + ' button'));
     buttons.forEach(function (button) {
@@ -240,4 +292,39 @@
   bind('.lexicon-letters', 'data-letter', setLetter);
   bind('.lexicon-polarity', 'data-polarity', setPolarity);
   apply();
+
+  // Comment counts come from the same Waline service the cards talk to, in one
+  // request per batch of paths. The directory stays usable if it is offline.
+  function paintCounts() {
+    Array.prototype.slice.call(root.querySelectorAll('.lexicon-list a[data-lexicon-entry]')).forEach(function (link) {
+      var total = counts[link.getAttribute('data-lexicon-entry')];
+      var existing = link.querySelector('.lexicon-talk');
+      if (existing) existing.parentNode.removeChild(existing);
+      if (total) link.insertAdjacentHTML('beforeend', commentMark(total));
+    });
+  }
+
+  function loadCounts() {
+    var server = walineHost && (walineHost.getAttribute('data-server') || '').replace(/\/+$/, '');
+    if (!server) return;
+    var paths = entries.map(function (entry) { return entry.url; });
+    var batches = [];
+    for (var i = 0; i < paths.length; i += 40) batches.push(paths.slice(i, i + 40));
+    Promise.all(batches.map(function (batch) {
+      var query = batch.map(function (path) { return 'url=' + encodeURIComponent(path); }).join('&');
+      return fetch(server + '/api/comment?type=count&' + query)
+        .then(function (response) { return response.ok ? response.json() : null; })
+        .then(function (payload) {
+          // One path answers with a bare number, several with a list.
+          var data = payload && payload.data !== undefined ? payload.data : payload;
+          var list = Array.isArray(data) ? data : [data];
+          batch.forEach(function (path, index) {
+            var total = Number(list[index]);
+            if (total > 0) counts[path] = total;
+          });
+        })
+        .catch(function () { /* 评论服务不可用时就不显示条数 */ });
+    })).then(paintCounts);
+  }
+  loadCounts();
 })();

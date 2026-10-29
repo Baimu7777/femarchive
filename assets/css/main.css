@@ -5538,6 +5538,7 @@ i.star-outline svg {
 .lexicon-list a:hover, .lexicon-list a:focus-visible { border-bottom-color: currentColor; }
 .lexicon-mark { display: inline-flex; align-items: center; justify-content: center; width: 1.05rem; height: 1.05rem; border-radius: 50%; font-size: .72rem; font-weight: 700; line-height: 1; }
 .lexicon-list .lexicon-mark { flex: none; }
+.lexicon-list a .lexicon-talk { margin-left: .06rem; }
 .lexicon-mark--positive { color: var(--accent-deep); background: rgba(64, 138, 113, 0.16); }
 .lexicon-mark--negative { color: #7a5a12; background: rgba(122, 90, 18, 0.14); }
 
@@ -5580,6 +5581,19 @@ i.star-outline svg {
 .lexicon-dialog__content a { text-decoration: none; border-bottom: 1px solid currentColor; }
 .lexicon-reference { color: var(--accent-deep); }
 .lexicon-event { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 1.05rem; height: 1.05rem; color: #2f6b52; }
+/* 有人讨论过的词条，名字后面挂一个带条数的小对话框。 */
+.lexicon-talk { position: relative; display: inline-flex; align-items: center; justify-content: center; flex: none; width: 1.15rem; height: 1.15rem; color: #2f6b52; }
+.lexicon-talk svg { width: 100%; height: 100%; }
+.lexicon-talk__count { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding-bottom: .14em; font-size: .55rem; font-weight: 700; line-height: 1; letter-spacing: -.02em; }
+.lexicon-talk--2 .lexicon-talk__count { font-size: .46rem; }
+.lexicon-talk--3 .lexicon-talk__count { font-size: .37rem; letter-spacing: -.04em; }
+.lexicon-search { margin-bottom: 0; }
+.lexicon-search .search-box__field { min-height: 44px; }
+.lexicon-search .search-box__input { height: 44px; }
+.lexicon-return { margin: 0 0 .9rem; }
+.lexicon-return[hidden] { display: none; }
+.lexicon-return button { padding: 0; border: 0; background: none; color: var(--accent-deep); font-size: .82rem; cursor: pointer; }
+.lexicon-return button:hover { text-decoration: underline; }
 .lexicon-event svg { width: 100%; height: 100%; }
 /* The other names an entry is written about under, shown right under its
    name on the entry page and on its card. */
@@ -5588,6 +5602,7 @@ i.star-outline svg {
 /* The stance mark and event flag sit next to a heading, so they follow its
    size instead of staying at the listing's small fixed one. */
 .article-hero__title .lexicon-mark,
+.article-hero__title .lexicon-talk,
 .article-hero__title .lexicon-event { width: .6em; height: .6em; margin-left: .25em; vertical-align: .18em; font-size: .62em; }
 .lexicon-legend { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 1.1rem; margin: 0; padding: .9rem 0 0; color: var(--text-soft); font-size: .72rem; }
 .lexicon-legend span { display: inline-flex; align-items: center; gap: .3rem; }

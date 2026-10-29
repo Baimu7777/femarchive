@@ -14,6 +14,20 @@
   {{/* 标题只留给读屏和标签页，页面本身直接从筛选栏开始。 */}}
   <h1 class="sr-only">{{ .Title }}</h1>
   {{ if $entries }}
+  <section class="list-filter lexicon-search">
+    <form class="local-filter search-box" role="search" data-lexicon-search>
+      <label class="sr-only" for="lexicon-filter-input">搜索词条</label>
+      <div class="search-box__field">
+        <img class="search-box__icon" src="{{ "/icons/search.svg" | relLangURL }}" alt="" aria-hidden="true">
+        <input id="lexicon-filter-input" class="search-box__input" type="search" placeholder="搜索词语、别名或释义" autocomplete="off">
+        <button class="search-box__clear" type="button" data-lexicon-search-clear aria-label="清空搜索" title="清空搜索" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.2"/>
+          </svg>
+        </button>
+      </div>
+    </form>
+  </section>
   <div class="lexicon-toolbar">
     <p>中文按拼音排列 · 数字归入 #</p>
     <div class="lexicon-polarity" role="group" aria-label="按词条取向筛选">

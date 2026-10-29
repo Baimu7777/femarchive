@@ -57,6 +57,10 @@
       <div class="article-column">
         <article class="article-main">
           <header class="article-hero">
+            {{ if eq .Section "lexicon" }}
+              {{/* 从文章里点词条过来时，看完可以一键回到原文。 */}}
+              <p class="lexicon-return" data-lexicon-return hidden><button type="button">← 返回原文</button></p>
+            {{ end }}
             {{ if or (gt (len $categories) 0) (gt (len $tags) 0) }}
               <div class="archive-chip-row article-chip-row">
                 {{ range $categories }}
@@ -82,7 +86,8 @@
             {{ end }}
           </header>
 
-          <div class="article-content prose"{{ if eq .Section "lexicon" }} data-lexicon-self="{{ .RelPermalink }}"{{ end }}>
+          {{/* 正文里提到的词条会自动互链；词条自己的页面不链自己。 */}}
+          <div class="article-content prose" data-lexicon-self="{{ if eq .Section "lexicon" }}{{ .RelPermalink }}{{ end }}">
             {{ .Content }}
           </div>
         </article>
