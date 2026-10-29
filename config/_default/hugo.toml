@@ -93,6 +93,11 @@ summaryLength = 28
   weight = 20
 
 [[menu.main]]
+  name = "词条"
+  url = "/lexicon/"
+  weight = 25
+
+[[menu.main]]
   name = "新闻"
   url = "/news/"
   weight = 30

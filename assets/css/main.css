@@ -4334,7 +4334,7 @@ i.star-outline svg {
   gap: 0.35rem;
 }
 
-/* 评论正文保持等宽，回复关系由标记和底色表达。 */
+/* 回复缩进挂在父评论下面，由连接线、底色和更小的头像表达层级。 */
 #waline .wl-cards .wl-card-item {
   display: block;
   min-width: 0;
@@ -4397,14 +4397,41 @@ i.star-outline svg {
   margin-bottom: 0;
 }
 
+/* 回复挂在父评论下：左侧缩进一格，并用一条竖线连到父评论。 */
 #waline .wl-card .wl-quote {
   width: auto;
-  margin: 0.35rem 0 0;
-  padding: 0;
+  margin: 0.75rem 0 0;
+  padding: 0 0 0 1.1rem;
   border: 0;
+  border-inline-start: 2px solid rgba(64, 138, 113, 0.38);
+}
+
+#waline .wl-quote .wl-card-item {
+  padding: 0.85rem 0 0;
+}
+
+#waline .wl-quote > .wl-card-item:first-child {
+  padding-top: 0;
+}
+
+/* 回复的头像比主楼小一圈，和缩进一起把层级说清楚。 */
+#waline .wl-quote .wl-user {
+  --avatar-size: 26px;
+  top: 0.85rem;
+}
+
+#waline .wl-quote > .wl-card-item:first-child > .wl-user {
+  top: 0;
+}
+
+#waline .wl-quote .wl-head,
+#waline .wl-quote .wl-meta {
+  min-height: 26px;
+  padding-inline-start: 36px;
 }
 
 #waline .wl-quote .wl-content {
+  margin-top: 0.5rem;
   border-color: rgba(64, 138, 113, 0.28);
   background: #f1f7f2;
 }
@@ -4439,6 +4466,19 @@ i.star-outline svg {
 
   #waline .wl-card .wl-meta {
     display: none;
+  }
+
+  #waline .wl-card .wl-quote {
+    padding-left: 0.7rem;
+  }
+
+  #waline .wl-quote .wl-head,
+  #waline .wl-quote .wl-meta {
+    padding-inline-start: 32px;
+  }
+
+  #waline .wl-quote .wl-user {
+    --avatar-size: 24px;
   }
 }
 
@@ -5484,9 +5524,14 @@ i.star-outline svg {
 .lexicon-letters { display: flex; flex-wrap: wrap; gap: .3rem; padding: .9rem 0; border-top: 1px solid var(--line-mid); border-bottom: 1px solid var(--line-mid); }
 .lexicon-letters button { min-width: 2rem; justify-content: center; }
 .lexicon-letters button[disabled] { color: var(--text-soft); opacity: .45; cursor: default; }
-.lexicon-summary { display: flex; justify-content: space-between; gap: 1rem; padding: 1rem 0 1.4rem; color: var(--text-soft); font-size: .78rem; }
+.lexicon-summary { display: flex; justify-content: space-between; gap: 1rem; padding: .5rem 0 1.4rem; color: var(--text-soft); font-size: .78rem; }
 .lexicon-index { display: flex; flex-direction: column; gap: 1.4rem; }
+/* 两列排版：字母组依次填进左右两列，一组不跨列拆开。 */
+.lexicon-index--columns { display: block; column-count: 2; column-gap: 3.4rem; }
 .lexicon-group { display: grid; grid-template-columns: 2.6rem 1fr; gap: 0 1rem; align-items: start; }
+.lexicon-group[hidden] { display: none; }
+.lexicon-index--columns .lexicon-group { break-inside: avoid; page-break-inside: avoid; margin: 0 0 1.5rem; }
+.lexicon-index--columns .lexicon-group:last-child { margin-bottom: 0; }
 .lexicon-letter { margin: 0; font-size: .95rem; line-height: 2; color: var(--text-soft); font-weight: 700; }
 .lexicon-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: .3rem; }
 .lexicon-list a { display: inline-flex; align-items: flex-start; gap: .22rem; font-size: 1rem; line-height: 2; text-decoration: none; border-bottom: 1px solid transparent; }
@@ -5544,7 +5589,7 @@ i.star-outline svg {
    size instead of staying at the listing's small fixed one. */
 .article-hero__title .lexicon-mark,
 .article-hero__title .lexicon-event { width: .6em; height: .6em; margin-left: .25em; vertical-align: .18em; font-size: .62em; }
-.lexicon-legend { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 1.1rem; margin: 0; padding: .6rem 0 0; color: var(--text-soft); font-size: .72rem; }
+.lexicon-legend { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 1.1rem; margin: 0; padding: .9rem 0 0; color: var(--text-soft); font-size: .72rem; }
 .lexicon-legend span { display: inline-flex; align-items: center; gap: .3rem; }
 /* Colour and size come across as names from a closed set, never as CSS; the
    archive paints them with its own palette. Keep in step with the forum's
@@ -5564,7 +5609,16 @@ span[data-color="gray"] { color: #6b6f68; }
 [data-size="sm"] { font-size: .85em; }
 [data-size="lg"] { font-size: 1.2em; }
 [data-size="xl"] { font-size: 1.45em; }
-@media (max-width: 560px) { .lexicon-group { grid-template-columns: 2rem 1fr; gap: 0 .6rem; } .lexicon-dialog__body { padding: 1.1rem 1.1rem 1.4rem; } }
+/* 分页条 */
+.lexicon-pager { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: .4rem; padding: 1.8rem 0 .4rem; }
+.lexicon-pager[hidden] { display: none; }
+.lexicon-pager button { min-width: 2rem; padding: .3rem .7rem; border: 1px solid var(--line-mid); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text-main); font-size: .8rem; line-height: 1.5; cursor: pointer; }
+.lexicon-pager button[aria-pressed="true"] { color: var(--accent-deep); border-color: var(--accent-deep); }
+.lexicon-pager button[disabled] { color: var(--text-soft); opacity: .45; cursor: default; }
+.lexicon-pager__pages { display: inline-flex; flex-wrap: wrap; gap: .3rem; margin: 0 .5rem; }
+.lexicon-pager__gap { align-self: center; color: var(--text-soft); font-size: .8rem; }
+@media (max-width: 860px) { .lexicon-index--columns { column-count: 1; } }
+@media (max-width: 560px) { .lexicon-group { grid-template-columns: 2rem 1fr; gap: 0 .6rem; } .lexicon-dialog__body { padding: 1.1rem 1.1rem 1.4rem; } .lexicon-legend { justify-content: flex-start; gap: .8rem; } }
 .lexicon-comments { margin-top: 2.2rem; padding-top: 1.4rem; border-top: 1px solid var(--line-mid); }
 .lexicon-comments h3 { margin: 0 0 1rem; font-size: .9rem; letter-spacing: .04em; color: var(--accent-deep); }
 

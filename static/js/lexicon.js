@@ -131,29 +131,96 @@
   dialog.addEventListener('close', function () { stack = []; backButton.hidden = true; });
   dialog.addEventListener('click', function (event) { if (event.target === dialog) dialog.close(); });
 
-  // Filters
+  // Filters and paging. The directory is laid out in two columns, so a page
+  // holds 30 words; filtering always drops back to the first page.
+  var PAGE_SIZE = 30;
   var groups = Array.prototype.slice.call(root.querySelectorAll('.lexicon-group'));
   var empty = root.querySelector('[data-lexicon-empty]');
   var count = root.querySelector('[data-lexicon-count]');
-  var letter = '', polarity = '';
+  var pager = root.querySelector('.lexicon-pager');
+  var pagerPages = root.querySelector('[data-lexicon-pages]');
+  var prevButton = root.querySelector('[data-lexicon-prev]');
+  var nextButton = root.querySelector('[data-lexicon-next]');
+  var letter = '', polarity = '', page = 1;
 
-  function apply() {
-    var shown = 0;
+  // Only the numbers around the current page are worth showing once the
+  // directory grows; the gaps collapse into an ellipsis.
+  function pageNumbers(pages) {
+    var wanted = [1, pages, page - 1, page, page + 1];
+    var kept = [];
+    wanted.sort(function (a, b) { return a - b; }).forEach(function (value) {
+      if (value >= 1 && value <= pages && kept[kept.length - 1] !== value) kept.push(value);
+    });
+    var out = [];
+    kept.forEach(function (value, index) {
+      if (index && value - kept[index - 1] > 1) out.push(null);
+      out.push(value);
+    });
+    return out;
+  }
+
+  function renderPager(pages) {
+    if (!pager) return;
+    pager.hidden = pages < 2;
+    if (prevButton) prevButton.disabled = page <= 1;
+    if (nextButton) nextButton.disabled = page >= pages;
+    if (!pagerPages) return;
+    pagerPages.textContent = '';
+    pageNumbers(pages).forEach(function (value) {
+      if (value === null) {
+        var gap = document.createElement('span');
+        gap.className = 'lexicon-pager__gap';
+        gap.textContent = '…';
+        pagerPages.appendChild(gap);
+        return;
+      }
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = String(value);
+      button.setAttribute('data-lexicon-page', String(value));
+      button.setAttribute('aria-pressed', String(value === page));
+      button.setAttribute('aria-label', '第 ' + value + ' 页');
+      pagerPages.appendChild(button);
+    });
+  }
+
+  function apply(keepPage) {
+    if (!keepPage) page = 1;
+    var matched = [];
     groups.forEach(function (group) {
-      var items = Array.prototype.slice.call(group.querySelectorAll('li'));
-      var visible = 0;
-      items.forEach(function (item) {
+      Array.prototype.slice.call(group.querySelectorAll('li')).forEach(function (item) {
         var link = item.querySelector('[data-lexicon-entry]');
         var ok = (!letter || group.getAttribute('data-letter') === letter)
           && (!polarity || (link && link.getAttribute('data-polarity') === polarity));
-        item.hidden = !ok;
-        if (ok) visible++;
+        item.hidden = true;
+        if (ok) matched.push(item);
       });
-      group.hidden = visible === 0;
-      shown += visible;
     });
-    if (empty) empty.hidden = shown !== 0;
-    if (count) count.textContent = '共收录 ' + shown + ' 个词语';
+    var pages = Math.max(1, Math.ceil(matched.length / PAGE_SIZE));
+    if (page > pages) page = pages;
+    var start = (page - 1) * PAGE_SIZE;
+    matched.slice(start, start + PAGE_SIZE).forEach(function (item) { item.hidden = false; });
+    groups.forEach(function (group) { group.hidden = !group.querySelector('li:not([hidden])'); });
+    if (empty) empty.hidden = matched.length !== 0;
+    if (count) count.textContent = '共收录 ' + matched.length + ' 个词语';
+    renderPager(pages);
+  }
+
+  function turnTo(value) {
+    page = value;
+    apply(true);
+    var top = root.querySelector('.lexicon-letters') || root;
+    if (top.getBoundingClientRect().top < 0) top.scrollIntoView();
+  }
+
+  if (pager) {
+    pager.addEventListener('click', function (event) {
+      var button = event.target.closest ? event.target.closest('button') : null;
+      if (!button || button.disabled) return;
+      if (button.hasAttribute('data-lexicon-prev')) turnTo(page - 1);
+      else if (button.hasAttribute('data-lexicon-next')) turnTo(page + 1);
+      else if (button.hasAttribute('data-lexicon-page')) turnTo(Number(button.getAttribute('data-lexicon-page')));
+    });
   }
 
   function bind(selector, attribute, set) {
@@ -172,4 +239,5 @@
   setLetter.current = ''; setPolarity.current = '';
   bind('.lexicon-letters', 'data-letter', setLetter);
   bind('.lexicon-polarity', 'data-polarity', setPolarity);
+  apply();
 })();

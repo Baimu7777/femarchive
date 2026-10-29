@@ -16,6 +16,8 @@
             {{ $icon = "icons/home.svg" }}
           {{ else if or (eq $link ("/posts/" | relLangURL)) (eq .Name "全部文章") }}
             {{ $icon = "icons/posts.svg" }}
+          {{ else if or (eq $link ("/lexicon/" | relLangURL)) (eq .Name "词条") }}
+            {{ $icon = "icons/lexicon.svg" }}
           {{ else if or (eq $link ("/news/" | relLangURL)) (eq .Name "新闻") }}
             {{ $icon = "icons/news.svg" }}
           {{ else if or (eq $link ("/categories/" | relLangURL)) (eq .Name "分类") }}
@@ -38,6 +40,10 @@
         <a href="{{ "/posts/" | relLangURL }}" class="site-nav__link {{ if eq .Section "posts" }}is-active{{ end }}">
           <img class="site-nav__icon" src="{{ "icons/posts.svg" | relURL }}" alt="" aria-hidden="true">
           <span class="site-nav__label">全部文章</span>
+        </a>
+        <a href="{{ "/lexicon/" | relLangURL }}" class="site-nav__link {{ if eq .Section "lexicon" }}is-active{{ end }}">
+          <img class="site-nav__icon" src="{{ "icons/lexicon.svg" | relURL }}" alt="" aria-hidden="true">
+          <span class="site-nav__label">词条</span>
         </a>
         <a href="{{ "/news/" | relLangURL }}" class="site-nav__link {{ if eq .Section "news" }}is-active{{ end }}">
           <img class="site-nav__icon" src="{{ "icons/news.svg" | relURL }}" alt="" aria-hidden="true">

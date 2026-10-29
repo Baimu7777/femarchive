@@ -28,8 +28,9 @@
       <button type="button" data-letter="{{ $letter }}" aria-pressed="false"{{ if not $has }} disabled{{ end }}>{{ $letter }}</button>
     {{ end }}
   </div>
+  <p class="lexicon-legend"><span><span class="lexicon-mark lexicon-mark--positive" aria-hidden="true">＋</span>女权立场</span><span><span class="lexicon-mark lexicon-mark--negative" aria-hidden="true">－</span>反女权立场</span><span>{{ partial "lexicon-event-mark.html" . }}事件</span></p>
   <div class="lexicon-summary"><span data-lexicon-count>共收录 {{ len $entries }} 个词语</span><span class="muted">点击词语，展开了解 ↗</span></div>
-  <div class="lexicon-index">
+  <div class="lexicon-index lexicon-index--columns">
     {{ range $letter := $letters }}
       {{ $group := where $entries "initial" $letter }}
       {{ with $group }}
@@ -41,9 +42,13 @@
         </section>
       {{ end }}
     {{ end }}
-    <p class="empty-state" data-lexicon-empty hidden>没有符合条件的词语。</p>
   </div>
-  <p class="lexicon-legend"><span><span class="lexicon-mark lexicon-mark--positive" aria-hidden="true">＋</span>女权立场</span><span><span class="lexicon-mark lexicon-mark--negative" aria-hidden="true">－</span>反女权立场</span><span>{{ partial "lexicon-event-mark.html" . }}事件</span></p>
+  <p class="empty-state" data-lexicon-empty hidden>没有符合条件的词语。</p>
+  <nav class="lexicon-pager" aria-label="词条分页" hidden>
+    <button type="button" data-lexicon-prev>← 上一页</button>
+    <span class="lexicon-pager__pages" data-lexicon-pages></span>
+    <button type="button" data-lexicon-next>下一页 →</button>
+  </nav>
   <dialog class="lexicon-dialog" aria-label="词语详情">
     <div class="lexicon-dialog__bar">
       <nav class="lexicon-crumb"><button type="button" data-lexicon-back hidden>← 返回上一个</button><span>词条 / 词语详情</span></nav>
