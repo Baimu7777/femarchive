@@ -11,7 +11,8 @@
 {{ $used := slice }}
 {{ range $entries }}{{ $used = $used | append .initial }}{{ end }}
 <main class="archive-page"><div class="shell archive-shell"><section class="archive-panel archive-panel--plain lexicon-directory">
-  <div class="archive-heading"><h1 class="archive-heading__title">{{ .Title }}</h1><p class="archive-heading__desc">{{ .Description }}</p></div>
+  {{/* 标题只留给读屏和标签页，页面本身直接从筛选栏开始。 */}}
+  <h1 class="sr-only">{{ .Title }}</h1>
   {{ if $entries }}
   <div class="lexicon-toolbar">
     <p>中文按拼音排列 · 数字归入 #</p>
