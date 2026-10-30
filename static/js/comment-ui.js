@@ -3,6 +3,10 @@ import { updateAnonymousAvatars } from './comment-avatars.js';
 export function mountCommentControls(root, loginEntry) {
       let originalLogin;
       const simplifyControls = () => {
+        const form = root.querySelector('.wl-comment');
+        if (form?.parentElement && !form.parentElement.classList.contains('archive-comment-flow')) {
+          form.parentElement.classList.add('archive-comment-flow');
+        }
         updateAnonymousAvatars(root);
         for (const card of root.querySelectorAll('.wl-card')) {
           const content = card.querySelector(':scope > .wl-content');

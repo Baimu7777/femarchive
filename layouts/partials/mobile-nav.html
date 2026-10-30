@@ -1,0 +1,8 @@
+<nav class="mobile-library-nav" aria-label="手机主导航">
+  <a class="mobile-library-nav__brand{{ if .IsHome }} is-active{{ end }}" href="{{ "/" | relLangURL }}"{{ if .IsHome }} aria-current="page"{{ end }}><img src="{{ "/pen.svg" | relLangURL }}" alt="" aria-hidden="true"><span>文库</span></a>
+  {{ $current := . }}
+  {{ range slice (dict "name" "文章" "url" "/posts/" "section" "posts") (dict "name" "词条" "url" "/lexicon/" "section" "lexicon") (dict "name" "新闻" "url" "/news/" "section" "news") }}
+    {{ $active := cond (eq .section "") $current.IsHome (eq $current.Section .section) }}
+    <a href="{{ .url | relLangURL }}"{{ if $active }} class="is-active" aria-current="page"{{ end }}>{{ .name }}</a>
+  {{ end }}
+</nav>

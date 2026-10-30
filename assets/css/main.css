@@ -5850,3 +5850,36 @@ html.skip-home-intro .home-content { margin-top: 0; }
 
 [data-lexicon-waline] > .wl-comment { order: 3; }
 [data-lexicon-waline] .wl-cards { max-height: 330px; overflow-y: auto; overscroll-behavior: contain; }
+
+/* The mobile navigation belongs to the viewport, outside the intro flow. */
+@media (max-width: 760px) {
+  :root { --mobile-nav-inset: min(44px, env(safe-area-inset-top, 0px)); --mobile-nav-height: calc(56px + var(--mobile-nav-inset)); }
+  body { padding-top: var(--mobile-nav-height); }
+  .mobile-library-nav { top: 0; height: var(--mobile-nav-height); min-height: 0; padding-top: var(--mobile-nav-inset); }
+  .body-home .home-content > .site-header { display: block; padding: 12px 0; }
+  .body-home .site-header__inner { display: block; padding: 0 0 12px; }
+  .body-home .site-header .site-nav { display: none; }
+  .body-home .site-brand__title { font-size: 1.15rem; line-height: 1.5; }
+  .body-home .site-brand__subtitle, .body-home .site-brand__stance { margin: 4px 0 0; font-size: .85rem; line-height: 1.65; }
+  html.skip-home-intro .home-content, body.home-hero-dismissed .home-content { margin-top: 0; }
+}
+.archive-card__meta .archive-card__author,
+.news-row__meta-main > span:first-child,
+.sidebar-meta__author { color: var(--accent-deep); font-weight: 600; }
+/* Waline's form wrapper is a sibling of its list in both comment mounts. */
+:is(#waline, [data-lexicon-waline]) { display: flex; flex-direction: column; }
+:is(#waline, [data-lexicon-waline]) > .wl-header { order: 0; }
+:is(#waline, [data-lexicon-waline]) > .wl-cards { order: 1; }
+:is(#waline, [data-lexicon-waline]) > .wl-operation { order: 2; }
+:is(#waline, [data-lexicon-waline]) > .wl-comment,
+:is(#waline, [data-lexicon-waline]) > .wl-panel { order: 3; }
+:is(#waline, [data-lexicon-waline]) > .wl-meta-foot { order: 4; }
+
+.archive-comment-flow { display: flex; flex-direction: column; }
+.archive-comment-flow > .wl-header { order: 0; }
+.archive-comment-flow > .wl-cards { order: 1; }
+.archive-comment-flow > .wl-operation { order: 2; }
+.archive-comment-flow > .wl-comment { order: 3; margin-top: 20px; }
+.archive-comment-flow > .wl-meta-foot { order: 4; }
+ .posts-category-entry { display: inline-flex; align-items: center; gap: 12px; width: fit-content; min-height: 40px; margin: 0 0 12px; padding: 8px 14px; border: 1px solid var(--line-mid); border-radius: 12px; background: #f6fbf8; color: var(--accent-deep); font-size: .9rem; text-decoration: none; }
+.sidebar-meta__author a { color: inherit; font: inherit; }

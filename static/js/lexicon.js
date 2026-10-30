@@ -67,7 +67,7 @@
     if (waline) { try { waline.update({ path: entry.url }); } catch (e) { /* keep the card usable */ } return; }
     if (walineLoading) return;
     walineLoading = true;
-    Promise.all([import('/js/comment-avatars.js'), import('/js/comment-ui.js')]).then(function (helpers) {
+    Promise.all([import('/js/comment-avatars.js'), import(walineHost.getAttribute('data-comment-ui') || '/js/comment-ui.js')]).then(function (helpers) {
       helpers[0].prepareAnonymousIdentity(window.localStorage, walineHost.getAttribute('data-server'), function () { return crypto.randomUUID(); });
       return import('https://unpkg.com/@waline/client@v3/dist/waline.js').then(function (mod) {
 

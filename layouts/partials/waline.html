@@ -14,7 +14,7 @@
 
 <script type="module">
   import { prepareAnonymousIdentity } from '{{ "/js/comment-avatars.js" | relURL }}';
-  import { mountCommentControls } from '{{ "/js/comment-ui.js" | relURL }}';
+  import { mountCommentControls } from '{{ "/js/comment-ui.js" | relURL }}?v={{ readFile "static/js/comment-ui.js" | md5 }}';
   const walineRoot = document.getElementById('waline');
   const walineStatus = document.getElementById('waline-status');
 

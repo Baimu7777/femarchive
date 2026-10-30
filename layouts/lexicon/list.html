@@ -77,7 +77,7 @@
 {{ if site.Params.comments.enable }}      <details class="lexicon-comments" open aria-label="讨论区">
         <summary>讨论区</summary>
         <div class="lexicon-comments__heading"><button type="button" class="comment-panel__login" data-lexicon-login hidden>登录</button></div>
-        <div data-lexicon-waline
+        <div data-lexicon-waline data-comment-ui="{{ "/js/comment-ui.js" | relURL }}?v={{ readFile "static/js/comment-ui.js" | md5 }}"
              data-server="{{ site.Params.comments.serverURL }}"
              data-lang="{{ site.Params.comments.lang | default "zh-CN" }}"
              data-turnstile="{{ site.Params.comments.turnstileKey }}"></div>
