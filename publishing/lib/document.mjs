@@ -9,7 +9,7 @@ import { isDeepStrictEqual } from 'node:util';
 import { isUtf8 } from 'node:buffer';
 import { fail, uuid, sha, imagePath } from './errors.mjs';
 
-const fields = ['presentation', 'section', 'version', 'confirmed', 'title', 'author', 'license', 'html', 'initial', 'polarity', 'isEvent', 'aliases', 'categories', 'tags', 'newTags', 'replaceTags', 'comments', 'commentImages', 'commentKinds', 'commentOrphans', 'originalDate', 'sourceUrl', 'relatedTerms', 'assets', 'articleId', 'expectedRevision'];
+const fields = ['presentation', 'section', 'version', 'confirmed', 'title', 'author', 'license', 'html', 'initial', 'polarity', 'isEvent', 'aliases', 'categories', 'tags', 'newTags', 'replaceTags', 'comments', 'commentImages', 'commentKinds', 'commentOrphans', 'originalDate', 'sourceUrl', 'sourceName', 'publishDate', 'replaceCategories', 'relatedTerms', 'assets', 'articleId', 'expectedRevision'];
 // Closed set: the index letter cannot carry anything the listing does not use.
 const PRESENTATIONS = ['article', 'cards', 'discussion', 'quote', 'centered', 'grouped', 'highlight', 'folded', 'threaded'];
 // The forum's article path sends the discussion as parent cards and reply
@@ -19,6 +19,23 @@ const COMMENT_KINDS = ['card', 'reply'];
 export const DISCUSSION_TITLE = '评论交流区';
 export const WITHDRAWN_PARENT_LABEL = '回复内容已删除';
 const INDEX_LETTERS = new Set(['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ', '⚑']);
+// A day, or a day and a time with its offset: what Hugo sorts and shows.
+const NEWS_DATE = /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])(?:T(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d))?$/;
+/** How a news source reads on the public page: its name linked, the name
+ *  alone, or the bare link. The theme renders the stored value as Markdown. */
+export function newsSource(name, url) {
+  if (name && url) return `[${name}](${url})`;
+  return name || url || '';
+}
+/** The two halves back out of the stored value, for the editor. */
+export function readNewsSource(value) {
+  if (typeof value !== 'string' || !value.trim()) return {};
+  const linked = /^\s*\[([^\[\]()\r\n]{1,200})\]\((https:[^\s()]+)\)\s*$/.exec(value);
+  if (linked) return safeLink(linked[2]) === linked[2] ? { sourceName: linked[1], sourceUrl: linked[2] } : { sourceName: linked[1] };
+  const trimmed = value.trim();
+  if (safeLink(trimmed) === trimmed) return { sourceUrl: trimmed };
+  return /[\[\]()\r\n]/.test(trimmed) || trimmed.length > 200 ? {} : { sourceName: trimmed };
+}
 const control = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
 const text = (value, max, nonempty = false) => typeof value === 'string' && value.length <= max && !control.test(value) && (!nonempty || value.trim().length > 0);
 const strings = (value, maxItems, maxLength) => Array.isArray(value) && value.length <= maxItems && value.every(v => text(v, maxLength, true)) && new Set(value).size === value.length;
@@ -31,7 +48,16 @@ export function validateArticle(value, catalog) {
   if ('relatedTerms' in value && (!strings(value.relatedTerms, 50, 100) || value.relatedTerms.some(term => !value.tags.includes(term)))) fail();
   if ('replaceTags' in value && typeof value.replaceTags !== 'boolean') fail();
   if ('presentation' in value && !PRESENTATIONS.includes(value.presentation)) fail();
-  if ('section' in value && value.section !== 'posts') fail();
+  if ('section' in value && !['posts', 'news'].includes(value.section)) fail();
+  // News items carry a date and a named source instead of an author and
+  // categories; the article fields stay off them so nothing is applied by
+  // accident.
+  if (value.section === 'news') {
+    if (value.categories.length || 'replaceCategories' in value || (value.presentation ?? 'article') !== 'article' || value.comments.length) fail();
+  } else if ('publishDate' in value || 'sourceName' in value) fail();
+  if ('replaceCategories' in value && (value.replaceCategories !== true || value.section !== 'posts')) fail();
+  if ('publishDate' in value && !NEWS_DATE.test(value.publishDate)) fail();
+  if ('sourceName' in value && (!text(value.sourceName, 200, true) || /[\r\n\[\]()]/.test(value.sourceName))) fail();
   if ('initial' in value && !INDEX_LETTERS.has(value.initial)) fail();
   if ('polarity' in value && !['positive', 'negative', 'unmarked'].includes(value.polarity)) fail();
   if ('isEvent' in value && typeof value.isEvent !== 'boolean') fail();
@@ -354,7 +380,14 @@ export function writeDocument(value, body, previous, plan) {
   if (!previous) {
     // Entries carry no taxonomy. Empty arrays would still render as front
     // matter keys, so only write the ones that actually have values.
-    const metadata = { title: value.title, author: value.author ?? '豆瓣-女阅组', date: plan.date, license: value.license ?? '该作品版权归原作者所有。',
+    const news = value.section === 'news';
+    const metadata = { title: value.title,
+      // A news item has no author unless one is given, and no categories.
+      ...(news ? (value.author ? { author: value.author } : {}) : { author: value.author ?? '豆瓣-女阅组' }),
+      // The date Hugo shows and sorts by. A news item keeps the day it
+      // happened; everything else is dated when the archive first takes it.
+      date: news && value.publishDate ? value.publishDate : plan.date,
+      license: value.license ?? '该作品版权归原作者所有。',
       ...(value.presentation ? { publication_layout: value.presentation } : {}),
       ...(INDEX_LETTERS.has(value.initial) ? { initial: value.initial } : {}),
       ...(['positive', 'negative', 'unmarked'].includes(value.polarity) ? { polarity: value.polarity } : {}),
@@ -363,9 +396,12 @@ export function writeDocument(value, body, previous, plan) {
       ...(value.categories.length ? { categories: value.categories } : {}),
       ...(value.tags.length ? { tags: value.tags } : {}),
       ...(value.relatedTerms ? { related_terms: value.relatedTerms } : {}),
-      ...(value.sourceUrl ? { original_url: value.sourceUrl } : {}),
+      ...(news ? (value.sourceName || value.sourceUrl ? { original_url: newsSource(value.sourceName, value.sourceUrl) } : {})
+        : value.sourceUrl ? { original_url: value.sourceUrl } : {}),
       ...(value.originalDate ? { original_date: value.originalDate } : {}),
-      url: `/${value.section ?? "lexicon"}/${plan.articleId}/` };
+      // Articles and news get the public number allocated for them; the file
+      // keeps its internal identifier. Lexicon entries keep their own path.
+      ...(plan.slug ? { slug: plan.slug } : { url: `/${value.section ?? "lexicon"}/${plan.articleId}/` }) };
     return Buffer.from(`---\n${yaml.dump(metadata, { lineWidth: -1, noRefs: true })}---\n\n${body}`);
   }
   const document = readDocument(previous), newline = document.newline;
@@ -383,12 +419,16 @@ export function writeDocument(value, body, previous, plan) {
   if (['positive', 'negative', 'unmarked'].includes(value.polarity)) managed.polarity = value.polarity;
   if (typeof value.isEvent === 'boolean') managed.event = value.isEvent;
   if (Array.isArray(value.aliases)) managed.aliases = value.aliases;
-  if ('sourceUrl' in value) managed.original_url = value.sourceUrl;
+  if (value.section === 'news') {
+    if ('sourceUrl' in value || 'sourceName' in value) managed.original_url = newsSource(value.sourceName, value.sourceUrl);
+    if ('publishDate' in value) managed.date = value.publishDate;
+  } else if ('sourceUrl' in value) managed.original_url = value.sourceUrl;
   if ('originalDate' in value) managed.original_date = value.originalDate;
+  if (value.replaceCategories === true) managed.categories = value.categories;
   for (const [key, keyValue] of Object.entries(managed)) {
     const pattern = new RegExp(`^(?:${key}|"${key}"|'${key}')\\s*:`);
     const found = lines.map((line, index) => pattern.test(line) ? index : -1).filter(index => index !== -1);
-    if (found.length > 1 || (Object.hasOwn(document.metadata, key) && found.length !== 1)) fail(409);
+    if (found.length > 1 || (Object.hasOwn(document.metadata, key) && found.length !== 1)) fail(409, 'LEGACY_MARKUP');
     const encoded = `${key}: ${JSON.stringify(keyValue)}`;
     if (found.length) {
       const start = found[0]; let end = start + 1;
@@ -399,11 +439,11 @@ export function writeDocument(value, body, previous, plan) {
   const raw = lines.join(newline);
   // Anchors, merge keys or unusual scalar syntax must never change other fields.
   let updated;
-  try { updated = yaml.load(raw); } catch { fail(409); }
+  try { updated = yaml.load(raw); } catch { fail(409, 'LEGACY_MARKUP'); }
   const oldFields = { ...document.metadata }, newFields = { ...updated };
   for (const key of Object.keys(managed)) { delete oldFields[key]; delete newFields[key]; }
   // Deep comparison: a managed key may hold a list, not just a scalar.
-  if (Object.entries(managed).some(([key, keyValue]) => !isDeepStrictEqual(updated[key], keyValue)) || !isDeepStrictEqual(oldFields, newFields)) fail(409);
+  if (Object.entries(managed).some(([key, keyValue]) => !isDeepStrictEqual(updated[key], keyValue)) || !isDeepStrictEqual(oldFields, newFields)) fail(409, 'LEGACY_MARKUP');
   const prefix = document.source.startsWith('\uFEFF') ? '\uFEFF' : '';
   return Buffer.from(`${prefix}---${newline}${raw}${newline}---${newline}${newline}${body}`);
 }
@@ -424,7 +464,7 @@ function discussionFields(document) {
   if (start === -1) {
     // A legacy plain article can still be edited as body. Structured website
     // markup cannot be silently stripped or guessed into anonymous excerpts.
-    if (/website-publication-comments:|<details\b|class\s*=\s*["'][^"']*\b(?:mycard|douban-comments-title|quote|quote-center|quote-content|language-discussion-group|text-highlight--block)\b/.test(document.body)) fail(409);
+    if (/website-publication-comments:|<details\b|class\s*=\s*["'][^"']*\b(?:mycard|douban-comments-title|quote|quote-center|quote-content|language-discussion-group|text-highlight--block)\b/.test(document.body)) fail(409, 'LEGACY_MARKUP');
     return fallback;
   }
   const footer = document.body.slice(start).trim();
@@ -570,11 +610,16 @@ function recoverBodyLayouts(source) {
   for (const change of changes.reverse()) source = source.slice(0, change.start) + change.html + source.slice(change.end);
   return source;
 }
-export function articleFields(document) {
+/** A news item's date and source, as the editor edits them. */
+export function newsFields(metadata) {
+  const date = metadata.date instanceof Date ? metadata.date.toISOString() : typeof metadata.date === 'string' ? metadata.date.trim() : '';
+  return { ...(date ? { publishDate: date } : {}), ...readNewsSource(metadata.original_url) };
+}
+export function articleFields(document, section) {
   const discussion = discussionFields({ ...document, body: recoverBodyLayouts(document.body) });
   // A missing boundary is also a website edit. Do not remove recognizable
   // website layout containers merely because legacy front matter is absent.
-  if (/website-publication-comments:|<details\b|class\s*=\s*["'][^"']*\b(?:mycard|douban-comments-title|quote|quote-center|quote-content|language-discussion-group|text-highlight--block)\b/.test(discussion.body)) fail(409);
+  if (/website-publication-comments:|<details\b|class\s*=\s*["'][^"']*\b(?:mycard|douban-comments-title|quote|quote-center|quote-content|language-discussion-group|text-highlight--block)\b/.test(discussion.body)) fail(409, 'LEGACY_MARKUP');
   return {
     ...(PRESENTATIONS.includes(document.metadata.publication_layout) ? { presentation: document.metadata.publication_layout } : {}),
     title: text(document.metadata.title, 300) ? document.metadata.title : '',
@@ -608,7 +653,8 @@ export function articleFields(document) {
     ...(discussion.commentImages ? { commentImages: discussion.commentImages } : {}),
     ...(discussion.commentKinds ? { commentKinds: discussion.commentKinds, commentOrphans: discussion.commentOrphans } : {}),
     ...(text(document.metadata.original_date, 100, true) ? { originalDate: document.metadata.original_date } : {}),
-    ...(typeof document.metadata.original_url === 'string' && safeLink(document.metadata.original_url) === document.metadata.original_url
-      ? { sourceUrl: document.metadata.original_url } : {}),
+    ...(section === 'news' ? newsFields(document.metadata)
+      : typeof document.metadata.original_url === 'string' && safeLink(document.metadata.original_url) === document.metadata.original_url
+        ? { sourceUrl: document.metadata.original_url } : {}),
   };
 }

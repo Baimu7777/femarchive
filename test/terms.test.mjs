@@ -10,7 +10,7 @@ import { token, catalog, fixture, request, memoryObjects, gitService } from './h
 const registryPath = 'data/website-publication-terms.json';
 const baselineId = '5142a97e-735c-4a14-8b3c-0baa73afdfaf';
 function setup(terms = []) {
-  const remote = gitService(), objects = memoryObjects(), receipts = createReceipts(objects);
+  const remote = gitService({ slugs: true }), objects = memoryObjects(), receipts = createReceipts(objects);
   const repository = createGitHubRepository({ token: 'synthetic', owner: 'site-owner', repo: 'site-repo', branch: 'main', publicOrigin: 'https://website.example', fetch: remote.fetch });
   const fresh = () => createReceiver({ token, repository, receipts, catalog: { ...catalog, terms } });
   return { remote, objects, receipts, repository, receive: fresh(), fresh };

@@ -34,6 +34,10 @@ tar -C "${HOME}/.local" -xf "node-v${NODE_VERSION}-linux-x64.tar.xz"
 rm "node-v${NODE_VERSION}-linux-x64.tar.xz"
 export PATH="${HOME}/.local/node-v${NODE_VERSION}-linux-x64/bin:${PATH}"
 
+# Refuse to build two pages under one public number, or a hand-numbered page
+# the publishing receiver does not know about yet.
+node scripts/check-slugs.mjs
+
 # Resolve bare reference URLs before rendering; failures retain their original labels.
 node scripts/link-titles.mjs
 

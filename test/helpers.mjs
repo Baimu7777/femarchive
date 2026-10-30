@@ -17,13 +17,21 @@ export function memoryObjects() {
 }
 
 const hash = (x) => createHash('sha1').update(x).digest('hex');
-export function gitService() {
+export const SLUG_REGISTRY = `${JSON.stringify({ posts: { 26: 40 }, news: { 26: 7 } }, null, 2)}\n`;
+export function gitService({ slugs = false } = {}) {
   const blobs = new Map(), trees = new Map(), commits = new Map(), calls = [];
   // Branches beside main, so a receiver configured with a staging branch (the
   // deployment default) can look it up, create it and move it.
   const refs = new Map();
   let sequence = 0;
-  const initialTree = hash('initial-tree'); trees.set(initialTree, new Map());
+  // A deployed site carries the public number registry that new articles and
+  // news continue from; tests that publish them ask for it.
+  const initialFiles = new Map();
+  if (slugs) {
+    const slugBytes = Buffer.from(SLUG_REGISTRY), slugSha = hash(slugBytes); blobs.set(slugSha, slugBytes);
+    initialFiles.set('data/website-publication-slugs.json', { sha: slugSha, mode: '100644', type: 'blob' });
+  }
+  const initialTree = hash('initial-tree'); trees.set(initialTree, initialFiles);
   let head = hash('initial-head'); commits.set(head, { tree: { sha: initialTree }, parents: [] });
   const api = {
     calls, blobs, trees, commits, failAfterPatch: false, beforePatch: null, omitContents: false,

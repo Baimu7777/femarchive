@@ -17,6 +17,9 @@ const reasons = new Set([
   'TERM_REGISTRY_CHANGED', 'TERM_REGISTRY_FULL', 'TERM_REGISTRY_INVALID', 'TERM_RECORD_INVALID',
   'TAG_REGISTRY_CHANGED', 'TAG_REGISTRY_FULL', 'TAG_REGISTRY_INVALID', 'TAG_RECORD_INVALID',
   'REQUEST_REUSED', 'ASSET_PATH_TAKEN', 'ASSET_MISSING', 'LEGACY_PLAN', 'IMPORTED_POST_CHANGED', 'BRANCH_MOVED',
+  // A hand-written article whose layout cannot be carried back into the
+  // editor without losing something, and the public number registry.
+  'LEGACY_MARKUP', 'SLUG_REGISTRY_INVALID', 'SLUG_REGISTRY_CHANGED',
 ]);
 const position = value => Number.isInteger(value) && value >= 0 && value < 20;
 export function fail(status = 400, reason, item) { throw Object.assign(new Error(errors[status][0]), { status, reason, item }); }
@@ -29,5 +32,6 @@ export function failure(status, reason, item) {
 }
 export const uuid = value => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(value);
 export const sha = value => typeof value === 'string' && /^[0-9a-f]{40}$/.test(value);
-export const articlePath = (id, section = "lexicon") => { if (!uuid(id) || !["posts", "lexicon"].includes(section)) fail(); return `content/${section}/${id}.md`; };
+export const SECTIONS = ["posts", "news", "lexicon"];
+export const articlePath = (id, section = "lexicon") => { if (!uuid(id) || !SECTIONS.includes(section)) fail(); return `content/${section}/${id}.md`; };
 export const imagePath = value => typeof value === 'string' && /^\/images\/articles\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.webp$/.test(value);

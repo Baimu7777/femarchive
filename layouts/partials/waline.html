@@ -39,7 +39,8 @@
         el: walineRoot,
         serverURL: '{{ site.Params.comments.serverURL }}',
         lang: '{{ site.Params.comments.lang | default "zh-CN" }}',
-        path: window.location.pathname,
+        // A page that moved to its public number keeps the thread it had.
+        path: {{ with .Params.comment_path }}{{ . }}{{ else }}window.location.pathname{{ end }},
         pageview: enablePageview && !isLocal,
         reaction: false,
         comment: '.waline-comment-count',

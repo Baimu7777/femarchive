@@ -10,7 +10,7 @@ const id = '1ac5d0b7-46a2-407b-915b-cf9939f9211c';
 const path = 'content/posts/35字词整理.md';
 const source = '---\ntitle: "字词整理"\nslug: "261035"\nauthor: "文库作者"\ncategories: ["语言回声"]\ntags: []\n---\n\n## 字词整理\n\n<section class="language-discussion-group language-discussion-group--warm" aria-labelledby="words">\n\n### 字义讨论 {#words}\n\n{{< card >}}\n保留已经整理的说明。\n{{< /card >}}\n\n</section>\n';
 function setup() {
-  const remote = gitService(); remote.edit(path, source);
+  const remote = gitService({ slugs: true }); remote.edit(path, source);
   const importedPosts = { [id]: { path, title: '字词整理', revision: remote.files().get(path).sha } };
   const repository = createGitHubRepository({ token: 'test', owner: 'site-owner', repo: 'site-repo', branch: 'main', publicOrigin: 'https://website.example', approvedPostPaths: [path], fetch: remote.fetch });
   const receive = createReceiver({ token, repository, receipts: createReceipts(memoryObjects()), catalog, importedPosts });

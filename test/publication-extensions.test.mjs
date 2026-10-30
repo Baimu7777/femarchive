@@ -10,7 +10,7 @@ import { fixture, token, catalog, request, memoryObjects, gitService } from './h
 
 const registryPath = 'data/website-publication-tags.json';
 function setup(sharedTags = []) {
-  const remote = gitService(), objects = memoryObjects(), receipts = createReceipts(objects);
+  const remote = gitService({ slugs: true }), objects = memoryObjects(), receipts = createReceipts(objects);
   const repository = createGitHubRepository({ token: 'synthetic', owner: 'site-owner', repo: 'site-repo', branch: 'main', publicOrigin: 'https://website.example', fetch: remote.fetch });
   const receive = () => createReceiver({ token, repository, receipts, catalog: { ...catalog, sharedTags } });
   return { remote, objects, repository, receipts, receive: receive(), freshReceiver: receive };
@@ -212,7 +212,7 @@ test('a pending legacy publication without registry plan fields still resumes sa
   };
   assert.equal((await publish(s, fixture(), key)).status, 503);
   assert.equal((await publish(s, fixture(), key)).status, 200);
-  assert.equal(s.remote.files().size, 1); assert.equal(s.remote.text(registryPath), null);
+  assert.equal(s.remote.files().size, 2); assert.equal(s.remote.text(registryPath), null);
 });
 
 test('catalog and registry additions reject encoded earlier private receipt identifiers', async () => {

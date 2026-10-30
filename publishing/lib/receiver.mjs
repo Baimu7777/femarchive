@@ -1,5 +1,5 @@
 import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
-import { fail, response, failure, uuid, sha, articlePath, imagePath } from './errors.mjs';
+import { fail, response, failure, uuid, sha, articlePath, imagePath, SECTIONS } from './errors.mjs';
 import { validateArticle, assertNoPrivateValues, assertNoPrivateText, publicBody, readDocument, writeDocument, articleURL, articleFields } from './document.mjs';
 import { legacyPostFields } from './legacy-post.mjs';
 import { validExistingPostPath } from '../existing-posts.mjs';
@@ -7,6 +7,26 @@ import { validExistingPostPath } from '../existing-posts.mjs';
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 const termRegistryPath = 'data/website-publication-terms.json';
 const tagRegistryPath = 'data/website-publication-tags.json';
+// The last public number handed out, per section and year. Numbers are never
+// derived from how many files exist, so a deleted article's number is not
+// given out again, and the file is written in the same commit as the article
+// that takes the next one.
+const slugRegistryPath = 'data/website-publication-slugs.json';
+const SLUG_SECTIONS = { posts: '1', news: '2' };
+const yearOf = iso => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai', year: '2-digit' }).format(new Date(iso));
+export const validSlugRegistry = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+  && Object.keys(value).every(section => Object.hasOwn(SLUG_SECTIONS, section))
+  && Object.values(value).every(years => years && typeof years === 'object' && !Array.isArray(years)
+    && Object.entries(years).every(([year, last]) => /^\d{2}$/.test(year) && Number.isSafeInteger(last) && last >= 0 && last < 1_000_000));
+/** YY + section digit + a sequence of at least three digits that simply grows
+ *  past 999 rather than being cut. The year is the archive's first
+ *  publication year (China time), never a news item's own date. */
+export function allocateSlug(registry, section, date) {
+  const year = yearOf(date), last = registry[section]?.[year] ?? 0, next = last + 1;
+  return { slug: `${year}${SLUG_SECTIONS[section]}${String(next).padStart(3, '0')}`,
+    registry: { ...registry, [section]: { ...(registry[section] ?? {}), [year]: next } } };
+}
+const slugRegistryBytes = registry => Buffer.from(`${JSON.stringify(registry, null, 2)}\n`);
 // One confirmed batch, one commit: twenty articles plus both registries stay
 // well inside a single tree and the request body limit below.
 const MAX_BATCH_ITEMS = 20;
@@ -47,9 +67,13 @@ async function limitedBody(request, limit) {
 const validToken = token => typeof token === 'string' && /^[A-Za-z0-9_-]{32,256}$/.test(token);
 export function createReceiver({ token, repository, receipts, catalog, importedArticles = {}, importedPosts = {} }) {
   const imports = importedPosts && typeof importedPosts === 'object' && !Array.isArray(importedPosts) ? Object.entries(importedPosts) : [];
-  const validImports = Boolean(importedPosts) && typeof importedPosts === 'object' && !Array.isArray(importedPosts) && imports.length <= 50 && imports.every(([id, post]) => uuid(id) && post && validExistingPostPath(post.path) && sha(post.revision) && typeof post.title === 'string' && post.title.length <= 200 && !/[\r\n]/.test(post.title)) && new Set(imports.map(([, post]) => post.path)).size === imports.length;
+  const validImports = Boolean(importedPosts) && typeof importedPosts === 'object' && !Array.isArray(importedPosts) && imports.length <= 500 && imports.every(([id, post]) => uuid(id) && post && validExistingPostPath(post.path) && sha(post.revision) && typeof post.title === 'string' && post.title.length <= 200 && !/[\r\n]/.test(post.title)
+    && (post.section === undefined || ['posts', 'news'].includes(post.section)) && post.path.startsWith(`content/${post.section ?? 'posts'}/`)
+    && (post.slug === undefined || /^\d{6,}$/.test(post.slug))) && new Set(imports.map(([, post]) => post.path)).size === imports.length;
+  // A hand-written file is adopted only in the section it was registered in.
+  const importedIn = (id, section) => Boolean(validImports) && Object.hasOwn(importedPosts, id) && (importedPosts[id].section ?? 'posts') === section;
   const configured = validToken(token) && repository && receipts && catalog && Array.isArray(catalog.categories) && Array.isArray(catalog.sharedTags) && validImports;
-  const managedPath = (id, section) => section === 'posts' && Object.hasOwn(importedPosts, id) ? importedPosts[id].path : articlePath(id, section);
+  const managedPath = (id, section) => importedIn(id, section) ? importedPosts[id].path : articlePath(id, section);
   const expected = Buffer.from(`Bearer ${token}`);
   async function authenticate(request) {
     if (!configured) fail(503);
@@ -61,7 +85,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
   }
   async function managed(id, section) {
     let record = await receipts.getArticle(id);
-    if (!record && section === 'posts' && Object.hasOwn(importedPosts, id)) {
+    if (!record && importedIn(id, section)) {
       const post = importedPosts[id], snapshot = await repository.snapshot();
       const file = await repository.read(post.path, snapshot.head);
       if (!file || file.revision !== post.revision) fail(409, 'IMPORTED_POST_CHANGED');
@@ -108,6 +132,17 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
   async function publicArtifacts(fields, forbidden) {
     await rejectPrivate(assertNoPrivateText(fields, forbidden));
   }
+  async function slugRegistry(head) {
+    const file = await repository.read(slugRegistryPath, head);
+    // Without the registry there is nothing to continue from, and starting
+    // over at 001 would hand out numbers that are already public.
+    if (!file) fail(409, 'SLUG_REGISTRY_INVALID');
+    let registry;
+    try { registry = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(file.bytes)); } catch { fail(409, 'SLUG_REGISTRY_INVALID'); }
+    if (!validSlugRegistry(registry)) fail(409, 'SLUG_REGISTRY_INVALID');
+    return { registry, revision: file.revision };
+  }
+  const numbered = value => !value.articleId && Object.hasOwn(SLUG_SECTIONS, value.section ?? '');
   async function tagRegistry(head) {
     const file = await repository.read(tagRegistryPath, head);
     if (!file) return { tags: [], revision: null };
@@ -189,6 +224,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
     if (candidate.base !== plan.base.head || !sha(candidate.revisions?.[plan.path])) fail(503);
     if (plan.tagRegistryDigest && !sha(candidate.revisions?.[tagRegistryPath])) fail(503);
     if (plan.termRegistryDigest && !sha(candidate.revisions?.[termRegistryPath])) fail(503);
+    if (plan.slugRegistryDigest && !sha(candidate.revisions?.[slugRegistryPath])) fail(503);
     await repository.apply(candidate);
     if (kind === 'asset') {
       await receipts.saveAsset(plan.receipt, { path: plan.publicPath, revision: candidate.revisions[plan.path] });
@@ -205,6 +241,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
     if (candidate.base !== plan.base.head || plan.items.some(item => !sha(candidate.revisions?.[item.path]))) fail(503);
     if (plan.tagRegistryDigest && !sha(candidate.revisions?.[tagRegistryPath])) fail(503);
     if (plan.termRegistryDigest && !sha(candidate.revisions?.[termRegistryPath])) fail(503);
+    if (plan.slugRegistryDigest && !sha(candidate.revisions?.[slugRegistryPath])) fail(503);
     await repository.apply(candidate);
     for (const item of plan.items) await receipts.saveArticle(item.articleId, { path: item.path });
     return receipts.saveResult('publish', key, { items: plan.items.map(item => ({ articleId: item.articleId, revision: candidate.revisions[item.path], url: item.url })) });
@@ -231,7 +268,11 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
       const terms = await termRegistry(base.head);
       const registry = await tagRegistry(base.head), tagBytes = publicationTags(value, registry, previous?.bytes);
       await validateAssets(selected, base.head);
-      const allocated = { articleId, path, base, date: new Date().toISOString(), expectedRevision: value.expectedRevision ?? null, tagRegistryRevision: registry.revision, tagRegistryDigest: tagBytes ? digest(tagBytes) : null };
+      const date = new Date().toISOString();
+      const slugs = numbered(value) ? await slugRegistry(base.head) : null;
+      const numberedAs = slugs ? allocateSlug(slugs.registry, value.section, date) : null;
+      const allocated = { articleId, path, base, date, expectedRevision: value.expectedRevision ?? null, tagRegistryRevision: registry.revision, tagRegistryDigest: tagBytes ? digest(tagBytes) : null,
+        ...(numberedAs ? { slug: numberedAs.slug, slugRegistryRevision: slugs.revision, slugRegistryDigest: digest(slugRegistryBytes(numberedAs.registry)) } : {}) };
       const bytes = writeDocument(value, articleBody(value, selected, terms.terms, articleId), previous?.bytes, allocated);
       const url = articleURL(repository.publicOrigin, articleId, readDocument(bytes).metadata, value.section);
       const termBytes = publicationTerms(value, terms, articleId, url);
@@ -251,8 +292,14 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
       await validateAssets(selected, plan.base.head);
       const bytes = writeDocument(value, articleBody(value, selected, terms.terms, plan.articleId), previous?.bytes, plan);
       if (digest(bytes) !== plan.documentDigest) fail(409, 'DOCUMENT_CHANGED');
+      let slugBytes = null;
+      if (plan.slug) {
+        const slugs = await slugRegistry(plan.base.head), numberedAs = allocateSlug(slugs.registry, value.section, plan.date);
+        slugBytes = slugRegistryBytes(numberedAs.registry);
+        if (slugs.revision !== plan.slugRegistryRevision || numberedAs.slug !== plan.slug || digest(slugBytes) !== plan.slugRegistryDigest) fail(409, 'SLUG_REGISTRY_CHANGED');
+      }
       await publicArtifacts([bytes.toString('utf8'), plan.path, plan.url, ...(tagBytes ? [tagBytes.toString('utf8')] : []), ...(termBytes ? [termBytes.toString('utf8')] : [])], [key, ...value.assets]);
-      return [{ path: plan.path, bytes }, ...(tagBytes ? [{ path: tagRegistryPath, bytes: tagBytes }] : []), ...(termBytes ? [{ path: termRegistryPath, bytes: termBytes }] : [])];
+      return [{ path: plan.path, bytes }, ...(tagBytes ? [{ path: tagRegistryPath, bytes: tagBytes }] : []), ...(termBytes ? [{ path: termRegistryPath, bytes: termBytes }] : []), ...(slugBytes ? [{ path: slugRegistryPath, bytes: slugBytes }] : [])];
     });
   }
   // One confirmed batch becomes exactly one commit. Every article, the term
@@ -289,7 +336,8 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
     const plan = await receipts.reserve('publish', key, fingerprint, async () => {
       const base = await repository.snapshot(), date = new Date().toISOString();
       const terms = await termRegistry(base.head), registry = await tagRegistry(base.head);
-      let termList = terms.terms, tagList = registry.tags;
+      const slugs = prepared.some(({ value }) => numbered(value)) ? await slugRegistry(base.head) : null;
+      let termList = terms.terms, tagList = registry.tags, slugList = slugs?.registry;
       const planned = [], documents = [];
       // Resolve independent update baselines in bounded groups. The repository
       // caches by immutable commit, so validation below reuses the same bytes.
@@ -309,7 +357,10 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
         if (value.articleId ? previous?.revision !== value.expectedRevision : previous !== null) fail(409, value.articleId ? 'ARTICLE_CHANGED' : 'ARTICLE_EXISTS', index);
         tagList = [...tagList, ...tagAdditions(value, tagList, previous?.bytes)];
         await validateAssets(selected, base.head);
-        const allocated = { articleId, path, date, expectedRevision: value.expectedRevision ?? null };
+        let slug;
+        // Numbers go out in the order of the batch, each after the last.
+        if (numbered(value)) ({ slug, registry: slugList } = allocateSlug(slugList, value.section, date));
+        const allocated = { articleId, path, date, expectedRevision: value.expectedRevision ?? null, ...(slug ? { slug } : {}) };
         const bytes = writeDocument(value, articleBody(value, selected, termList, articleId), previous?.bytes, allocated);
         const url = articleURL(repository.publicOrigin, articleId, readDocument(bytes).metadata, value.section);
         if (value.section !== 'posts') termList = termsWith(termList, articleId, value, url);
@@ -319,7 +370,9 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
       const termBytes = termList === terms.terms ? null : termRegistryBytes(termList);
       await publicArtifacts([...documents.map(bytes => bytes.toString('utf8')), ...planned.flatMap(item => [item.path, item.url]),
         ...(tagBytes ? [tagBytes.toString('utf8')] : []), ...(termBytes ? [termBytes.toString('utf8')] : [])], forbidden);
+      const slugBytes = slugs ? slugRegistryBytes(slugList) : null;
       return { base, date, items: planned,
+        ...(slugs ? { slugRegistryRevision: slugs.revision, slugRegistryDigest: digest(slugBytes) } : {}),
         tagRegistryRevision: registry.revision, tagRegistryDigest: tagBytes ? digest(tagBytes) : null,
         termRegistryRevision: terms.revision, termRegistryDigest: termBytes ? digest(termBytes) : null };
     });
@@ -327,12 +380,19 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
     plan.items.forEach((item, index) => { if (!uuid(item.articleId) || item.path !== managedPath(item.articleId, items[index].section)) fail(503); });
     return finishBatch(key, plan, async () => {
       const terms = await termRegistry(plan.base.head), registry = await tagRegistry(plan.base.head);
-      let termList = terms.terms, tagList = registry.tags;
+      const slugs = plan.slugRegistryDigest ? await slugRegistry(plan.base.head) : null;
+      let termList = terms.terms, tagList = registry.tags, slugList = slugs?.registry;
       const files = [];
       for (const [index, { value, selected }] of prepared.entries()) {
         const target = plan.items[index];
         const previous = await repository.read(target.path, plan.base.head);
         if (target.expectedRevision ? previous?.revision !== target.expectedRevision : previous !== null) fail(409, target.expectedRevision ? 'ARTICLE_CHANGED' : 'ARTICLE_EXISTS', index);
+        if (numbered(value)) {
+          if (!slugList) fail(409, 'SLUG_REGISTRY_CHANGED', index);
+          let slug;
+          ({ slug, registry: slugList } = allocateSlug(slugList, value.section, plan.date));
+          if (slug !== target.slug) fail(409, 'SLUG_REGISTRY_CHANGED', index);
+        }
         tagList = [...tagList, ...tagAdditions(value, tagList, previous?.bytes)];
         await validateAssets(selected, plan.base.head);
         const bytes = writeDocument(value, articleBody(value, selected, termList, target.articleId), previous?.bytes, target);
@@ -344,9 +404,11 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
       const termBytes = termList === terms.terms ? null : termRegistryBytes(termList);
       if (registry.revision !== plan.tagRegistryRevision || (tagBytes ? digest(tagBytes) : null) !== plan.tagRegistryDigest) fail(409, 'TAG_REGISTRY_CHANGED');
       if (terms.revision !== plan.termRegistryRevision || (termBytes ? digest(termBytes) : null) !== plan.termRegistryDigest) fail(409, 'TERM_REGISTRY_CHANGED');
+      const slugBytes = slugs ? slugRegistryBytes(slugList) : null;
+      if (slugs && (slugs.revision !== plan.slugRegistryRevision || digest(slugBytes) !== plan.slugRegistryDigest)) fail(409, 'SLUG_REGISTRY_CHANGED');
       await publicArtifacts([...files.map(file => file.bytes.toString('utf8')), ...plan.items.flatMap(item => [item.path, item.url]),
         ...(tagBytes ? [tagBytes.toString('utf8')] : []), ...(termBytes ? [termBytes.toString('utf8')] : [])], forbidden);
-      return [...files, ...(tagBytes ? [{ path: tagRegistryPath, bytes: tagBytes }] : []), ...(termBytes ? [{ path: termRegistryPath, bytes: termBytes }] : [])];
+      return [...files, ...(tagBytes ? [{ path: tagRegistryPath, bytes: tagBytes }] : []), ...(termBytes ? [{ path: termRegistryPath, bytes: termBytes }] : []), ...(slugBytes ? [{ path: slugRegistryPath, bytes: slugBytes }] : [])];
     });
   }
   async function processImage(bytes) {
@@ -439,7 +501,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
     catch (error) { if (error.status) throw error; fail(); }
     if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).sort().join(',') !== 'articleId,confirmed,expectedRevision,section,version'
       || value.version !== 1 || value.confirmed !== true || !uuid(value.articleId) || value.articleId === key
-      || !sha(value.expectedRevision) || !['posts', 'lexicon'].includes(value.section)) fail();
+      || !sha(value.expectedRevision) || !SECTIONS.includes(value.section)) fail();
     await rejectPrivate([value.articleId]);
     await managed(value.articleId, value.section);
     const removalPlan = async base => {
@@ -491,10 +553,15 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
       if (operation === 'articles') {
         const base = await readBase(), articles = [];
         for (const [articleId, post] of imports) {
+          const section = post.section ?? 'posts';
+          // The registry carries each file's title and public number, so the
+          // list costs no read per file; an entry registered without them is
+          // read as before.
+          if (post.slug) { articles.push({ articleId, title: post.title, url: articleURL(repository.publicOrigin, articleId, { slug: post.slug }, section) }); continue; }
           const file = await repository.read(post.path, base.head);
           if (!file) continue;
           const document = readDocument(file.bytes);
-          articles.push({ articleId, title: typeof document.metadata.title === 'string' ? document.metadata.title : post.title, url: articleURL(repository.publicOrigin, articleId, document.metadata, 'posts') });
+          articles.push({ articleId, title: typeof document.metadata.title === 'string' ? document.metadata.title : post.title, url: articleURL(repository.publicOrigin, articleId, document.metadata, section) });
         }
         await publicArtifacts(articles.flatMap(article => [article.title, article.url]), []);
         return response({ articles });
@@ -514,11 +581,11 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
         return response({ categories: [...catalog.categories], sharedTags });
       }
       if (operation === 'article') {
-        const id = params.get('articleId'), section = params.get('section') ?? 'lexicon'; if (!uuid(id) || !['posts', 'lexicon'].includes(section)) fail(); await managed(id, section);
+        const id = params.get('articleId'), section = params.get('section') ?? 'lexicon'; if (!uuid(id) || !SECTIONS.includes(section)) fail(); await managed(id, section);
         const base = await readBase(), file = await repository.read(managedPath(id, section), base.head);
         if (!file) fail(404);
         const document = readDocument(file.bytes);
-        const fields = section === 'posts' && Object.hasOwn(importedPosts, id) ? legacyPostFields(document) ?? articleFields(document) : articleFields(document);
+        const fields = importedIn(id, section) ? legacyPostFields(document, section) ?? articleFields(document, section) : articleFields(document, section);
         return response({ articleId: id, revision: file.revision, url: articleURL(repository.publicOrigin, id, document.metadata, section), ...fields });
       }
       const key = request.headers.get('idempotency-key'); if (!uuid(key)) fail();

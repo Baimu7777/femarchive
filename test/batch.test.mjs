@@ -9,7 +9,7 @@ catch (error) { if (error.code !== 'ERR_MODULE_NOT_FOUND') throw error; }
 const check = (name, fn) => test(name, { skip: !modules }, fn);
 
 function setup() {
-  const remote = gitService(), objects = memoryObjects();
+  const remote = gitService({ slugs: true }), objects = memoryObjects();
   const repository = modules[1].createGitHubRepository({ token: 'synthetic-github-token', owner: 'site-owner', repo: 'site-repo', branch: 'main', publicOrigin: 'https://website.example', fetch: remote.fetch });
   const receipts = modules[2].createReceipts(objects);
   return { remote, objects, repository, receipts, receive: modules[0].createReceiver({ token, repository, receipts, catalog }) };
@@ -35,7 +35,8 @@ check('a whole batch becomes one commit and rewrites the term registry once', as
   assert.equal(s.remote.calls.filter(call => call.method === 'POST' && call.url.endsWith('git/trees')).length, 1);
   // Every article and the single shared term list live in that one commit.
   const files = [...s.remote.files().keys()].sort();
-  assert.deepEqual(files, [...result.items.map(item => articlePath(item.articleId)), termsPath].sort());
+  // The number registry was there before the batch and is left untouched.
+  assert.deepEqual(files, [...result.items.map(item => articlePath(item.articleId)), termsPath, 'data/website-publication-slugs.json'].sort());
   const terms = JSON.parse(s.remote.text(termsPath));
   assert.deepEqual(terms.map(term => term.title).sort(), [...titles].sort());
   assert.deepEqual(terms.map(term => term.url).sort(), result.items.map(item => item.url).sort());
