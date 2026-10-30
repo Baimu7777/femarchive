@@ -67,7 +67,10 @@
     if (waline) { try { waline.update({ path: entry.url }); } catch (e) { /* keep the card usable */ } return; }
     if (walineLoading) return;
     walineLoading = true;
-    import('https://unpkg.com/@waline/client@v3/dist/waline.js').then(function (mod) {
+    Promise.all([import('/js/comment-avatars.js'), import('/js/comment-ui.js')]).then(function (helpers) {
+      helpers[0].prepareAnonymousIdentity(window.localStorage, walineHost.getAttribute('data-server'), function () { return crypto.randomUUID(); });
+      return import('https://unpkg.com/@waline/client@v3/dist/waline.js').then(function (mod) {
+
       waline = mod.init({
         el: walineHost,
         serverURL: walineHost.getAttribute('data-server'),
@@ -77,6 +80,11 @@
         pageview: false,
         reaction: false,
         search: false,
+        meta: ['nick'],
+        requiredMeta: [],
+        locale: { placeholder: '添加讨论', submit: '发布' },
+      });
+      helpers[1].mountCommentControls(walineHost, dialog.querySelector('[data-lexicon-login]'));
       });
     }).catch(function () {
       walineHost.textContent = '评论组件暂时无法加载。';
@@ -157,6 +165,15 @@
   var searchInput = searchForm && searchForm.querySelector('.search-box__input');
   var searchClear = searchForm && searchForm.querySelector('[data-lexicon-search-clear]');
   var letter = '', polarity = '', query = '', page = 1;
+  var indexToggle = root.querySelector('[data-lexicon-index-toggle]');
+  var indexPanel = root.querySelector('.lexicon-letters');
+  if (indexToggle) indexToggle.addEventListener('click', function () {
+    var expanded = indexToggle.getAttribute('aria-expanded') !== 'true';
+    indexToggle.setAttribute('aria-expanded', String(expanded));
+    indexPanel.classList.toggle('is-expanded', expanded);
+    root.querySelector('[data-lexicon-index-label]').textContent = expanded ? '收起 ⌃' : '展开 ⌄';
+  });
+
 
   // A word matches on its own name, the names it is also written about under,
   // and the opening of its explanation.
@@ -286,7 +303,11 @@
       });
     });
   }
-  var setLetter = function (value) { letter = value; setLetter.current = value; };
+  var setLetter = function (value) {
+    letter = value; setLetter.current = value;
+    var label = root.querySelector('[data-lexicon-index-selection]');
+    if (label) label.textContent = value || '全部';
+  };
   var setPolarity = function (value) { polarity = value; setPolarity.current = value; };
   setLetter.current = ''; setPolarity.current = '';
   bind('.lexicon-letters', 'data-letter', setLetter);

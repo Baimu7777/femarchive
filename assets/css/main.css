@@ -1304,7 +1304,7 @@ body.home-hero-dismissed .home-hero {
 
 
 .posts-layout {
-  grid-template-columns: minmax(0, 1fr) 220px;
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
   column-gap: 18px;
 }
@@ -3961,7 +3961,7 @@ i.star-outline svg {
     line-height: 1.7;
   }
 
-  #waline {
+  :is(#waline, [data-lexicon-waline]) {
     font-size: 0.94rem;
   }
 }
@@ -4028,7 +4028,7 @@ i.star-outline svg {
   .sidebar-meta__value a,
   .sidebar-meta__value--rich,
   .toc-nav,
-  #waline {
+  :is(#waline, [data-lexicon-waline]) {
     font-size: 0.92rem;
   }
 
@@ -4326,23 +4326,23 @@ i.star-outline svg {
 }
 
 /* 隐藏 Waline 评论区的点赞按钮 */
-#waline .wl-card .wl-like {
+:is(#waline, [data-lexicon-waline]) .wl-card .wl-like {
   display: none !important;
 }
 
-#waline .wl-card .wl-comment-actions {
+:is(#waline, [data-lexicon-waline]) .wl-card .wl-comment-actions {
   gap: 0.35rem;
 }
 
 /* 回复缩进挂在父评论下面，由连接线、底色和更小的头像表达层级。 */
-#waline .wl-cards .wl-card-item {
+:is(#waline, [data-lexicon-waline]) .wl-cards .wl-card-item {
   display: block;
   min-width: 0;
   padding: 1rem 0;
   scroll-margin-top: 110px;
 }
 
-#waline .wl-cards .wl-user {
+:is(#waline, [data-lexicon-waline]) .wl-cards .wl-user {
   --avatar-size: 32px;
   position: absolute;
   inset-inline-start: 0;
@@ -4350,7 +4350,7 @@ i.star-outline svg {
   margin: 0;
 }
 
-#waline .wl-cards .wl-card {
+:is(#waline, [data-lexicon-waline]) .wl-cards .wl-card {
   width: auto;
   min-width: 0;
   margin: 0;
@@ -4358,24 +4358,24 @@ i.star-outline svg {
   border: 0;
 }
 
-#waline .wl-card .wl-head {
+:is(#waline, [data-lexicon-waline]) .wl-card .wl-head {
   min-height: 32px;
   padding-inline-start: 44px;
   overflow: visible;
   line-height: 1.75;
 }
 
-#waline .wl-card .wl-meta {
+:is(#waline, [data-lexicon-waline]) .wl-card .wl-meta {
   padding-inline-start: 44px;
 }
 
-#waline .wl-card .wl-reply {
+:is(#waline, [data-lexicon-waline]) .wl-card .wl-reply {
   min-width: 32px;
   min-height: 32px;
   justify-content: center;
 }
 
-#waline .wl-card .wl-content {
+:is(#waline, [data-lexicon-waline]) .wl-card .wl-content {
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
@@ -4389,16 +4389,16 @@ i.star-outline svg {
   overflow-wrap: anywhere;
 }
 
-#waline .wl-card .wl-content > div > :first-child {
+:is(#waline, [data-lexicon-waline]) .wl-card .wl-content > div > :first-child {
   margin-top: 0;
 }
 
-#waline .wl-card .wl-content > div > :last-child {
+:is(#waline, [data-lexicon-waline]) .wl-card .wl-content > div > :last-child {
   margin-bottom: 0;
 }
 
 /* 回复挂在父评论下：左侧缩进一格，并用一条竖线连到父评论。 */
-#waline .wl-card .wl-quote {
+:is(#waline, [data-lexicon-waline]) .wl-card .wl-quote {
   width: auto;
   margin: 0.75rem 0 0;
   padding: 0 0 0 1.1rem;
@@ -4406,37 +4406,37 @@ i.star-outline svg {
   border-inline-start: 2px solid rgba(64, 138, 113, 0.38);
 }
 
-#waline .wl-quote .wl-card-item {
+:is(#waline, [data-lexicon-waline]) .wl-quote .wl-card-item {
   padding: 0.85rem 0 0;
 }
 
-#waline .wl-quote > .wl-card-item:first-child {
+:is(#waline, [data-lexicon-waline]) .wl-quote > .wl-card-item:first-child {
   padding-top: 0;
 }
 
 /* 回复的头像比主楼小一圈，和缩进一起把层级说清楚。 */
-#waline .wl-quote .wl-user {
+:is(#waline, [data-lexicon-waline]) .wl-quote .wl-user {
   --avatar-size: 26px;
   top: 0.85rem;
 }
 
-#waline .wl-quote > .wl-card-item:first-child > .wl-user {
+:is(#waline, [data-lexicon-waline]) .wl-quote > .wl-card-item:first-child > .wl-user {
   top: 0;
 }
 
-#waline .wl-quote .wl-head,
-#waline .wl-quote .wl-meta {
+:is(#waline, [data-lexicon-waline]) .wl-quote .wl-head,
+:is(#waline, [data-lexicon-waline]) .wl-quote .wl-meta {
   min-height: 26px;
   padding-inline-start: 36px;
 }
 
-#waline .wl-quote .wl-content {
+:is(#waline, [data-lexicon-waline]) .wl-quote .wl-content {
   margin-top: 0.5rem;
   border-color: rgba(64, 138, 113, 0.28);
   background: #f1f7f2;
 }
 
-#waline .wl-card .wl-content .wl-reply-to {
+:is(#waline, [data-lexicon-waline]) .wl-card .wl-content .wl-reply-to {
   display: block;
   float: none;
   margin: 0 0 0.65rem;
@@ -4445,39 +4445,39 @@ i.star-outline svg {
   line-height: 1.5;
 }
 
-#waline .wl-card .wl-content .wl-reply-to::before {
+:is(#waline, [data-lexicon-waline]) .wl-card .wl-content .wl-reply-to::before {
   content: "回复 ";
 }
 
-#waline .wl-card .wl-content .wl-reply-to a {
+:is(#waline, [data-lexicon-waline]) .wl-card .wl-content .wl-reply-to a {
   font-weight: 700;
 }
 
-#waline .wl-card-item:target > .wl-card > .wl-content {
+:is(#waline, [data-lexicon-waline]) .wl-card-item:target > .wl-card > .wl-content {
   border-color: #408a71;
   box-shadow: 0 0 0 2px rgba(64, 138, 113, 0.14);
 }
 
 @media (max-width: 560px) {
-  #waline .wl-card .wl-content {
+  :is(#waline, [data-lexicon-waline]) .wl-card .wl-content {
     padding: 0.8rem;
     border-radius: 12px;
   }
 
-  #waline .wl-card .wl-meta {
+  :is(#waline, [data-lexicon-waline]) .wl-card .wl-meta {
     display: none;
   }
 
-  #waline .wl-card .wl-quote {
+  :is(#waline, [data-lexicon-waline]) .wl-card .wl-quote {
     padding-left: 0.7rem;
   }
 
-  #waline .wl-quote .wl-head,
-  #waline .wl-quote .wl-meta {
+  :is(#waline, [data-lexicon-waline]) .wl-quote .wl-head,
+  :is(#waline, [data-lexicon-waline]) .wl-quote .wl-meta {
     padding-inline-start: 32px;
   }
 
-  #waline .wl-quote .wl-user {
+  :is(#waline, [data-lexicon-waline]) .wl-quote .wl-user {
     --avatar-size: 24px;
   }
 }
@@ -5645,3 +5645,208 @@ span[data-color="gray"] { color: #6b6f68; }
 .lexicon-peek p { margin: .55rem 0 .75rem; font-size: .88rem; line-height: 1.8; text-indent: 0; overflow-wrap: anywhere; }
 .lexicon-peek__hint { color: var(--text-soft); font-size: .73rem; }
 .article-content .lexicon-reference { text-decoration: none; border-bottom: 1px solid currentColor; }
+
+.archive-card__mobile-tags { display: none; }
+@media (max-width: 1100px) {
+  .archive-card__mobile-tags { display: flex; margin: 8px 0 10px; }
+  .archive-card__foot-left > .archive-chip-row--bottom { display: none; }
+}
+
+@media (max-width: 760px) {
+  .entry-card__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-content: start;
+    column-gap: 8px;
+  }
+  .entry-card__meta, .entry-card__title, .entry-card__summary { grid-column: 1 / -1; }
+  .entry-card__meta { grid-row: 1; }
+  .entry-card__title { grid-row: 2; }
+  .entry-card__tags { grid-column: 1; grid-row: 3; min-height: 0; gap: 4px; margin-top: 8px; }
+  .entry-card__tags .chip { min-height: 22px; padding: 1px 7px; font-size: 0.68rem; line-height: 1.4; }
+  .entry-card__foot { grid-column: 2; grid-row: 3; margin: 8px 0 0; padding: 0; align-self: center; }
+  .entry-card__foot-right { flex-wrap: nowrap; gap: 6px; }
+  .entry-card__summary { grid-row: 4; }
+  .entry-card .card-comment-count, .entry-card .card-pageview-count { font-size: 0.7rem; gap: 3px; }
+}
+
+/* Shared home and article-list preview cards. */
+.archive-card__tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+.archive-card__tags .chip { min-height: 22px; padding: 1px 7px; font-size: 0.68rem; line-height: 1.4; }
+@media (max-width: 760px) {
+  .archive-card__inner { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 8px; align-content: start; }
+  .archive-card__head { grid-column: 1 / -1; grid-row: 1; }
+  .archive-card__title { grid-column: 1 / -1; grid-row: 2; }
+  .archive-card__tags { grid-column: 1; grid-row: 3; }
+  .archive-card__summary { grid-column: 1 / -1; grid-row: 4; }
+  .archive-card__foot { grid-column: 2; grid-row: 3; margin: 8px 0 0; padding: 0; align-self: center; }
+  .archive-card__foot-right { flex-wrap: nowrap; gap: 6px; }
+  .archive-card__more { display: none; }
+  .archive-card .card-comment-count, .archive-card .card-pageview-count { font-size: 0.7rem; gap: 3px; }
+}
+
+@media (max-width: 760px) {
+  .archive-card__title { grid-row: 1; margin-top: 0; }
+  .archive-card__tags { grid-row: 2; grid-column: 1 / -1; }
+  .archive-card__summary { grid-row: 3; }
+  .archive-card__head { grid-row: 4; grid-column: 1; margin-top: 12px; align-self: center; min-width: 0; }
+  .archive-card__meta { justify-content: flex-start; flex-wrap: wrap; gap: 4px 12px; font-size: 0.7rem; }
+  .archive-card__foot { grid-row: 4; grid-column: 2; margin-top: 12px; }
+}
+
+@media (max-width: 760px) {
+  .archive-grid, .home-search-results { align-items: start; }
+  .archive-card__inner,
+  .archive-card--search .archive-card__inner,
+  .home-search-results .archive-card__inner {
+    min-height: 0;
+    height: auto;
+    padding: 16px 16px 12px;
+  }
+  .archive-card__head, .archive-card__foot { margin-top: 9px; }
+  .archive-card__meta,
+  .archive-card .card-comment-count,
+  .archive-card .card-pageview-count {
+    font-family: "霞鹜文楷", "LXGW WenKai", "PingFang SC", sans-serif;
+    font-size: 0.72rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: rgba(40, 90, 72, 0.62);
+    letter-spacing: 0;
+  }
+  .archive-card__meta span,
+  .archive-card .card-comment-count span,
+  .archive-card .card-pageview-count span { font: inherit; color: inherit; }
+  .archive-card .card-comment-count__icon,
+  .archive-card .card-pageview-count__icon { width: 14px; height: 14px; }
+}
+
+.mobile-library-nav { display: none; }
+@media (max-width: 760px) {
+  body { padding-top: calc(56px + env(safe-area-inset-top, 0px)); }
+  .site-header { display: none; }
+  .mobile-library-nav {
+    position: fixed; inset: 0 0 auto; z-index: 80;
+    display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: center; min-height: calc(56px + env(safe-area-inset-top, 0px));
+    padding: env(safe-area-inset-top, 0px) 12px 0;
+    background: rgba(245, 251, 247, .97); border-bottom: 1px solid rgba(40, 90, 72, .14);
+    box-shadow: 0 2px 10px rgba(40, 90, 72, .04);
+  }
+  .mobile-library-nav a {
+    display: flex; align-items: center; justify-content: center; min-height: 48px;
+    font-family: "霞鹜文楷", "PingFang SC", sans-serif; font-size: 16px;
+    font-weight: 500; color: var(--text-soft); text-decoration: none;
+  }
+  .mobile-library-nav a.is-active { color: var(--accent-deep); font-weight: 700; }
+  .mobile-library-nav a:focus-visible { outline: 2px solid var(--accent-deep); outline-offset: -4px; border-radius: 8px; }
+  html { scroll-padding-top: calc(68px + env(safe-area-inset-top, 0px)); }
+}
+
+html.skip-home-intro .home-hero { display: none; }
+html.skip-home-intro .home-content { margin-top: 0; }
+@media (max-width: 760px) {
+  .mobile-library-nav { display: flex; gap: 2px; padding-left: 16px; padding-right: 12px; }
+  .mobile-library-nav a { padding: 0 9px; font-size: 15px; }
+  .mobile-library-nav a.mobile-library-nav__brand {
+    margin-right: auto; gap: 5px; min-height: 34px; padding: 4px 10px;
+    border: 1px solid rgba(40, 90, 72, .18); border-radius: 11px;
+    background: #e6f3ed; color: var(--accent-deep); font-weight: 700;
+  }
+  .mobile-library-nav__brand img { width: 17px; height: 17px; object-fit: contain; }
+}
+@media (max-width: 360px) {
+  .mobile-library-nav { padding-left: 10px; padding-right: 8px; }
+  .mobile-library-nav a { padding-left: 7px; padding-right: 7px; font-size: 14px; }
+}
+
+@media (max-width: 760px) {
+  .section-card--latest .section-heading__row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+  }
+  .section-card--latest .section-heading__more { flex-shrink: 0; }
+}
+
+.comment-panel__heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.comment-panel__heading h2 { margin: 0; }
+.comment-panel__login { border: 1px solid var(--line-mid); border-radius: 9px; background: transparent; color: var(--accent-deep); font: inherit; font-size: .85rem; padding: 6px 14px; cursor: pointer; }
+.comment-panel__login[hidden], :is(#waline, [data-lexicon-waline]) [data-comment-hidden] { display: none !important; }
+
+/* Browser and operating-system badges are not part of the comment content. */
+:is(#waline, [data-lexicon-waline]) .wl-card .wl-meta { display: none; }
+
+:is(#waline, [data-lexicon-waline]) .wl-reply-footer { display: flex; margin: 6px 0 12px; }
+:is(#waline, [data-lexicon-waline]) .wl-reply-footer .wl-reply { display: inline-flex; align-items: center; min-height: 32px; padding: 3px 8px; color: var(--accent-deep); font: inherit; font-size: .8rem; }
+:is(#waline, [data-lexicon-waline]) .wl-reply-footer .wl-reply svg { display: none; }
+:is(#waline, [data-lexicon-waline]) .wl-reply-footer .wl-reply::after { content: attr(title); }
+
+:is(#waline, [data-lexicon-waline]) .wl-card > .wl-reply-footer {
+  justify-content: flex-end;
+  width: 100%;
+  margin: 4px 0 8px;
+}
+:is(#waline, [data-lexicon-waline]) .wl-reply-footer .wl-reply { margin-left: auto; }
+
+:is(#waline, [data-lexicon-waline]) .wl-content > .wl-reply-footer {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin: 4px 0 0;
+}
+
+/* Each news item is a separate, self-contained bubble. */
+.archive-page--news .news-list { gap: 18px; }
+.archive-page--news .news-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding: 22px;
+  border: 1px solid rgba(40, 90, 72, .16);
+  border-radius: 26px;
+  background: rgba(255, 255, 255, .94);
+  box-shadow: 0 3px 12px rgba(40, 90, 72, .035);
+}
+.archive-page--news .news-row__timeline { display: none; }
+.archive-page--news .news-row__content { padding: 0; border: 0; background: transparent; box-shadow: none; }
+.archive-page--news .news-row__date { border: 0; padding: 0; }
+@media (max-width: 760px) {
+  .archive-page--news .news-row { padding: 18px 16px 14px; border-radius: 22px; gap: 10px; }
+  .archive-page--news .news-row__meta { flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; }
+  .archive-page--news .news-row__meta-main { flex-wrap: wrap; }
+}
+
+/* Forum-inspired structure, using the archive's own green palette. */
+.lexicon-directory { border: 1px solid var(--line-mid); background: #f8fcfa; border-radius: 22px; }
+.lexicon-index-toggle { display: none; }
+.lexicon-dialog { background: #f8fcfa; border-radius: 16px; }
+.lexicon-dialog__body, .lexicon-dialog__bar { background: #f8fcfa; }
+.lexicon-comments { padding-top: 16px; border-top: 1px solid var(--line-mid); }
+.lexicon-comments > summary { cursor: pointer; color: var(--accent-deep); font-size: .9rem; font-weight: 650; }
+.lexicon-comments__heading { display: flex; justify-content: flex-end; margin: 8px 0; }
+[data-lexicon-waline] { display: flex; flex-direction: column; }
+[data-lexicon-waline] > .wl-panel { order: 3; }
+[data-lexicon-waline] > .wl-header { order: 0; }
+[data-lexicon-waline] > .wl-cards { order: 1; max-height: 330px; overflow-y: auto; overscroll-behavior: contain; }
+[data-lexicon-waline] > .wl-operation { order: 2; }
+[data-lexicon-waline] > .wl-meta-foot { order: 4; }
+[data-lexicon-waline] .wl-card { background: #fff; border: 1px solid var(--line-mid); border-radius: 12px; padding: 12px; }
+[data-lexicon-waline] .wl-content { font-size: .86rem; line-height: 1.75; }
+[data-lexicon-waline] .wl-quote .wl-card { background: #edf7f1; }
+[data-lexicon-waline] .wl-quote { margin-left: 8px; padding-left: 8px; }
+[data-lexicon-waline] .wl-editor { min-height: 96px; }
+@media (max-width: 760px) {
+  .lexicon-directory { padding: 16px 14px; }
+  .lexicon-toolbar { align-items: flex-start; flex-direction: column; gap: 8px; }
+  .lexicon-index-toggle { display: flex; justify-content: space-between; width: 100%; border: 0; border-bottom: 1px solid var(--line-mid); padding: 12px 0; background: transparent; color: var(--accent-deep); font: inherit; font-size: .85rem; cursor: pointer; }
+  .lexicon-letters { display: none; }
+  .lexicon-letters.is-expanded { display: flex; margin-top: 10px; }
+  .lexicon-letters button { min-width: 36px; min-height: 40px; }
+  .lexicon-dialog { width: calc(100% - 20px); max-height: 90dvh; }
+  .lexicon-dialog__body { padding: 18px 14px; }
+}
+
+[data-lexicon-waline] > .wl-comment { order: 3; }
+[data-lexicon-waline] .wl-cards { max-height: 330px; overflow-y: auto; overscroll-behavior: contain; }

@@ -712,7 +712,7 @@
     const homeHero = document.querySelector('[data-home-hero]');
     const homeContent = document.querySelector('[data-home-content]');
 
-    if (homeHero && homeContent) {
+    if (homeHero && homeContent && !document.documentElement.classList.contains('skip-home-intro')) {
       let heroDismissed = false;
       let isDismissing = false;
 

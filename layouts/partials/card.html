@@ -6,27 +6,21 @@
 <article class="archive-card{{ with .class }} {{ . }}{{ end }}" data-filter-item data-filter-text="{{ printf "%s %s %s %s %s" $page.Title ($page.Description | default "") (delimit $categories " ") (delimit $tags " ") (partial "preview-text.html" (dict "page" $page "limit" 10000)) | plainify | htmlEscape }}">
   <a class="archive-card__inner" href="{{ $page.RelPermalink }}" aria-label="阅读：{{ $page.Title }}">
     <div class="archive-card__head">
-      {{ if gt (len $categories) 0 }}
-        <div class="archive-chip-row">
-          {{ range first 2 $categories }}<span class="chip chip--category">{{ . }}</span>{{ end }}
-        </div>
-      {{ end }}
-
       <div class="archive-card__meta">
-        <span>{{ $page.Date.Format "2006.01.02" }}</span>
         <span>{{ $authorText }}</span>
+        <span>{{ $page.Date.Format "2006.01.02" }}</span>
       </div>
     </div>
 
     <h3 class="archive-card__title">{{ $page.Title }}</h3>
+    {{ with $tags }}
+      <div class="archive-chip-row archive-card__tags">
+        {{ range first 3 . }}<span class="chip chip--tag">#{{ . }}</span>{{ end }}
+      </div>
+    {{ end }}
     <p class="archive-card__summary">{{ partial "preview-text.html" (dict "page" $page "limit" 110) }}</p>
 
     <div class="archive-card__foot">
-      <div class="archive-card__foot-left">
-        <div class="archive-chip-row archive-chip-row--bottom">
-          {{ range first 3 $tags }}<span class="chip chip--tag">#{{ . }}</span>{{ end }}
-        </div>
-      </div>
       <div class="archive-card__foot-right">
         <span class="card-comment-count" aria-label="评论数">
           <svg class="card-comment-count__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">

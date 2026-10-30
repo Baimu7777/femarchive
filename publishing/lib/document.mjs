@@ -27,7 +27,7 @@ export function validateArticle(value, catalog) {
   if (value.version !== 1 || value.confirmed !== true || !text(value.title, 300, true) || /[\r\n]/.test(value.title) || !text(value.html, 512 * 1024) || !strings(value.categories, 6, 100) || !strings(value.tags, 50, 100)) fail();
   if (('author' in value && !text(value.author, 200, true)) || ('license' in value && !text(value.license, 300, true))) fail();
   if (value.categories.some(c => !catalog.categories.includes(c))) fail();
-  if ('newTags' in value && (!strings(value.newTags, 50, 100) || value.newTags.some(t => !value.tags.includes(t)))) fail();
+  if ('newTags' in value && (!strings(value.newTags, 50, 100) || value.newTags.some(t => !value.tags.includes(t) || /[\r\n]/.test(t)))) fail();
   if ('relatedTerms' in value && (!strings(value.relatedTerms, 50, 100) || value.relatedTerms.some(term => !value.tags.includes(term)))) fail();
   if ('replaceTags' in value && typeof value.replaceTags !== 'boolean') fail();
   if ('presentation' in value && !PRESENTATIONS.includes(value.presentation)) fail();

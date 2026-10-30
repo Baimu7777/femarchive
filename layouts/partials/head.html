@@ -23,3 +23,13 @@
 <script defer src="/_vercel/insights/script.js"></script>
 
 {{ hugo.Generator }}
+{{ if .IsHome }}
+<script>
+  try {
+    if (sessionStorage.getItem('archive-intro-seen') === '1') {
+      document.documentElement.classList.add('skip-home-intro');
+    }
+    sessionStorage.setItem('archive-intro-seen', '1');
+  } catch (_) {}
+</script>
+{{ end }}

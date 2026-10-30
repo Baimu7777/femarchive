@@ -36,7 +36,8 @@
       <button type="button" class="lexicon-negative" data-polarity="negative" aria-label="筛选反女权立场"><span class="lexicon-symbol" aria-hidden="true">－</span><span>反女权立场</span></button>
     </div>
   </div>
-  <div class="lexicon-letters" role="group" aria-label="按首字母筛选">
+  <button class="lexicon-index-toggle" type="button" aria-expanded="false" aria-controls="lexicon-alphabet" data-lexicon-index-toggle><span>字母索引 · <span data-lexicon-index-selection>全部</span></span><span data-lexicon-index-label>展开 ⌄</span></button>
+  <div id="lexicon-alphabet" class="lexicon-letters" role="group" aria-label="按首字母筛选">
     <button type="button" data-letter="" aria-pressed="true">全部</button>
     {{ range $letter := $letters }}
       {{ $has := in $used $letter }}
@@ -73,14 +74,15 @@
       <div class="lexicon-dialog__heading"><h2 data-lexicon-title></h2><span data-lexicon-mark></span></div>
       <p class="term-aliases" data-lexicon-aliases hidden></p>
       <div class="lexicon-dialog__content" data-lexicon-content></div>
-{{ if site.Params.comments.enable }}      <section class="lexicon-comments" aria-label="评论区">
-        <h3>评论区</h3>
+{{ if site.Params.comments.enable }}      <details class="lexicon-comments" open aria-label="讨论区">
+        <summary>讨论区</summary>
+        <div class="lexicon-comments__heading"><button type="button" class="comment-panel__login" data-lexicon-login hidden>登录</button></div>
         <div data-lexicon-waline
              data-server="{{ site.Params.comments.serverURL }}"
              data-lang="{{ site.Params.comments.lang | default "zh-CN" }}"
              data-turnstile="{{ site.Params.comments.turnstileKey }}"></div>
         <noscript><p class="muted">当前浏览器禁用了 JavaScript，评论组件无法显示。</p></noscript>
-      </section>
+      </details>
 {{ end }}    </div>
   </dialog>
   <script type="application/json" data-lexicon-data>{{ $entries | jsonify | safeJS }}</script>
