@@ -143,7 +143,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
   /** The term records this article's own body may link, its own left out. */
   const linkableTerms = (terms, articleId) => terms.filter(term => term.articleId !== articleId)
     .map(term => ({ names: [term.title, ...(term.aliases ?? [])], path: new URL(term.url).pathname }));
-  const articleBody = (value, selected, terms, articleId) => publicBody(value.html, value.comments, selected.map(a => a.path), value.presentation, value.commentImages, linkableTerms(terms, articleId));
+  const articleBody = (value, selected, terms, articleId) => publicBody(value.html, value.comments, selected.map(a => a.path), value.presentation, value.commentImages, linkableTerms(terms, articleId), value.commentKinds ?? null, value.commentOrphans ?? null);
   async function termRegistry(head) {
     const file = await repository.read(termRegistryPath, head);
     if (!file) return { terms: [], revision: null };

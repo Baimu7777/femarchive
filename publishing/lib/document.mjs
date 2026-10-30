@@ -9,9 +9,15 @@ import { isDeepStrictEqual } from 'node:util';
 import { isUtf8 } from 'node:buffer';
 import { fail, uuid, sha, imagePath } from './errors.mjs';
 
-const fields = ['presentation', 'section', 'version', 'confirmed', 'title', 'author', 'license', 'html', 'initial', 'polarity', 'isEvent', 'aliases', 'categories', 'tags', 'newTags', 'replaceTags', 'comments', 'commentImages', 'relatedTerms', 'assets', 'articleId', 'expectedRevision'];
+const fields = ['presentation', 'section', 'version', 'confirmed', 'title', 'author', 'license', 'html', 'initial', 'polarity', 'isEvent', 'aliases', 'categories', 'tags', 'newTags', 'replaceTags', 'comments', 'commentImages', 'commentKinds', 'commentOrphans', 'originalDate', 'sourceUrl', 'relatedTerms', 'assets', 'articleId', 'expectedRevision'];
 // Closed set: the index letter cannot carry anything the listing does not use.
-const PRESENTATIONS = ['article', 'cards', 'discussion', 'quote', 'centered', 'grouped', 'highlight', 'folded'];
+const PRESENTATIONS = ['article', 'cards', 'discussion', 'quote', 'centered', 'grouped', 'highlight', 'folded', 'threaded'];
+// The forum's article path sends the discussion as parent cards and reply
+// bubbles. A reply whose parent was not published says so in its own bubble;
+// nothing of the excluded parent crosses.
+const COMMENT_KINDS = ['card', 'reply'];
+export const DISCUSSION_TITLE = '评论交流区';
+export const WITHDRAWN_PARENT_LABEL = '回复内容已删除';
 const INDEX_LETTERS = new Set(['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ', '⚑']);
 const control = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
 const text = (value, max, nonempty = false) => typeof value === 'string' && value.length <= max && !control.test(value) && (!nonempty || value.trim().length > 0);
@@ -33,6 +39,16 @@ export function validateArticle(value, catalog) {
   if (!Array.isArray(value.comments) || value.comments.length > 100 || !value.comments.every(c => text(c, 10000))) fail();
   if ('commentImages' in value && (!Array.isArray(value.commentImages) || value.commentImages.length !== value.comments.length || !value.commentImages.every(images => Array.isArray(images) && images.length <= 50 && images.every(imagePath) && new Set(images).size === images.length))) fail();
   if (value.comments.some((comment, index) => !comment.trim() && !value.commentImages?.[index]?.length)) fail();
+  // Card/reply structure belongs to the threaded article layout only. Every
+  // other publication keeps the exact shape it had before.
+  if (value.presentation === 'threaded') {
+    if (value.section !== 'posts') fail();
+    if (!Array.isArray(value.commentKinds) || value.commentKinds.length !== value.comments.length || !value.commentKinds.every(kind => COMMENT_KINDS.includes(kind))) fail();
+    if (!Array.isArray(value.commentOrphans) || value.commentOrphans.length !== value.comments.length || !value.commentOrphans.every(flag => typeof flag === 'boolean')) fail();
+    if (value.commentOrphans.some((flag, index) => flag && value.commentKinds[index] !== 'reply')) fail();
+  } else if ('commentKinds' in value || 'commentOrphans' in value) fail();
+  if ('originalDate' in value && (!text(value.originalDate, 100, true) || /[\r\n]/.test(value.originalDate))) fail();
+  if ('sourceUrl' in value && (!text(value.sourceUrl, 2048, true) || safeLink(value.sourceUrl) !== value.sourceUrl)) fail();
   if (!Array.isArray(value.assets) || value.assets.length > 50 || !value.assets.every(uuid) || new Set(value.assets).size !== value.assets.length) fail();
   if ('articleId' in value || 'expectedRevision' in value) { if (!uuid(value.articleId) || !sha(value.expectedRevision)) fail(); }
   return value;
@@ -157,7 +173,7 @@ export function termLinker(terms = []) {
     return end ? rendered + plainText(value.slice(end)) : plainText(value);
   };
 }
-export function publicBody(html, comments, selectedPaths, presentation, commentImages = comments.map(() => []), terms = []) {
+export function publicBody(html, comments, selectedPaths, presentation, commentImages = comments.map(() => []), terms = [], commentKinds = null, commentOrphans = null) {
   if (commentImages.length !== comments.length || commentImages.some(images => images.some(path => !imagePath(path) || !selectedPaths.includes(path)))) fail();
   const linker = termLinker(terms);
   validateMarkerSyntax(html);
@@ -213,15 +229,30 @@ export function publicBody(html, comments, selectedPaths, presentation, commentI
     }).join('');
   }
   const body = render(parseDocument(clean, { decodeEntities: true }).children.filter(node => node.type !== 'text' || node.data.trim())).trim();
-  const excerpts = PRESENTATIONS.includes(presentation) ? presentationFooter(comments, commentImages, presentation)
+  const excerpts = PRESENTATIONS.includes(presentation) ? presentationFooter(comments, commentImages, presentation, commentKinds, commentOrphans)
     : comments.map((c, index) => [c.split(/\r?\n/).map(escape).join('\n'), ...commentImages[index].map(path => `![](<${path}>)`)].filter(Boolean).join('\n\n').split('\n').map(line => `> ${line}`).join('\n')).join('\n\n');
   return `${body}${excerpts ? `\n\n${excerpts}` : ''}\n`;
 }
 const footerMarker = mode => `<!-- website-publication-comments:${mode} -->`;
-function presentationFooter(comments, images, mode) {
+function assertThreadShape(comments, kinds, orphans) {
+  if (!Array.isArray(kinds) || kinds.length !== comments.length || !kinds.every(kind => COMMENT_KINDS.includes(kind))) fail();
+  if (!Array.isArray(orphans) || orphans.length !== comments.length || !orphans.every(flag => typeof flag === 'boolean')) fail();
+  if (orphans.some((flag, index) => flag && kinds[index] !== 'reply')) fail();
+}
+const threadCard = (content, kind, orphan) => kind === 'reply'
+  ? `<div class="mycard mycard--reply">${orphan ? `<div class="mycard__meta"><span class="mycard__replyto">${attribute(WITHDRAWN_PARENT_LABEL)}</span></div>` : ''}<div class="mycard__content">${content}</div></div>`
+  : `<div class="mycard"><div class="mycard__content">${content}</div></div>`;
+function presentationFooter(comments, images, mode, kinds = null, orphans = null) {
   if (!comments.length) return '';
   const contents = comments.map((comment, index) => `${comment.trim() ? `<p>${attribute(comment).replace(/\r?\n/g, '<br>')}</p>` : ''}${images[index].map(path => `<p><img src="${path}" alt=""></p>`).join('')}`);
   const card = (content, reply = false) => `<div class="mycard${reply ? ' mycard--reply' : ''}"><div class="mycard__content">${content}</div></div>`;
+  // The forum's article path sends parent cards and reply bubbles, so the
+  // discussion keeps the shape it had on the forum. A reply whose parent was
+  // left out says so in its own bubble; nothing of that parent crosses.
+  if (mode === 'threaded') {
+    assertThreadShape(comments, kinds, orphans);
+    return `${footerMarker(mode)}\n<p class="douban-comments-title">${attribute(DISCUSSION_TITLE)}</p>\n\n${contents.map((content, index) => threadCard(content, kinds[index], orphans[index])).join('\n\n')}`;
+  }
   if (mode === 'discussion') return '<p class="douban-comments-title">讨论摘录</p>\n\n' + contents.map(content => card(content, true)).join('\n\n');
   const rendered = mode === 'grouped' ? `<section class="language-discussion-group"><h3>讨论摘录</h3>${contents.map(content => card(content)).join('')}</section>`
     : contents.map((content, index) => {
@@ -241,7 +272,8 @@ function presentationFooter(comments, images, mode) {
 function plain(node) { return node.type === 'text' ? node.data : (node.children ?? []).map(plain).join(''); }
 
 export function assertNoPrivateValues(value, forbidden) {
-  return assertNoPrivateText([value.title, value.html, ...value.comments, ...value.categories, ...value.tags, ...(value.newTags ?? []), ...(value.relatedTerms ?? []), ...(value.commentImages ?? []).flat()], forbidden);
+  return assertNoPrivateText([value.title, value.html, ...value.comments, ...value.categories, ...value.tags, ...(value.newTags ?? []), ...(value.relatedTerms ?? []), ...(value.commentImages ?? []).flat(),
+    ...(value.originalDate ? [value.originalDate] : []), ...(value.sourceUrl ? [value.sourceUrl] : [])], forbidden);
 }
 export function assertNoPrivateText(fields, forbidden) {
   const needles = forbidden.map(v => v.toLowerCase()), candidates = new Set();
@@ -331,6 +363,8 @@ export function writeDocument(value, body, previous, plan) {
       ...(value.categories.length ? { categories: value.categories } : {}),
       ...(value.tags.length ? { tags: value.tags } : {}),
       ...(value.relatedTerms ? { related_terms: value.relatedTerms } : {}),
+      ...(value.sourceUrl ? { original_url: value.sourceUrl } : {}),
+      ...(value.originalDate ? { original_date: value.originalDate } : {}),
       url: `/${value.section ?? "lexicon"}/${plan.articleId}/` };
     return Buffer.from(`---\n${yaml.dump(metadata, { lineWidth: -1, noRefs: true })}---\n\n${body}`);
   }
@@ -349,6 +383,8 @@ export function writeDocument(value, body, previous, plan) {
   if (['positive', 'negative', 'unmarked'].includes(value.polarity)) managed.polarity = value.polarity;
   if (typeof value.isEvent === 'boolean') managed.event = value.isEvent;
   if (Array.isArray(value.aliases)) managed.aliases = value.aliases;
+  if ('sourceUrl' in value) managed.original_url = value.sourceUrl;
+  if ('originalDate' in value) managed.original_date = value.originalDate;
   for (const [key, keyValue] of Object.entries(managed)) {
     const pattern = new RegExp(`^(?:${key}|"${key}"|'${key}')\\s*:`);
     const found = lines.map((line, index) => pattern.test(line) ? index : -1).filter(index => index !== -1);
@@ -405,15 +441,37 @@ function discussionFields(document) {
     if (!tag(nodes[0], 'p', { class: 'douban-comments-title' }) || plain(nodes[0]) !== '讨论摘录') fail(409);
     nodes = nodes.slice(1);
   }
+  if (mode === 'threaded') {
+    if (!tag(nodes[0], 'p', { class: 'douban-comments-title' }) || plain(nodes[0]) !== DISCUSSION_TITLE) fail(409);
+    nodes = nodes.slice(1);
+  }
   if (mode === 'grouped') {
     if (nodes.length !== 1 || !tag(nodes[0], 'section', { class: 'language-discussion-group' }) || !tag(nodes[0].children[0], 'h3') || plain(nodes[0].children[0]) !== '讨论摘录') fail(409);
     nodes = nodes[0].children.slice(1);
   }
   if (!nodes.length || nodes.length > 100) fail(409);
-  const comments = [], commentImages = [];
+  const comments = [], commentImages = [], commentKinds = [], commentOrphans = [];
   for (const [cardIndex, card] of nodes.entries()) {
     let paragraphs;
     switch (mode) {
+      case 'threaded': {
+        const reply = tag(card, 'div', { class: 'mycard mycard--reply' });
+        if (!reply && !tag(card, 'div', { class: 'mycard' })) fail(409);
+        let children = card.children;
+        let orphan = false;
+        if (reply && tag(children[0], 'div', { class: 'mycard__meta' })) {
+          const meta = children[0];
+          if (meta.children.length !== 1 || !tag(meta.children[0], 'span', { class: 'mycard__replyto' })
+            || plain(meta.children[0]) !== WITHDRAWN_PARENT_LABEL) fail(409);
+          orphan = true;
+          children = children.slice(1);
+        }
+        if (children.length !== 1 || !tag(children[0], 'div', { class: 'mycard__content' })) fail(409);
+        paragraphs = children[0].children;
+        commentKinds.push(reply ? 'reply' : 'card');
+        commentOrphans.push(orphan);
+        break;
+      }
       case 'article': if (!tag(card, 'div')) fail(409); paragraphs = card.children; break;
       case 'cards': case 'discussion': case 'grouped':
         if (!tag(card, 'div', { class: mode === 'discussion' ? 'mycard mycard--reply' : 'mycard' })) fail(409);
@@ -446,8 +504,9 @@ function discussionFields(document) {
   }
   // Require byte-reproducible markup so a title edit cannot discard unknown
   // attributes, website additions, or text following the selected excerpts.
-  if (presentationFooter(comments, commentImages, mode) !== footer) fail(409);
-  return { body: document.body.slice(0, start).trimEnd(), comments, commentImages };
+  if (presentationFooter(comments, commentImages, mode, commentKinds, commentOrphans) !== footer) fail(409);
+  return { body: document.body.slice(0, start).trimEnd(), comments, commentImages,
+    ...(mode === 'threaded' ? { commentKinds, commentOrphans } : {}) };
 }
 function recoverBodyLayouts(source) {
   const root = parseDocument(source, { decodeEntities: true, withStartIndices: true, withEndIndices: true });
@@ -547,5 +606,9 @@ export function articleFields(document) {
     relatedTerms: Array.isArray(document.metadata.related_terms) ? document.metadata.related_terms.filter(t => text(t, 100, true)) : [],
     comments: discussion.comments,
     ...(discussion.commentImages ? { commentImages: discussion.commentImages } : {}),
+    ...(discussion.commentKinds ? { commentKinds: discussion.commentKinds, commentOrphans: discussion.commentOrphans } : {}),
+    ...(text(document.metadata.original_date, 100, true) ? { originalDate: document.metadata.original_date } : {}),
+    ...(typeof document.metadata.original_url === 'string' && safeLink(document.metadata.original_url) === document.metadata.original_url
+      ? { sourceUrl: document.metadata.original_url } : {}),
   };
 }
