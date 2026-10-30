@@ -10,7 +10,7 @@
 {{ end }}
 {{ $used := slice }}
 {{ range $entries }}{{ $used = $used | append .initial }}{{ end }}
-<main class="archive-page"><div class="shell archive-shell"><section class="archive-panel archive-panel--plain lexicon-directory">
+<main class="archive-page"><div class="shell archive-shell"><section class="archive-panel lexicon-directory">
   {{/* 标题只留给读屏和标签页，页面本身直接从筛选栏开始。 */}}
   <h1 class="sr-only">{{ .Title }}</h1>
   {{ if $entries }}
