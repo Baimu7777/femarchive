@@ -5829,7 +5829,8 @@ html.skip-home-intro .home-content { margin-top: 0; }
 [data-lexicon-waline] { display: flex; flex-direction: column; }
 [data-lexicon-waline] > .wl-panel { order: 3; }
 [data-lexicon-waline] > .wl-header { order: 0; }
-[data-lexicon-waline] > .wl-cards { order: 1; max-height: 330px; overflow-y: auto; overscroll-behavior: contain; }
+/* Comments flow in the entry card and scroll with it, as under an article. */
+[data-lexicon-waline] > .wl-cards { order: 1; }
 [data-lexicon-waline] > .wl-operation { order: 2; }
 [data-lexicon-waline] > .wl-meta-foot { order: 4; }
 [data-lexicon-waline] .wl-card { background: #fff; border: 1px solid var(--line-mid); border-radius: 12px; padding: 12px; }
@@ -5849,7 +5850,6 @@ html.skip-home-intro .home-content { margin-top: 0; }
 }
 
 [data-lexicon-waline] > .wl-comment { order: 3; }
-[data-lexicon-waline] .wl-cards { max-height: 330px; overflow-y: auto; overscroll-behavior: contain; }
 
 /* The mobile navigation belongs to the viewport, outside the intro flow. */
 @media (max-width: 760px) {
