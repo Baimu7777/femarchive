@@ -228,7 +228,7 @@ export const existingPosts = {
   },
   "11a349e2-63ea-4255-be6b-ee521726a6c2": {
     "path": "content/posts/261041.md",
-    "revision": "69786b8a2fbdb89c5d22b2c5f9701308a9dd1ee3",
+    "revision": "3e772d132bd833dfdbdfd26e5a0e19e46e50c4c0",
     "title": "女权纲领图修改",
     "section": "posts",
     "slug": "261041"
