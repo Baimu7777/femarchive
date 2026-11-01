@@ -82,7 +82,7 @@ export function validateArticle(value, catalog) {
 
 const BODY_LAYOUTS = new Set(['card', 'reply', 'quote', 'centered', 'grouped', 'highlight', 'folded']);
 const allowedTags = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'mark', 'span', 's', 'del', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'ul', 'ol', 'li', 'pre', 'code', 'a', 'img', 'hr', 'div'];
-const allowedAttributes = { a: ['href', 'title', 'target', 'rel'], img: ['src', 'alt', 'title', 'data-width', 'data-align'], ol: ['start'], span: ['data-color', 'data-size'], mark: ['data-color'], div: ['data-publication-layout', 'data-title', 'data-tone', 'data-heading'] };
+const allowedAttributes = { a: ['href', 'title', 'target', 'rel'], img: ['src', 'alt', 'title', 'data-width', 'data-align', 'data-caption'], ol: ['start'], span: ['data-color', 'data-size'], mark: ['data-color'], div: ['data-publication-layout', 'data-title', 'data-tone', 'data-heading'] };
 // Colour and size arrive as names from a closed set, never as CSS: a stylesheet
 // from the sender would be arbitrary code on the public site. Keep these in step
 // with src/lib/topics/text-style.ts and with the theme that paints them.
@@ -121,11 +121,24 @@ function validateBodyNodes(nodes, selectedPaths, status = 400) {
     if (node.name === 'a' && ((node.attribs.target !== undefined && node.attribs.target !== '_blank') || (node.attribs.rel !== undefined && node.attribs.rel !== 'noopener noreferrer nofollow'))) fail(status);
     if (node.name === 'img' && (!imagePath(node.attribs.src) || (selectedPaths && !selectedPaths.includes(node.attribs.src)))) fail(status);
     if (node.name === 'img' && ((node.attribs['data-width'] !== undefined && !['33', '50', '75', '100'].includes(node.attribs['data-width'])) || (node.attribs['data-align'] !== undefined && !['left', 'center', 'right'].includes(node.attribs['data-align'])))) fail(status);
+    if (node.name === 'img' && node.attribs['data-caption'] !== undefined && !imageCaption(node.attribs['data-caption'])) fail(status);
     if (node.name === 'span' && ((node.attribs['data-color'] !== undefined && !TEXT_COLORS.includes(node.attribs['data-color'])) || (node.attribs['data-size'] !== undefined && !TEXT_SIZES.includes(node.attribs['data-size'])))) fail(status);
     if (node.name === 'mark' && node.attribs['data-color'] !== undefined && !HIGHLIGHT_COLORS.includes(node.attribs['data-color'])) fail(status);
     if (node.name === 'ol' && node.attribs.start !== undefined && !/^[1-9][0-9]{0,5}$/.test(node.attribs.start)) fail(status);
     validateBodyNodes(node.children ?? [], selectedPaths, status);
   }
+}
+// A caption is one short line shown under its picture. It travels as an
+// attribute of the image and is written as the same figure the theme's image
+// hook draws, so a captioned picture looks like a hand-written one.
+const imageCaption = value => text(value, 300, true) && !/[\r\n]/.test(value);
+function captionedImage(image, caption) {
+  return caption === undefined ? image : `<figure class="article-figure">${image}<figcaption class="article-figure__caption">${attribute(caption)}</figcaption></figure>`;
+}
+/** The figures this receiver wrote, back into the editor's captioned images. */
+const FIGURE = /<figure class="article-figure">(<img\b[^>]*?)\s*\/?><figcaption class="article-figure__caption">([^<]*)<\/figcaption><\/figure>/g;
+function figuresToCaptions(html) {
+  return html.replace(FIGURE, (_, image, caption) => `${image} data-caption="${caption.replace(/"/g, '&quot;')}">`);
 }
 function imageLayout(attributes) {
   const width = attributes['data-width'], align = attributes['data-align'];
@@ -151,11 +164,16 @@ function bodyHTML(nodes, generated = true, linker = null) {
     if (node.type === 'text') return linker ? linker(node.data, attribute, (label, path) => `<a href="${attribute(path)}">${attribute(label)}</a>`) : attribute(node.data);
     const inner = bodyHTML(node.children ?? [], generated, ['a', 'code', 'pre'].includes(node.name) ? null : linker);
     if (node.name === 'div') return generated ? bodyLayoutHTML(node.attribs, inner) : `<div${bodyMarkerAttributes(node.attribs)}>${inner}</div>`;
+    // A figure cannot sit inside a paragraph, so a captioned picture alone in
+    // one replaces it.
+    if (node.name === 'p' && generated && node.children?.length === 1 && node.children[0].name === 'img' && node.children[0].attribs['data-caption'] !== undefined) return inner;
     let attributes = '';
     for (const key of allowedAttributes[node.name] ?? []) {
+      if (generated && key === 'data-caption') continue;
       if (node.attribs[key] !== undefined) attributes += ` ${key}="${attribute(key === 'href' ? safeLink(node.attribs[key]) : node.attribs[key])}"`;
     }
     if (node.name === 'img' && (node.attribs['data-width'] || node.attribs['data-align']) && generated) attributes += ` style="${imageLayout(node.attribs)}"`;
+    if (node.name === 'img' && generated) return captionedImage(`<img${attributes}>`, node.attribs['data-caption']);
     return `<${node.name}${attributes}>${['br', 'img', 'hr'].includes(node.name) ? '' : `${inner}</${node.name}>`}`;
   }).join('');
 }
@@ -213,7 +231,8 @@ export function publicBody(html, comments, selectedPaths, presentation, commentI
       const inner = render(node.children ?? [], ['a', 'code', 'pre'].includes(node.name) ? null : linking);
       switch (node.name) {
         case 'div': return `\n\n${bodyLayoutHTML(node.attribs, bodyHTML(node.children ?? [], true, linking))}\n\n`;
-        case 'p': return `\n\n${inner}\n\n`;
+        // A captioned picture is its own block, whether or not a paragraph held it.
+        case 'p': return node.children?.length === 1 && node.children[0].name === 'img' && node.children[0].attribs['data-caption'] !== undefined ? inner : `\n\n${inner}\n\n`;
         case 'br': return '  \n';
         case 'strong': case 'b': return `**${inner}**`;
         case 'em': case 'i': return `*${inner}*`;
@@ -245,7 +264,9 @@ export function publicBody(html, comments, selectedPaths, presentation, commentI
         case 'code': return `<code>${attribute(plain(node))}</code>`;
         case 'a': return `[${inner}](<${safeLink(node.attribs.href)}>)`;
         case 'img': {
-          const width = node.attribs['data-width'], align = node.attribs['data-align'];
+          const width = node.attribs['data-width'], align = node.attribs['data-align'], caption = node.attribs['data-caption'];
+          // Markdown cannot sit inside the figure's raw HTML.
+          if (caption !== undefined) return `\n\n${captionedImage(`<img src="${node.attribs.src}" alt="${attribute(node.attribs.alt ?? '')}"${width ? ` data-width="${width}"` : ''}${align ? ` data-align="${align}"` : ''}${width || align ? ` style="${imageLayout(node.attribs)}"` : ''}>`, caption)}\n\n`;
           if (!width && !align) return `![${escape(node.attribs.alt ?? '')}](<${node.attribs.src}>)`;
           const layout = imageLayout(node.attribs);
           return `<img src="${node.attribs.src}" alt="${attribute(node.attribs.alt ?? '')}"${width ? ` data-width="${width}"` : ''}${align ? ` data-align="${align}"` : ''} style="${layout}">`;
@@ -556,6 +577,12 @@ function recoverBodyLayouts(source) {
     && Object.entries(attributes).every(([key, value]) => node.attribs[key] === value);
   function canonicalChildren(nodes) {
     return nodes.map(node => {
+      if (tag(node, 'figure', { class: 'article-figure' })) {
+        const [image, caption] = node.children ?? [];
+        if (node.children.length !== 2 || image?.name !== 'img' || !tag(caption, 'figcaption', { class: 'article-figure__caption' })) fail(409);
+        const recovered = canonicalChildren([image])[0];
+        return { ...recovered, attribs: { ...recovered.attribs, 'data-caption': plain(caption) } };
+      }
       if (node.attribs && Object.hasOwn(node.attribs, 'data-publication-layout')) return recover(node);
       const attributes = { ...node.attribs };
       if (node.name === 'img' && attributes.style !== undefined) {
@@ -626,7 +653,7 @@ export function articleFields(document, section) {
     author: text(document.metadata.author, 200, true) ? document.metadata.author : '豆瓣-女阅组',
     date: document.metadata.date instanceof Date ? document.metadata.date.toISOString() : text(document.metadata.date, 100, true) ? document.metadata.date : '',
     license: text(document.metadata.license, 300, true) ? document.metadata.license : '该作品版权归原作者所有。',
-    html: sanitizeHtml(marked.parse(discussion.body, { async: false }), {
+    html: sanitizeHtml(figuresToCaptions(marked.parse(discussion.body, { async: false })), {
       allowedTags, allowedAttributes, allowedSchemes: ['https'], allowProtocolRelative: false,
       // Editor input never accepts CSS. Keep only validated layout data so the
       // next confirmed publication can regenerate its fixed image style.
@@ -635,6 +662,7 @@ export function articleFields(document, section) {
           const layout = { ...attribs };
           if (!['33', '50', '75', '100'].includes(layout['data-width'])) delete layout['data-width'];
           if (!['left', 'center', 'right'].includes(layout['data-align'])) delete layout['data-align'];
+          if (layout['data-caption'] !== undefined && !imageCaption(layout['data-caption'])) delete layout['data-caption'];
           return { tagName, attribs: layout };
         },
         span: (tagName, attribs) => {

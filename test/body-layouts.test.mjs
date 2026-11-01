@@ -112,3 +112,29 @@ test('rejects unknown or unsupported group color and heading metadata', () => {
     'data-publication-layout="grouped" data-tone="warm" data-tone="warm"',
   ]) assert.throws(() => publicBody(`<div ${marker}><p>正文</p></div>`, [], []), { status: 400 });
 });
+
+test('captioned images are written as the theme figure and read back as captions, top level and inside a layout', () => {
+  const other = '/images/articles/6ba7b810-9dad-41d1-80b4-00c04fd430c8.webp';
+  const html = `<p><img src="${image}" alt="内容图片" data-width="100" data-align="center" data-caption="7B7T &amp; English {x}"></p><p><img src="${other}" alt="" data-caption="Plain one"></p><div data-publication-layout="card"><p><img src="${image}" alt="" data-width="50" data-align="left" data-caption="In a card"></p></div>`;
+  const value = { ...fixture(), html, presentation: 'article' };
+  const body = publicBody(html, value.comments, [image, other], value.presentation);
+  assert.ok(body.includes(`<figure class="article-figure"><img src="${image}" alt="内容图片" data-width="100" data-align="center" style="width:100%;display:block;margin-left:auto;margin-right:auto"><figcaption class="article-figure__caption">7B7T &amp; English &#123;x&#125;</figcaption></figure>`), body);
+  assert.ok(body.includes(`<figure class="article-figure"><img src="${other}" alt=""><figcaption class="article-figure__caption">Plain one</figcaption></figure>`), body);
+  assert.match(body, /<figure class="article-figure"><img src="[^"]+" alt="" data-width="50" data-align="left" style="[^"]+"><figcaption class="article-figure__caption">In a card<\/figcaption><\/figure>/);
+  assert.doesNotMatch(body, /data-caption/);
+  const bytes = writeDocument(value, body, null, { articleId: randomUUID(), date: '2026-10-25T00:00:00Z' });
+  const read = articleFields(readDocument(bytes));
+  assert.match(read.html, /data-caption="7B7T &amp; English \{x\}"/);
+  assert.match(read.html, /data-caption="Plain one"/);
+  assert.match(read.html, /data-caption="In a card"/);
+  assert.doesNotMatch(read.html, /figure|figcaption|style=/);
+  // Reading and resending changes nothing.
+  const again = publicBody(read.html, read.comments, [image, other], read.presentation);
+  assert.equal(readDocument(writeDocument({ ...value, title: 'Updated' }, again, bytes, {})).body.trim(), body.trim());
+});
+
+test('refuses captions that are empty, multi-line or too long', () => {
+  for (const caption of ['', '   ', 'a&#10;b', 'x'.repeat(301)]) {
+    assert.throws(() => publicBody(`<p><img src="${image}" alt="" data-caption="${caption}"></p>`, [], [image]), String(caption.length));
+  }
+});
