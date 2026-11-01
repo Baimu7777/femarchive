@@ -226,6 +226,13 @@ export const existingPosts = {
     "section": "posts",
     "slug": "261025"
   },
+  "11a349e2-63ea-4255-be6b-ee521726a6c2": {
+    "path": "content/posts/261041.md",
+    "revision": "69786b8a2fbdb89c5d22b2c5f9701308a9dd1ee3",
+    "title": "女权纲领图修改",
+    "section": "posts",
+    "slug": "261041"
+  },
   "ce412359-8feb-47c5-a77e-28e3e8cfd042": {
     "path": "content/posts/26女性研究还是女性解放研究.md",
     "revision": "14020031fad839c8f35cc25e7afc2c756c25d9f4",
