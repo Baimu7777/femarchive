@@ -92,6 +92,8 @@
   }
 
   function render(entry) {
+    var report = dialog.querySelector("[data-feedback-editor]");
+    if(report){report.dataset.page=entry.url;report.dispatchEvent(new Event("feedback-page-change"));}
     titleNode.textContent = entry.title;
     markNode.innerHTML = markFor(entry);
     // The other names this entry is written about under belong beside its

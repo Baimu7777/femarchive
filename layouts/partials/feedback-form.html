@@ -1,0 +1,8 @@
+{{ $items := where site.RegularPages "Section" "in" (slice "posts" "news") }}
+{{ with site.GetPage "/lexicon" }}{{ $items = $items | append .RegularPages }}{{ end }}
+<div data-feedback-home data-server="{{ site.Params.comments.serverURL }}">
+<details><summary>网站建议</summary>{{ partial "feedback-editor.html" . }}</details>
+<div data-report-list aria-live="polite"></div><button type="button" data-report-more hidden>加载更多申报</button><p data-report-list-status role="status"></p>
+<script type="application/json" data-report-catalog>[{"path":"","title":"网站整体建议"}{{ range $items }},{"path":{{ .RelPermalink | jsonify | safeJS }},"title":{{ .Title | jsonify | safeJS }}}{{ end }}]</script>
+</div>
+<script type="module" src="{{ "/js/feedback.js" | relURL }}?v={{ now.Unix }}"></script>

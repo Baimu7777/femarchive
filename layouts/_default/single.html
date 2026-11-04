@@ -80,6 +80,7 @@
           </div>
         </article>
 
+        {{ if in (slice "posts" "lexicon" "news") .Section }}{{ partial "feedback-article.html" . }}{{ end }}
         {{ partial "publication-term-articles.html" . }}
 
         {{ partial "article-related.html" . }}
