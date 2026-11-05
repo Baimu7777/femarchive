@@ -3,7 +3,7 @@
 <head>
   {{ partial "head.html" . }}
 </head>
-<body class="body-kind-{{ .Kind }} body-section-{{ .Section }}{{ if .IsHome }} body-home{{ end }}"{{ if site.Params.comments.enable }} data-waline-server-url="{{ site.Params.comments.serverURL }}"{{ end }}>
+<body data-notification-bridge="{{ if site.Params.notifications.bridge }}true{{ else }}false{{ end }}" class="body-kind-{{ .Kind }} body-section-{{ .Section }}{{ if .IsHome }} body-home{{ end }}"{{ if site.Params.comments.enable }} data-waline-server-url="{{ site.Params.comments.serverURL }}"{{ end }}>
   {{ partial "mobile-nav.html" . }}
   {{ if not .IsHome }}
     {{ partial "header.html" . }}
@@ -12,6 +12,7 @@
     {{ block "main" . }}{{ end }}
   </main>
 {{ partial "footer.html" . }}
+{{ partial "notification-center.html" . }}
 <script src="{{ "js/site.js" | relURL }}?v={{ now.Unix }}" defer></script>
 <script src="{{ "js/code-copy.js" | relURL }}" defer></script>
 <script src="{{ "js/lexicon-peek.js" | relURL }}?v={{ now.Unix }}" defer data-lexicon-index="{{ "lexicon/index.json" | relURL }}"></script>

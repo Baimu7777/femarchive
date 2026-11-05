@@ -1,0 +1,2 @@
+import {configuredNotifications,webRequest,send} from '../notifications/config.mjs';
+export default async function handler(req,res){try{const config=configuredNotifications();if(!config)return send(res,new Response(JSON.stringify({error:'互动通知尚未启用。'}),{status:503,headers:{'content-type':'application/json','cache-control':'no-store'}}));return send(res,await config.service(await webRequest(req)));}catch{return send(res,new Response('{"error":"通知暂时无法更新。"}',{status:503,headers:{'content-type':'application/json','cache-control':'no-store'}}));}}

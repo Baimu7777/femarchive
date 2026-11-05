@@ -29,7 +29,7 @@
   if (walineRoot) {
     try {
       prepareAnonymousIdentity(window.localStorage, '{{ site.Params.comments.serverURL }}', () => crypto.randomUUID());
-      const { init } = await import('https://unpkg.com/@waline/client@v3/dist/waline.js');
+      const { init } = await import(document.body.dataset.notificationBridge === 'true' ? '/vendor/waline.js' : 'https://unpkg.com/@waline/client@v3/dist/waline.js');
 
       const isLocal =
         window.location.hostname === 'localhost' ||

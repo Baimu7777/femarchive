@@ -1,0 +1,8 @@
+<dialog class="archive-notice-dialog" data-notice-dialog aria-labelledby="archive-notice-title">
+<header><h2 id="archive-notice-title">我的通知</h2><button type="button" data-notice-close aria-label="关闭通知">×</button></header>
+<div class="archive-notice-tabs" role="tablist" aria-label="通知类型"><button id="notice-personal-tab" role="tab" aria-selected="true" aria-controls="notice-panel" data-notice-tab="personal">与我有关</button><button id="notice-updates-tab" role="tab" aria-selected="false" aria-controls="notice-panel" data-notice-tab="updates">文库更新</button></div>
+<p class="archive-notice-help">通知保存在当前浏览器，更换设备或清除浏览器数据后无法恢复。</p>
+<div class="archive-notice-toolbar"><span data-notice-unread></span><button type="button" data-notice-read-all>全部已读</button></div>
+<p data-notice-status role="status"></p><div id="notice-panel" role="tabpanel" aria-labelledby="notice-personal-tab"><ul data-notice-list></ul></div><button type="button" data-notice-more hidden>加载更早通知</button>
+</dialog>
+<script type="module" src="{{ "/js/notifications.js" | relURL }}?v={{ readFile "static/js/notifications.js" | md5 }}"></script>

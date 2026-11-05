@@ -1,0 +1,6 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {updatePublicState,safeNoticeURL} from '../static/js/notification-state.js';
+const item=(id,kind='posts')=>({id,kind,title:'合成更新',url:`/${kind}/${id}/`,publishedAt:'2026-11-04T12:00:00Z'});
+test('first visit sets baseline without historical unread',()=>{const state=updatePublicState(null,[item('1')],1);assert.deepEqual(state.known,['1']);assert.equal(state.items.length,0)});
+test('all three update kinds notify and content edits do not duplicate',()=>{let s=updatePublicState(null,[item('1')],1);s=updatePublicState(s,[item('1'),item('2'),item('3','lexicon'),item('4','news')],2);assert.equal(s.items.length,3);s.items[0].read=true;s=updatePublicState(s,[item('1'),{...item('2'),title:'changed'},item('3','lexicon'),item('4','news')],3);assert.equal(s.items.length,3);assert.equal(s.items.filter(x=>x.read).length,1)});
+test('unsafe jump urls excluded',()=>{for(const url of ['javascript:alert(1)','//evil.test/','/admin/','/posts/../secrets'])assert.equal(safeNoticeURL(url),null)});
+test('damaged cached items cannot inject links or break updates',()=>{const s=updatePublicState({known:[],items:[null,{id:'evil',title:'bad',href:'//evil.test/'}]},[item('1')],1);assert.equal(s.items.length,1);assert.equal(s.items[0].id,'1')});

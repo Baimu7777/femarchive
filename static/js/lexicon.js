@@ -69,7 +69,7 @@
     walineLoading = true;
     Promise.all([import('/js/comment-avatars.js'), import(walineHost.getAttribute('data-comment-ui') || '/js/comment-ui.js')]).then(function (helpers) {
       helpers[0].prepareAnonymousIdentity(window.localStorage, walineHost.getAttribute('data-server'), function () { return crypto.randomUUID(); });
-      return import('https://unpkg.com/@waline/client@v3/dist/waline.js').then(function (mod) {
+      return import(document.body.dataset.notificationBridge === 'true' ? '/vendor/waline.js' : 'https://unpkg.com/@waline/client@v3/dist/waline.js').then(function (mod) {
 
       waline = mod.init({
         el: walineHost,

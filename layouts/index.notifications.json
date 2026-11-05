@@ -1,0 +1,5 @@
+{{- $pages := where site.RegularPages "Section" "in" (slice "posts" "news") -}}
+{{- with site.GetPage "/lexicon" -}}{{- $pages = $pages | append .RegularPages -}}{{- end -}}
+{{- $items := slice -}}
+{{- range $pages -}}{{- $items = $items | append (dict "id" .RelPermalink "kind" .Section "title" .Title "url" .RelPermalink "publishedAt" (.Date.Format "2006-01-02T15:04:05Z07:00")) -}}{{- end -}}
+{{- dict "items" $items | jsonify -}}

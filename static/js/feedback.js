@@ -1,3 +1,4 @@
+import {submitComment} from './notification-transport.js';
 import {prepareAnonymousIdentity} from './comment-avatars.js';
 export const REPORT_CACHE_TTL = 5 * 60 * 1000;
 const cacheKey = server => `archive-reports:v1:${server}`;
@@ -14,7 +15,8 @@ export function readReportCache(storage, key, catalog, now = Date.now()) {
 }
 export const reportPath = page => '/feedback/' + (page || '').replace(/^\/+/, '');
 async function request(server, query, options = {}) {
-  const response = await fetch(server.replace(/\/$/, '') + '/api/comment' + query, {...options, signal: AbortSignal.timeout(20000)});
+  const transport=options.method==='POST'?submitComment:fetch;
+  const response = await transport(server.replace(/\/$/, '') + '/api/comment' + query, {...options, signal: AbortSignal.timeout(20000)});
   const data = await response.json();
   if (!response.ok || data.errno) throw new Error(data.errmsg || `请求失败（${response.status}）`);
   return data.data;
@@ -58,11 +60,11 @@ function mountEditor(root) {
     sending=true;button.disabled=true;status.textContent='正在提交…';
     try{
       const id=prepareAnonymousIdentity(localStorage,root.dataset.server,()=>crypto.randomUUID());
-      await request(root.dataset.server,'?lang=zh-CN',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nick:form.elements.nick.value.trim()||`匿名·${id||crypto.randomUUID().slice(0,12)}`,comment:text,url:reportPath(page),ua:navigator.userAgent,turnstile:token})});
+      await request(root.dataset.server,'?lang=zh-CN',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nick:form.elements.nick.value.trim()||`匿名·${id||crypto.randomUUID().slice(0,12)}`,comment:text,url:reportPath(page),ua:navigator.userAgent,turnstile:token,...(root.dataset.replyId?{pid:root.dataset.replyId,rid:root.dataset.rootId||root.dataset.replyId}:{})})});
       try{sessionStorage.removeItem(`archive-report-draft:${page||'website'}`);}catch{}
       if(activePage===page&&detail.value===snapshot)detail.value='';
       try{localStorage.removeItem(cacheKey(root.dataset.server));}catch{}
-      status.textContent='申报已提交；如开启审核，将在审核后公开显示。';document.dispatchEvent(new Event('feedback-submitted'));
+      status.textContent='申报已提交；如开启审核，将在审核后公开显示。';if(root.dataset.replyId&&activePage===page){delete root.dataset.replyId;delete root.dataset.rootId;root.dataset.page='';root.dispatchEvent(new Event('feedback-page-change'));}document.dispatchEvent(new Event('feedback-submitted'));
     }catch(error){status.textContent=`提交未确认：${error.name==='TimeoutError'?'网络超时':error.message}。文字已保留，请先查看主页是否收到，再决定是否重试。`;}
     finally{sending=false;token='';window.turnstile?.reset(widget);button.disabled=true;}
   });
@@ -71,6 +73,7 @@ async function mountHome(root){
   const catalog=JSON.parse(root.querySelector('[data-report-catalog]').textContent), list=root.querySelector('[data-report-list]'), status=root.querySelector('[data-report-list-status]'), more=root.querySelector('[data-report-more]');
   let sources=[], records=[], loading=false, pendingRefresh=false, sequence=0, expanded=false;
   const key=cacheKey(root.dataset.server);
+  const editor=root.querySelector('[data-feedback-editor]');const replyNotice=document.createElement('p');const cancelReply=document.createElement('button');cancelReply.type='button';cancelReply.textContent='取消回应';cancelReply.hidden=true;editor?.prepend(replyNotice,cancelReply);cancelReply.addEventListener('click',()=>{delete editor.dataset.replyId;delete editor.dataset.rootId;editor.dataset.page='';editor.dispatchEvent(new Event('feedback-page-change'));replyNotice.textContent='';cancelReply.hidden=true;});
   let storage;try{storage=localStorage;}catch{storage={getItem:()=>null};}
   const cached=readReportCache(storage,key,catalog);
   const expand=document.createElement('button');expand.type='button';expand.className='report-list__expand';expand.hidden=true;expand.setAttribute('aria-expanded','false');list.after(expand);
@@ -91,7 +94,7 @@ async function mountHome(root){
     text.textContent=typeof comment.orig==='string'?comment.orig:new DOMParser().parseFromString(comment.comment||'','text/html').body.textContent;item.append(text);
     const toggle=document.createElement('button');toggle.type='button';toggle.className='report-item__expand';toggle.textContent='展开全文';toggle.hidden=true;toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-controls',text.id);
     toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',String(open));text.classList.toggle('is-expanded',open);toggle.textContent=open?'收起':'展开全文';});item.append(toggle);
-    const meta=document.createElement('small');meta.textContent=`${comment.nick?.startsWith('匿名·')?'匿名':comment.nick||'匿名'} · ${new Date(comment.time).toLocaleDateString('zh-CN')}`;item.append(meta);list.append(item);
+    const meta=document.createElement('small');meta.textContent=`${comment.nick?.startsWith('匿名·')?'匿名':comment.nick||'匿名'} · ${new Date(comment.time).toLocaleDateString('zh-CN')}`;item.append(meta);if(editor&&comment.objectId){const reply=document.createElement('button');reply.type='button';reply.className='report-item__expand';reply.textContent='回应';reply.addEventListener('click',()=>{editor.dataset.page=source.path;editor.dataset.replyId=String(comment.objectId);editor.dataset.rootId=String(comment.rid||comment.objectId);editor.dispatchEvent(new Event('feedback-page-change'));replyNotice.textContent='回应此申报';cancelReply.hidden=false;editor.closest('details').open=true;editor.scrollIntoView({behavior:'smooth',block:'center'});editor.querySelector('textarea').focus();});item.append(reply);}list.append(item);
     requestAnimationFrame(()=>{toggle.hidden=text.scrollHeight<=text.clientHeight+1;});
     for(const child of comment.children||[])renderItem(child,source);
   }
@@ -123,7 +126,7 @@ async function mountHome(root){
     }catch(error){if(!cached&&!records.length)status.textContent='申报暂时无法读取，请稍后再来。';}
     finally{loading=false;more.disabled=false;if(pendingRefresh){pendingRefresh=false;load(true);}}
   }
-  more.addEventListener('click',()=>load(false));document.addEventListener('feedback-submitted',()=>load(true));
+  more.addEventListener('click',()=>load(false));document.addEventListener('feedback-submitted',()=>{replyNotice.textContent='';cancelReply.hidden=true;load(true);});
   const observer=new IntersectionObserver(entries=>{if(entries.some(x=>x.isIntersecting)){observer.disconnect();if(!cached?.fresh)load(true);}},{rootMargin:'200px'});observer.observe(root);
 
 }

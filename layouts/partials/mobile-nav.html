@@ -5,4 +5,5 @@
     {{ $active := cond (eq .section "") $current.IsHome (eq $current.Section .section) }}
     <a href="{{ .url | relLangURL }}"{{ if $active }} class="is-active" aria-current="page"{{ end }}>{{ .name }}</a>
   {{ end }}
+{{ partial "notification-button.html" . }}
 </nav>

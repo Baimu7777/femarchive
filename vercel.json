@@ -42,6 +42,14 @@
     "api/publishing.mjs": {
       "maxDuration": 60,
       "includeFiles": "publishing/**"
+    },
+    "api/notifications.mjs": {
+      "maxDuration": 30,
+      "includeFiles": "notifications/**"
+    },
+    "api/community.mjs": {
+      "maxDuration": 30,
+      "includeFiles": "notifications/**"
     }
   },
   "git": {

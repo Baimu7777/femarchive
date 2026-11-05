@@ -1,5 +1,6 @@
 {{ if eq .Section "lexicon" }}<meta name="robots" content="noindex, nofollow">{{ end }}
 <meta charset="utf-8">
+<link rel="stylesheet" href="{{ "/css/notifications.css" | relURL }}">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
 <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ site.Params.description }}{{ end }}">

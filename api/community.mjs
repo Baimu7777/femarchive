@@ -1,0 +1,3 @@
+import {configuredNotifications,webRequest,send} from '../notifications/config.mjs';
+import {createCommentBridge} from '../notifications/comments.mjs';
+export default async function handler(req,res){try{const config=configuredNotifications();if(!config)return send(res,new Response('{"errno":1,"errmsg":"通知评论接入尚未启用。"}',{status:503,headers:{'content-type':'application/json','cache-control':'no-store'}}));return send(res,await createCommentBridge(config)(await webRequest(req)));}catch{return send(res,new Response('{"errno":1,"errmsg":"发送暂时不可用。"}',{status:503,headers:{'content-type':'application/json','cache-control':'no-store'}}));}}
