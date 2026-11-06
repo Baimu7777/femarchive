@@ -5883,3 +5883,10 @@ html.skip-home-intro .home-content { margin-top: 0; }
 .archive-comment-flow > .wl-meta-foot { order: 4; }
  .posts-category-entry { display: inline-flex; align-items: center; gap: 12px; width: fit-content; min-height: 40px; margin: 0 0 12px; padding: 8px 14px; border: 1px solid var(--line-mid); border-radius: 12px; background: #f6fbf8; color: var(--accent-deep); font-size: .9rem; text-decoration: none; }
 .sidebar-meta__author a { color: inherit; font: inherit; }
+
+/* Comment attachment cards keep upload syntax out of the text editor. */
+.comment-attachments { display:flex; flex-wrap:wrap; gap:12px; padding:8px 12px; }
+.comment-attachment { display:flex; flex-direction:column; align-items:flex-start; gap:8px; max-width:100%; padding:12px; border:1px solid var(--line-mid); border-radius:12px; font-size:.85rem; overflow-wrap:anywhere; }
+.comment-attachment img { width:140px; height:100px; object-fit:contain; border-radius:8px; }
+.comment-attachment button { font:inherit; padding:6px 12px; cursor:pointer; }
+.archive-upload-verification { max-width:100%; }

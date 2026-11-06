@@ -29,7 +29,7 @@
   if (walineRoot) {
     try {
       prepareAnonymousIdentity(window.localStorage, '{{ site.Params.comments.serverURL }}', () => crypto.randomUUID());
-      const { init } = await import(document.body.dataset.notificationBridge === 'true' ? '/vendor/waline.js' : 'https://unpkg.com/@waline/client@v3/dist/waline.js');
+      const { init } = await import('/vendor/waline.js?v=attachments-1');
 
       const isLocal =
         window.location.hostname === 'localhost' ||
@@ -48,36 +48,6 @@
         meta: ['nick'],
         requiredMeta: [],
         turnstileKey: '{{ site.Params.comments.turnstileKey }}',
-
-        imageUploader: async (file) => {
-          const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-          const maxSize = 2 * 1024 * 1024; // 2MB
-
-          if (!allowedTypes.includes(file.type)) {
-            throw new Error('只允许上传 JPG / PNG / WEBP / GIF 图片');
-          }
-
-          if (file.size > maxSize) {
-            throw new Error('图片不能超过 2MB');
-          }
-
-          const formData = new FormData();
-          formData.append('file', file);
-          formData.append('upload_preset', 'waline_comments');
-
-          const res = await fetch('https://api.cloudinary.com/v1_1/dpxq0lyil/image/upload', {
-            method: 'POST',
-            body: formData,
-          });
-
-          const data = await res.json();
-
-          if (!res.ok || !data.secure_url) {
-            throw new Error(data?.error?.message || '图片上传失败');
-          }
-
-          return data.secure_url;
-        },
 
         emoji: [
           'https://cdn.jsdelivr.net/gh/norevi/blob-emoji-for-waline@2.0/blobs-png',

@@ -1,3 +1,4 @@
+import {loadTurnstile as captchaReady} from './turnstile-loader.js';
 import {submitComment} from './notification-transport.js';
 import {prepareAnonymousIdentity} from './comment-avatars.js';
 export const REPORT_CACHE_TTL = 5 * 60 * 1000;
@@ -20,16 +21,6 @@ async function request(server, query, options = {}) {
   const data = await response.json();
   if (!response.ok || data.errno) throw new Error(data.errmsg || `请求失败（${response.status}）`);
   return data.data;
-}
-let captchaScript;
-function captchaReady() {
-  if (window.turnstile) return Promise.resolve();
-  return captchaScript ||= new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-    script.onload = resolve; script.onerror = () => {captchaScript = null; reject(new Error('验证服务加载失败，请检查网络后重试。'));};
-    document.head.append(script);
-  });
 }
 function mountEditor(root) {
   const form=root.querySelector('form'), detail=form.elements.detail, status=root.querySelector('[data-report-status]'), button=form.querySelector('button');
