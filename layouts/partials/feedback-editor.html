@@ -2,3 +2,13 @@
 <form class="report-form"><label>昵称（选填）<input name="nick" maxlength="40" autocomplete="nickname"></label><label>问题说明<textarea name="detail" rows="4" required maxlength="10000"></textarea></label><div data-report-captcha></div><button type="submit">提交申报</button><p data-report-status role="status"></p></form></div>
 <style>.report-form{display:grid;gap:12px;margin:16px 0}.report-form label{display:grid;gap:8px}.report-form input,.report-form textarea{box-sizing:border-box;width:100%;font:inherit;color:inherit;border:1px solid #bdd6cc;border-radius:12px;padding:12px;background:#f6faf7}.report-form button{justify-self:start;font:inherit;border:0;border-radius:20px;background:#285b4c;color:#fff;padding:10px 22px}.report-form button:disabled{opacity:.5}.report-form p{margin:0;font-size:.9rem}.feedback-entry{margin:24px 0}.report-item{padding:20px 0;border-bottom:1px solid #d4e3dc}.report-item p{white-space:pre-wrap;overflow-wrap:anywhere}.report-item a{font-size:.9rem}.report-item__text{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;overflow:hidden;line-height:1.65;max-height:6.6em}.report-item__text.is-expanded{display:block;max-height:none;overflow:visible;-webkit-line-clamp:unset}.report-item__expand{display:block;border:0;background:none;color:#285b4c;font:inherit;font-size:.9rem;padding:0;margin:0 0 12px;cursor:pointer}.report-item__expand[hidden]{display:none}.report-item[hidden]{display:none}.report-list__expand{border:1px solid #bdd6cc;border-radius:20px;background:#f1f8f4;color:#285b4c;padding:9px 18px;margin:16px 0;font:inherit;cursor:pointer}.report-list__expand[hidden]{display:none}</style>
 <script type="module" src="{{ "/js/feedback.js" | relURL }}?v={{ now.Unix }}"></script>
+
+<style>
+.report-replies{margin:18px 0 0 12px;padding:12px 16px;border-left:3px solid #9bbfaf;background:#f3f8f5;border-radius:0 10px 10px 0}
+.report-replies__title{font-weight:600;color:#285b4c}
+.report-item--reply{padding:16px 0}
+.report-item--reply:last-child{border-bottom:0;padding-bottom:4px}
+.report-item__reply-label{font-size:.85rem;font-weight:600;color:#285b4c}
+.report-item__reply-quote{margin:8px 0;padding:6px 10px;border-left:2px solid #bdd6cc;color:#586b63;font-size:.85rem;overflow-wrap:anywhere;white-space:pre-wrap}
+@media(max-width:600px){.report-replies{margin-left:0;padding:10px 12px}}
+</style>

@@ -1,3 +1,4 @@
+import {groupReports} from './report-threads.js';
 import {loadTurnstile as captchaReady} from './turnstile-loader.js';
 import {submitComment} from './notification-transport.js';
 import {prepareAnonymousIdentity} from './comment-avatars.js';
@@ -74,24 +75,31 @@ async function mountHome(root){
     expand.hidden=list.children.length<=3&&!pending;
     expand.textContent=expanded?'收起申报':'展开全部申报';expand.setAttribute('aria-expanded',String(expanded));
     more.hidden=!expanded||!pending;
-    requestAnimationFrame(()=>{for(const item of list.children){if(item.hidden)continue;const text=item.querySelector('.report-item__text'),toggle=item.querySelector('.report-item__expand');if(toggle.getAttribute('aria-expanded')!=='true')toggle.hidden=text.scrollHeight<=text.clientHeight+1;}});
+    requestAnimationFrame(()=>{for(const item of list.querySelectorAll('.report-item')){if(item.closest('[hidden]'))continue;const text=item.querySelector('.report-item__text'),toggle=item.querySelector('.report-item__expand');if(toggle.getAttribute('aria-expanded')!=='true')toggle.hidden=text.scrollHeight<=text.clientHeight+1;}});
   }
   expand.addEventListener('click',()=>{expanded=!expanded;updateVisibility();});
   const lookup=new Map(catalog.map(source=>[source.path,source]));
-  function renderItem(comment,source){
-    const item=document.createElement('article');item.className='report-item';item.dataset.time=String(new Date(comment.time).getTime());
-    const heading=document.createElement('a');heading.textContent=source.title;heading.href=source.path||'/#feedback';item.append(heading);
+  function renderItem(node,source,target=list,isReply=false){
+    const {comment}=node;
+    const item=document.createElement('article');item.className='report-item'+(isReply?' report-item--reply':'');item.dataset.time=String(new Date(comment.time).getTime());
+    const author=value=>value?.nick?.startsWith('匿名·')?'匿名':value?.nick||'匿名';
+    const plain=value=>typeof value?.orig==='string'?value.orig:new DOMParser().parseFromString(value?.comment||'','text/html').body.textContent;
+    if(isReply||node.parentId||node.rootId){
+      const label=document.createElement('p');label.className='report-item__reply-label';
+      label.textContent=node.parent?`回应 ${author(node.parent.comment)}`:'回应（原申报暂未加载或不可见）';item.append(label);
+      if(node.parent){const quote=document.createElement('blockquote');quote.className='report-item__reply-quote';quote.textContent=plain(node.parent.comment).slice(0,100);item.append(quote);}
+    }else{const heading=document.createElement('a');heading.textContent=source.title;heading.href=source.path||'/#feedback';item.append(heading);}
     const text=document.createElement('p');text.className='report-item__text';text.id=`report-text-${++sequence}`;
     text.textContent=typeof comment.orig==='string'?comment.orig:new DOMParser().parseFromString(comment.comment||'','text/html').body.textContent;item.append(text);
     const toggle=document.createElement('button');toggle.type='button';toggle.className='report-item__expand';toggle.textContent='展开全文';toggle.hidden=true;toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-controls',text.id);
     toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',String(open));text.classList.toggle('is-expanded',open);toggle.textContent=open?'收起':'展开全文';});item.append(toggle);
-    const meta=document.createElement('small');meta.textContent=`${comment.nick?.startsWith('匿名·')?'匿名':comment.nick||'匿名'} · ${new Date(comment.time).toLocaleDateString('zh-CN')}`;item.append(meta);if(editor&&comment.objectId){const reply=document.createElement('button');reply.type='button';reply.className='report-item__expand';reply.textContent='回应';reply.addEventListener('click',()=>{editor.dataset.page=source.path;editor.dataset.replyId=String(comment.objectId);editor.dataset.rootId=String(comment.rid||comment.objectId);editor.dispatchEvent(new Event('feedback-page-change'));replyNotice.textContent='回应此申报';cancelReply.hidden=false;editor.closest('details').open=true;editor.scrollIntoView({behavior:'smooth',block:'center'});editor.querySelector('textarea').focus();});item.append(reply);}list.append(item);
+    const meta=document.createElement('small');meta.textContent=`${comment.nick?.startsWith('匿名·')?'匿名':comment.nick||'匿名'} · ${new Date(comment.time).toLocaleDateString('zh-CN')}`;item.append(meta);if(editor&&comment.objectId){const reply=document.createElement('button');reply.type='button';reply.className='report-item__expand';reply.textContent='回应';reply.addEventListener('click',()=>{editor.dataset.page=source.path;editor.dataset.replyId=String(comment.objectId);editor.dataset.rootId=String(node.rootId||comment.objectId);editor.dispatchEvent(new Event('feedback-page-change'));replyNotice.textContent=`正在回应 ${author(comment)}：${plain(comment).slice(0,80)}`;cancelReply.hidden=false;editor.closest('details').open=true;editor.scrollIntoView({behavior:'smooth',block:'center'});editor.querySelector('textarea').focus();});item.append(reply);}target.append(item);
     requestAnimationFrame(()=>{toggle.hidden=text.scrollHeight<=text.clientHeight+1;});
-    for(const child of comment.children||[])renderItem(child,source);
+    if(node.replies.length){const replies=document.createElement('section');replies.className='report-replies';replies.setAttribute('aria-label','申报回应');const title=document.createElement('p');title.className='report-replies__title';title.textContent=`回应（${node.replies.length}）`;replies.append(title);item.append(replies);for(const child of node.replies)renderItem(child,source,replies,true);}
   }
   function draw(){
     list.replaceChildren();
-    [...records].sort((a,b)=>new Date(b.comment.time)-new Date(a.comment.time)).forEach(x=>renderItem(x.comment,lookup.get(x.path)));
+    groupReports(records).forEach(node=>renderItem(node,lookup.get(node.path)));
     updateVisibility();
     status.textContent=records.length?'':'暂时没有公开申报。';
   }
