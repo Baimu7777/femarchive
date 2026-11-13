@@ -93,7 +93,12 @@
       </div>
     </div>
 
-    <button type="button" class="back-to-top" aria-label="回到页面顶部" data-back-to-top hidden>
+    {{ if and site.Params.comments.enable (ne .Params.comments false) }}
+      <a href="#comments" class="back-to-top article-jump jump-to-comments is-visible" aria-label="跳到评论区" title="跳到评论区" data-jump-to-comments>
+        <span class="back-to-top__icon" aria-hidden="true"></span>
+      </a>
+    {{ end }}
+    <button type="button" class="back-to-top article-jump" aria-label="回到页面顶部" data-back-to-top hidden>
       <span class="back-to-top__icon" aria-hidden="true"></span>
     </button>
   </main>

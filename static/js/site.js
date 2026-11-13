@@ -33,6 +33,55 @@
     let walinePageviewAbort = null;
     let walinePageviewModulePromise = null;
 
+    const watchedCommentCounts = new WeakSet();
+    const readCountTarget = document.querySelector('[data-comment-read-count]');
+    let commentHeadingVisible = false;
+    const recordReadCount = () => {
+      if (!commentHeadingVisible || document.visibilityState !== 'visible') return;
+      const value = readCountTarget.textContent.trim();
+      if (!/^\d+$/.test(value)) return;
+      try {
+        localStorage.setItem(commentReadKey(readCountTarget), value);
+      } catch {}
+    };
+    const commentReadKey = (target) => 'femarchive:comment-read:' + walineServerURL + ':' + target.dataset.path;
+    const watchCommentCount = (target) => {
+      if (watchedCommentCounts.has(target)) return;
+      watchedCommentCounts.add(target);
+      const container = target.closest('.card-comment-count');
+      const badge = container ? document.createElement('span') : null;
+      if (badge) {
+        badge.className = 'comment-unread-badge';
+        badge.hidden = true;
+        container.after(badge);
+      }
+      new MutationObserver(() => {
+        if (target === readCountTarget) recordReadCount();
+        if (!badge) return;
+        try {
+          const current = target.textContent.trim();
+          if (!/^\d+$/.test(current)) return;
+          const key = commentReadKey(target);
+          const previous = localStorage.getItem(key);
+          if (previous === null) localStorage.setItem(key, current);
+          const unread = previous === null ? 0 : Number(current) - Number(previous);
+          badge.hidden = unread <= 0;
+          badge.textContent = unread > 0 ? unread + ' 条新回应' : '';
+        } catch {}
+      }).observe(target, { childList: true, characterData: true, subtree: true });
+    };
+
+    if (readCountTarget && 'IntersectionObserver' in window) {
+      const heading = document.querySelector('#comments .comment-panel__heading');
+      if (heading) {
+        new IntersectionObserver(([entry]) => {
+          commentHeadingVisible = entry.isIntersecting;
+          recordReadCount();
+        }).observe(heading);
+        document.addEventListener('visibilitychange', recordReadCount);
+      }
+    }
+
     const refreshWalineCommentCounts = async (root = document) => {
       if (!walineServerURL) return;
 
@@ -40,6 +89,7 @@
       const scope = root && typeof root.querySelectorAll === 'function' ? root : document;
       const targets = Array.from(scope.querySelectorAll(selector)).filter((item) => item.dataset.path);
       if (!targets.length) return;
+      targets.forEach(watchCommentCount);
 
       try {
         walineCommentModulePromise ||= import('https://unpkg.com/@waline/client@v3/dist/comment.js');
@@ -88,6 +138,9 @@
     window.refreshWalineCommentCounts = refreshWalineCommentCounts;
     window.refreshWalinePageviewCounts = refreshWalinePageviewCounts;
     refreshWalineCommentCounts();
+    window.addEventListener('pageshow', (event) => {
+      if (event.persisted) refreshWalineCommentCounts();
+    });
     refreshWalinePageviewCounts();
 
 
@@ -692,17 +745,26 @@
 
     const backToTop = document.querySelector('[data-back-to-top]');
 
+    const jumpToComments = document.querySelector('[data-jump-to-comments]');
+    const comments = document.getElementById('comments');
+
     if (backToTop) {
       const syncBackToTop = () => {
         const visible = (window.scrollY || document.documentElement.scrollTop || 0) > 320;
         backToTop.hidden = false;
         backToTop.classList.toggle('is-visible', visible);
+        if (jumpToComments && comments) {
+          const bounds = comments.getBoundingClientRect();
+          const outsideComments = bounds.top > window.innerHeight - 80 || bounds.bottom <= 0;
+          jumpToComments.classList.toggle('is-visible', outsideComments || document.activeElement === jumpToComments);
+        }
       };
 
       backToTop.addEventListener('click', () => {
-        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
       });
 
+      jumpToComments?.addEventListener('blur', syncBackToTop);
       syncBackToTop();
       window.addEventListener('scroll', syncBackToTop, { passive: true });
       window.addEventListener('resize', syncBackToTop, { passive: true });

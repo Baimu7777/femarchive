@@ -2737,6 +2737,36 @@ body.home-hero-dismissed .home-hero {
   transform: rotate(45deg) translate(2px, 2px);
 }
 
+#comments {
+  scroll-margin-top: 110px;
+}
+
+.back-to-top.article-jump {
+  width: 44px;
+  height: 44px;
+  border-radius: 15px;
+}
+
+.article-jump .back-to-top__icon {
+  width: 13px;
+  height: 13px;
+  border-width: 2px;
+}
+
+.jump-to-comments .back-to-top__icon {
+  transform: rotate(225deg) translate(2px, 2px);
+}
+
+.jump-to-comments.is-visible + .back-to-top {
+  margin-bottom: 52px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 /* footer */
 
 .site-footer {
@@ -5890,3 +5920,15 @@ html.skip-home-intro .home-content { margin-top: 0; }
 .comment-attachment img { width:140px; height:100px; object-fit:contain; border-radius:8px; }
 .comment-attachment button { font:inherit; padding:6px 12px; cursor:pointer; }
 .archive-upload-verification { max-width:100%; }
+
+
+.comment-unread-badge:not([hidden]) {
+  display: inline-block;
+  padding: 0.1em 0.55em;
+  border-radius: 999px;
+  background: #d9efe4;
+  color: #235746;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}

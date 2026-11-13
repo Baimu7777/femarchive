@@ -5,6 +5,7 @@
     <button type="button" class="comment-panel__login" id="comment-header-login" hidden>登录</button>
   </div>
 
+  <span class="waline-comment-count" data-path="{{ .Params.comment_path | default .RelPermalink }}" data-comment-read-count hidden></span>
   <div id="waline"></div>
   <p id="waline-status" class="comment-panel__status" hidden></p>
   <noscript>
