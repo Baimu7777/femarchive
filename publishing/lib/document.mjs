@@ -7,7 +7,7 @@ import { parseDocument, Parser } from 'htmlparser2';
 import { marked } from 'marked';
 import { isDeepStrictEqual } from 'node:util';
 import { isUtf8 } from 'node:buffer';
-import { fail, uuid, sha, imagePath } from './errors.mjs';
+import { fail, uuid, sha, imagePath, datedSection } from './errors.mjs';
 
 const fields = ['presentation', 'section', 'version', 'confirmed', 'title', 'author', 'license', 'html', 'initial', 'polarity', 'isEvent', 'aliases', 'categories', 'tags', 'newTags', 'replaceTags', 'comments', 'commentImages', 'commentKinds', 'commentOrphans', 'originalDate', 'sourceUrl', 'sourceName', 'publishDate', 'replaceCategories', 'relatedTerms', 'assets', 'articleId', 'expectedRevision'];
 // Closed set: the index letter cannot carry anything the listing does not use.
@@ -48,11 +48,11 @@ export function validateArticle(value, catalog) {
   if ('relatedTerms' in value && (!strings(value.relatedTerms, 50, 100) || value.relatedTerms.some(term => !value.tags.includes(term)))) fail();
   if ('replaceTags' in value && typeof value.replaceTags !== 'boolean') fail();
   if ('presentation' in value && !PRESENTATIONS.includes(value.presentation)) fail();
-  if ('section' in value && !['posts', 'news'].includes(value.section)) fail();
-  // News items carry a date and a named source instead of an author and
-  // categories; the article fields stay off them so nothing is applied by
-  // accident.
-  if (value.section === 'news') {
+  if ('section' in value && !['posts', 'news', 'figures'].includes(value.section)) fail();
+  // News items and figures carry a date and a named source instead of an
+  // author and categories; the article fields stay off them so nothing is
+  // applied by accident.
+  if (datedSection(value.section)) {
     if (value.categories.length || 'replaceCategories' in value || (value.presentation ?? 'article') !== 'article' || value.comments.length) fail();
   } else if ('publishDate' in value || 'sourceName' in value) fail();
   if ('replaceCategories' in value && (value.replaceCategories !== true || value.section !== 'posts')) fail();
@@ -401,7 +401,7 @@ export function writeDocument(value, body, previous, plan) {
   if (!previous) {
     // Entries carry no taxonomy. Empty arrays would still render as front
     // matter keys, so only write the ones that actually have values.
-    const news = value.section === 'news';
+    const news = datedSection(value.section);
     const metadata = { title: value.title,
       // A news item has no author unless one is given, and no categories.
       ...(news ? (value.author ? { author: value.author } : {}) : { author: value.author ?? '豆瓣-女阅组' }),
@@ -420,7 +420,7 @@ export function writeDocument(value, body, previous, plan) {
       ...(news ? (value.sourceName || value.sourceUrl ? { original_url: newsSource(value.sourceName, value.sourceUrl) } : {})
         : value.sourceUrl ? { original_url: value.sourceUrl } : {}),
       ...(value.originalDate ? { original_date: value.originalDate } : {}),
-      // Articles and news get the public number allocated for them; the file
+      // Articles, news and figures get the public number allocated for them; the file
       // keeps its internal identifier. Lexicon entries keep their own path.
       ...(plan.slug ? { slug: plan.slug } : { url: `/${value.section ?? "lexicon"}/${plan.articleId}/` }) };
     return Buffer.from(`---\n${yaml.dump(metadata, { lineWidth: -1, noRefs: true })}---\n\n${body}`);
@@ -440,7 +440,7 @@ export function writeDocument(value, body, previous, plan) {
   if (['positive', 'negative', 'unmarked'].includes(value.polarity)) managed.polarity = value.polarity;
   if (typeof value.isEvent === 'boolean') managed.event = value.isEvent;
   if (Array.isArray(value.aliases)) managed.aliases = value.aliases;
-  if (value.section === 'news') {
+  if (datedSection(value.section)) {
     if ('sourceUrl' in value || 'sourceName' in value) managed.original_url = newsSource(value.sourceName, value.sourceUrl);
     if ('publishDate' in value) managed.date = value.publishDate;
   } else if ('sourceUrl' in value) managed.original_url = value.sourceUrl;
@@ -681,7 +681,7 @@ export function articleFields(document, section) {
     ...(discussion.commentImages ? { commentImages: discussion.commentImages } : {}),
     ...(discussion.commentKinds ? { commentKinds: discussion.commentKinds, commentOrphans: discussion.commentOrphans } : {}),
     ...(text(document.metadata.original_date, 100, true) ? { originalDate: document.metadata.original_date } : {}),
-    ...(section === 'news' ? newsFields(document.metadata)
+    ...(datedSection(section) ? newsFields(document.metadata)
       : typeof document.metadata.original_url === 'string' && safeLink(document.metadata.original_url) === document.metadata.original_url
         ? { sourceUrl: document.metadata.original_url } : {}),
   };

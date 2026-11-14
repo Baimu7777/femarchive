@@ -12,7 +12,7 @@ const tagRegistryPath = 'data/website-publication-tags.json';
 // given out again, and the file is written in the same commit as the article
 // that takes the next one.
 const slugRegistryPath = 'data/website-publication-slugs.json';
-const SLUG_SECTIONS = { posts: '1', news: '2' };
+const SLUG_SECTIONS = { posts: '1', news: '2', figures: '3' };
 const yearOf = iso => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai', year: '2-digit' }).format(new Date(iso));
 export const validSlugRegistry = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value)
   && Object.keys(value).every(section => Object.hasOwn(SLUG_SECTIONS, section))
@@ -194,8 +194,11 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
   const termsWith = (terms, articleId, value, url) => [...terms.filter(term => term.articleId !== articleId),
     { articleId, title: value.title, ...(value.aliases?.length ? { aliases: [...value.aliases] } : {}), url }];
   const termRegistryBytes = terms => Buffer.from(`${JSON.stringify(normalizeTerms(terms, false, 'TERM_RECORD_INVALID'), null, 2)}\n`);
+  // A figure's page is not a lexicon term: her name in another article is
+  // never turned into a link, and the forum's term list does not carry her.
+  const untermed = section => section === 'posts' || section === 'figures';
   function publicationTerms(value, registry, articleId, url) {
-    if (value.section === 'posts') return null;
+    if (untermed(value.section)) return null;
     return termRegistryBytes(termsWith(registry.terms, articleId, value, url));
   }
   function tagAdditions(value, registryTags, previous) {
@@ -363,7 +366,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
         const allocated = { articleId, path, date, expectedRevision: value.expectedRevision ?? null, ...(slug ? { slug } : {}) };
         const bytes = writeDocument(value, articleBody(value, selected, termList, articleId), previous?.bytes, allocated);
         const url = articleURL(repository.publicOrigin, articleId, readDocument(bytes).metadata, value.section);
-        if (value.section !== 'posts') termList = termsWith(termList, articleId, value, url);
+        if (!untermed(value.section)) termList = termsWith(termList, articleId, value, url);
         planned.push({ ...allocated, documentDigest: digest(bytes), url }); documents.push(bytes);
       }
       const tagBytes = tagList.length > registry.tags.length ? tagRegistryBytes(tagList) : null;
@@ -397,7 +400,7 @@ export function createReceiver({ token, repository, receipts, catalog, importedA
         await validateAssets(selected, plan.base.head);
         const bytes = writeDocument(value, articleBody(value, selected, termList, target.articleId), previous?.bytes, target);
         if (digest(bytes) !== target.documentDigest) fail(409, 'DOCUMENT_CHANGED', index);
-        if (value.section !== 'posts') termList = termsWith(termList, target.articleId, value, target.url);
+        if (!untermed(value.section)) termList = termsWith(termList, target.articleId, value, target.url);
         files.push({ path: target.path, bytes });
       }
       const tagBytes = tagList.length > registry.tags.length ? tagRegistryBytes(tagList) : null;

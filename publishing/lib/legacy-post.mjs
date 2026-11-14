@@ -1,6 +1,6 @@
 import { marked } from 'marked';
 import { parseDocument, Parser } from 'htmlparser2';
-import { fail } from './errors.mjs';
+import { fail, datedSection } from './errors.mjs';
 import { newsFields } from './document.mjs';
 
 // This is deliberately a source converter, not a sanitizer. Unknown website
@@ -145,7 +145,7 @@ export function legacyPostFields(document, section = 'posts') {
   return { title: metadata.title, html, author: validText(metadata.author, 200, true) ? metadata.author : '豆瓣-女阅组', date: metadata.date instanceof Date ? metadata.date.toISOString() : validText(metadata.date, 100, true) ? metadata.date : '', license: validText(metadata.license, 300, true) ? metadata.license : '该作品版权归原作者所有。', categories: taxonomy(metadata.categories, 6), tags: taxonomy(metadata.tags, 50), relatedTerms: [], comments: [], presentation: 'article',
     // What the sidebar shows beside the article goes back to the editor too,
     // so continuing a hand-written file does not drop it.
-    ...(section === 'news' ? newsFields(metadata) : {
+    ...(datedSection(section) ? newsFields(metadata) : {
       ...(validText(metadata.original_date, 100, true) && !/[\r\n]/.test(metadata.original_date) ? { originalDate: metadata.original_date } : {}),
       ...(typeof metadata.original_url === 'string' && safeLink(metadata.original_url) ? { sourceUrl: metadata.original_url } : {}),
     }) };

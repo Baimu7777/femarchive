@@ -8,6 +8,7 @@
 | --- | --- | --- |
 | 文章 | `YY1NNN` | `/posts/261041/` |
 | 新闻 | `YY2NNN` | `/news/262008/` |
+| 人物 | `YY3NNN` | `/figures/263016/` |
 
 - `YY` 是**首次发布到文库那一年**（中国时间）的后两位。新闻的显示和排序日期另由 `date` 决定，可以是历史日期；编号年份与新闻日期无关。
 - `NNN` 至少三位、补零，超过 999 自然变长（`2611000`），不会截断。
@@ -47,6 +48,19 @@ node scripts/check-slugs.mjs --fix
 - 更新时 `date` 和 `original_url` 随之改写，编号不变。
 
 读取（`operation=article&section=news`）会把 `date`、`original_url` 拆回 `publishDate`、`sourceName`、`sourceUrl`。
+
+## 人物栏目（2026-11-14）
+
+论坛的「发布人物」发送 `section: "figures"`，接收端的处理与新闻相同：
+
+- 写入 `content/figures/<UUID>.md`，分配 `YY3NNN`，接着手写人物已用的号往下排（`data/website-publication-slugs.json` 的 `figures`）；
+- `date` 用论坛填的发布时间，首页「每周女性人物」和 `/figures/` 列表按它取最新、排序；
+- `original_url` 写成 `[来源名称](链接)`；不写作者（除非明确提供）、不写分类、不带评论；
+- 不进词条登记：人物姓名不会在别的文章里被自动加上链接。
+
+`content/figures` 里手写的 15 篇没有登记给论坛，仍然手动维护；手动新增人物时照旧写好 `slug` 并运行 `node scripts/check-slugs.mjs --fix`。
+
+部署顺序同下文：先部署本仓库，再部署论坛。旧接收端会拒收 `section: "figures"`。
 
 ## 文章分类可以更新
 

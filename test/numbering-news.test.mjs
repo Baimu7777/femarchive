@@ -114,6 +114,41 @@ test('news refuses article-only fields, and articles refuse news-only fields', (
   assert.deepEqual(readNewsSource('只有名称'), { sourceName: '只有名称' });
 });
 
+test('a figure is numbered YY3NNN in its own section, dated and sourced like news', async () => {
+  assert.equal(allocateSlug({ figures: { 26: 15 } }, 'figures', '2026-11-14T03:00:00Z').slug, '263016');
+  const s = setup();
+  s.remote.edit(slugPath, `${JSON.stringify({ ...counter(s.remote), figures: { [year]: 15 } }, null, 2)}\n`);
+  const figure = (overrides = {}) => ({ ...news(), section: 'figures', title: 'Emmy Noether', sourceName: 'Emmy Noether', sourceUrl: 'https://en.wikipedia.org/wiki/Emmy_Noether', ...overrides });
+  const response = await s.receive(request('publish', figure()));
+  assert.equal(response.status, 200);
+  const result = await response.json();
+  assert.equal(result.url, `https://website.example/figures/${year}3016/`);
+  const document = readDocument(Buffer.from(s.remote.text(`content/figures/${result.articleId}.md`)));
+  assert.equal(document.metadata.date, '2026-03-26T16:03:16+08:00');
+  assert.equal(document.metadata.original_url, '[Emmy Noether](https://en.wikipedia.org/wiki/Emmy_Noether)');
+  assert.equal(document.metadata.author, undefined);
+  assert.equal(document.metadata.categories, undefined);
+  assert.equal(counter(s.remote).figures[year], 16);
+  // The other sections keep their own sequences.
+  assert.equal(counter(s.remote).news[year], 7);
+  // A figure's name never becomes a lexicon term.
+  assert.equal(s.remote.text('data/website-publication-terms.json'), null);
+  const read = await (await s.receive(request(`article&articleId=${result.articleId}&section=figures`))).json();
+  assert.equal(read.publishDate, '2026-03-26T16:03:16+08:00');
+  assert.equal(read.sourceName, 'Emmy Noether');
+  // A copy is only ever read in the section it was published in.
+  assert.notEqual((await s.receive(request(`article&articleId=${result.articleId}&section=news`))).status, 200);
+  const updated = await s.receive(request('publish', figure({ articleId: result.articleId, expectedRevision: read.revision, publishDate: '2026-04-01', title: 'Emmy Noether（修订）' })));
+  assert.equal(updated.status, 200);
+  assert.equal((await updated.json()).url, result.url);
+  const after = readDocument(Buffer.from(s.remote.text(`content/figures/${result.articleId}.md`)));
+  assert.equal(after.metadata.date, '2026-04-01');
+  assert.equal(after.metadata.slug, `${year}3016`);
+  assert.equal(counter(s.remote).figures[year], 16);
+  assert.throws(() => validateArticle(figure({ categories: ['思考讨论'] }), catalog));
+  assert.throws(() => validateArticle(figure({ comments: ['一条评论'] }), catalog));
+});
+
 test('an article update may replace its categories when it says so', () => {
   const previous = writeDocument(post(), '<p>正文</p>', null, { articleId: randomUUID(), date: '2026-10-29T00:00:00Z', slug: '261041' });
   const kept = readDocument(writeDocument({ ...post(), categories: ['理论分野'] }, '<p>正文</p>', previous, {}));

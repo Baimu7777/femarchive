@@ -1,4 +1,4 @@
-// Checks the public numbers of articles and news before the site is built.
+// Checks the public numbers of articles, news and figures before the site is built.
 //
 //   node scripts/check-slugs.mjs        fail on a duplicate number, or on a
 //                                       number past data/website-publication-slugs.json
@@ -16,7 +16,7 @@ import { validSlugRegistry } from '../publishing/lib/receiver.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const registryPath = join(root, 'data/website-publication-slugs.json');
-const SECTIONS = { posts: '1', news: '2' };
+const SECTIONS = { posts: '1', news: '2', figures: '3' };
 
 export function usedSlugs(base = root) {
   const used = [];

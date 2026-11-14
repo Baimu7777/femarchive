@@ -32,6 +32,9 @@ export function failure(status, reason, item) {
 }
 export const uuid = value => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(value);
 export const sha = value => typeof value === 'string' && /^[0-9a-f]{40}$/.test(value);
-export const SECTIONS = ["posts", "news", "lexicon"];
+export const SECTIONS = ["posts", "news", "figures", "lexicon"];
+// News items and figures are dated pages with a named source: no author
+// unless one is given, no categories and no discussion.
+export const datedSection = section => section === "news" || section === "figures";
 export const articlePath = (id, section = "lexicon") => { if (!uuid(id) || !SECTIONS.includes(section)) fail(); return `content/${section}/${id}.md`; };
 export const imagePath = value => typeof value === 'string' && /^\/images\/articles\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.webp$/.test(value);
