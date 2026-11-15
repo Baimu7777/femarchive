@@ -72,7 +72,7 @@ check('new Markdown and generic Git metadata contain no request keys or private 
   const result = await response.json(); assert.deepEqual(Object.keys(result).sort(), ['articleId', 'revision', 'url']);
   assert.notEqual(result.articleId, key); assert.match(result.articleId, /^[0-9a-f-]{36}$/);
   const markdown = s.remote.text(articlePath(result.articleId));
-  assert.match(markdown, /\*\*文本\*\*/); assert.match(markdown, /公开摘录/);
+  assert.match(markdown, /<strong>文本<\/strong>/); assert.match(markdown, /公开摘录/);
   assert.ok(!markdown.includes(key)); assert.ok(!JSON.stringify([...s.remote.commits.values()]).includes(key));
   for (const call of s.remote.calls) { assert.equal(call.options.redirect, 'error'); assert.equal(call.options.cache, 'no-store'); assert.equal(call.options.headers.cookie, undefined); }
   const commit = s.remote.calls.find(c => c.method === 'POST' && c.url.endsWith('/git/commits')).body;

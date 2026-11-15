@@ -138,3 +138,18 @@ test('refuses captions that are empty, multi-line or too long', () => {
     assert.throws(() => publicBody(`<p><img src="${image}" alt="" data-caption="${caption}"></p>`, [], [image]), String(caption.length));
   }
 });
+
+test('emphasis ending in punctuation before a letter survives the round trip', () => {
+  // `**…，**一位` is literal asterisks to Goldmark and marked alike: a closing
+  // delimiter after punctuation and before a letter is not a delimiter.
+  const html = '<p><strong>力利·帕尔（Lily Parr），</strong>一位<em>“边锋”</em>与<s>（旧称）</s>球员</p>';
+  const body = publicBody(html, [], []);
+  assert.ok(!/\*|~~/.test(body), body);
+  assert.match(body, /<strong>力利·帕尔（Lily Parr），<\/strong>一位<em>“边锋”<\/em>与<del>（旧称）<\/del>球员/);
+  const read = articleFields(readDocument(Buffer.from(`---
+title: T
+---
+
+${body}`)), 'figures');
+  assert.match(read.html, /<strong>力利·帕尔（Lily Parr），<\/strong>一位<em>“边锋”<\/em>与<del>（旧称）<\/del>球员/);
+});

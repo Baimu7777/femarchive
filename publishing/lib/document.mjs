@@ -234,8 +234,11 @@ export function publicBody(html, comments, selectedPaths, presentation, commentI
         // A captioned picture is its own block, whether or not a paragraph held it.
         case 'p': return node.children?.length === 1 && node.children[0].name === 'img' && node.children[0].attribs['data-caption'] !== undefined ? inner : `\n\n${inner}\n\n`;
         case 'br': return '  \n';
-        case 'strong': case 'b': return `**${inner}**`;
-        case 'em': case 'i': return `*${inner}*`;
+        // Raw tags, not ** and *: Markdown reads a delimiter beside punctuation
+        // as literal text when a letter follows it (`**…，**一位`), which Chinese
+        // prose does all the time.
+        case 'strong': case 'b': return `<strong>${inner}</strong>`;
+        case 'em': case 'i': return `<em>${inner}</em>`;
         case 'u': return `<u>${inner}</u>`;
         // Raw inline HTML keeps the names; the theme decides what they look like.
         case 'mark': {
@@ -247,7 +250,7 @@ export function publicBody(html, comments, selectedPaths, presentation, commentI
           const marks = `${TEXT_COLORS.includes(color) ? ` data-color="${color}"` : ''}${TEXT_SIZES.includes(size) ? ` data-size="${size}"` : ''}`;
           return marks ? `<span${marks}>${inner}</span>` : inner;
         }
-        case 'del': case 's': return `~~${inner}~~`;
+        case 'del': case 's': return `<del>${inner}</del>`;
         case 'h1': case 'h2': case 'h3': case 'h4': case 'h5': case 'h6': return `\n\n${'#'.repeat(Number(node.name[1]))} ${inner}\n\n`;
         case 'hr': return '\n\n---\n\n';
         case 'blockquote': return `\n\n${inner.trim().split('\n').map(line => `> ${line}`).join('\n')}\n\n`;
