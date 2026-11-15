@@ -22,7 +22,8 @@ export function createCommentBridge({service,store,origin,waline,secret,fetch:tr
    const rateKey=`limits/${owner}/${Math.floor(now()/60000)}`;let allowed=false;
    for(let i=0;i<5;i++){const record=await store.read(rateKey),count=record?.value.count||0;if(count>=20)return json({errno:1,errmsg:'发送过于频繁，请稍后重试。'},429);if(await store.write(rateKey,{count:count+1},record?.etag??null)){allowed=true;break;}}
    if(!allowed)return json({errno:1,errmsg:'暂时无法发送。'},503);
-   const headers={'content-type':'application/json'};const auth=req.headers.get('authorization');if(auth){if(!/^Bearer [a-zA-Z0-9._~-]{1,4096}$/.test(auth))return json({errno:1,errmsg:'登录信息无效。'},400);headers.authorization=auth;}
+   // Waline checks the site origin. Use the configured origin validated above.
+   const headers={'content-type':'application/json',origin};const auth=req.headers.get('authorization');if(auth){if(!/^Bearer [a-zA-Z0-9._~-]{1,4096}$/.test(auth))return json({errno:1,errmsg:'登录信息无效。'},400);headers.authorization=auth;}
    const upstream=await transport(target.origin+'/api/comment?lang=zh-CN',{method:'POST',headers,body:JSON.stringify(body),redirect:'error',signal:AbortSignal.timeout(20000)});
    const text=await upstream.text();if(text.length>100000)throw Error('response too large');const result=JSON.parse(text);
    if(!upstream.ok||result.errno)return json(result,upstream.status);
