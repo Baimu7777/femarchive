@@ -52,12 +52,12 @@ Because we have lived so intimately with our oppressors, in isolation from each 
 {{< card >}}
 <span class="dropcap">Ⅲ</span>We identify the agents of our oppression as men. Male supremacy is the oldest, most basic form of domination. All other forms of exploitation and oppression (racism, capitalism, imperialism, etc.) are extensions of male supremacy: men dominate women, a few men dominate the rest. All power structures throughout history have been male-dominated and male-oriented. Men have controlled all political, economic and cultural institutions and backed up this control with physical force. They have used their power to keep women in an inferior position. <u>All men</u> receive economic, sexual, and psychological benefits from male supremacy. <u>All men</u> have oppressed women.
 {{< /card >}}
-<span class="dropcap-cn">三</span>我们将压迫的代理人认定为男性。男性至上是最古老、最基本的统治形式。所有其他形式的剥削和压迫（种族主义、资本主义、帝国主义等）都是男性至上的延伸：男性主导女性，少数男性主导其牠人。历史上所有权力结构都是男性主导和男性导向的。男性控制了所有政治、经济和文化机构，并以武力支持这种控制。牠们利用权力让女性处于劣势地位。 <u>所有男性</u>都从男性至上中获得经济、性和心理上的利益。 <u>所有男人</u>都曾压迫过女性。
+<span class="dropcap-cn">三</span>我们将压迫的代理人认定为男性。男性至上是最古老、最基本的统治形式。所有其它形式的剥削和压迫（种族主义、资本主义、帝国主义等）都是男性至上的延伸：男性主导女性，少数男性主导其牠人。历史上所有权力结构都是男性主导和男性导向的。男性控制了所有政治、经济和文化机构，并以武力支持这种控制。牠们利用权力让女性处于劣势地位。 <u>所有男性</u>都从男性至上中获得经济、性和心理上的利益。 <u>所有男人</u>都曾压迫过女性。
 
 {{< card >}}
 <span class="dropcap">Ⅳ</span>Attempts have been made to shift the burden of responsibility from men to institutions or to women themselves. We condemn these arguments as evasions. Institutions alone do not oppress; they are merely tools of the oppressor. To blame institutions implies that men and women are equally victimized, obscures the fact that men benefit from the subordination of women, and gives men the excuse that they are forced to be oppressors. On the contrary, any man is free to renounce his superior position, provided that he is willing to be treated like a woman by other men.
 {{< /card >}}
-<span class="dropcap-cn">四</span>有人试图将责任从男性转移到制度或女性身上。我们谴责这些论点是在回避。仅靠制度本身并不压迫;它们不过是压迫者的工具。指责制度意味着女男都是同等的受害者，掩盖了男性从女性从属关系中受益的事实，并给男性借口说牠们被迫成为压迫者。相反，任何男人只要愿意被其他男人当作女人对待，就可以放弃自己的优越地位。
+<span class="dropcap-cn">四</span>有人试图将责任从男性转移到制度或女性身上。我们谴责这些论点是在回避。仅靠制度本身并不压迫;它们不过是压迫者的工具。指责制度意味着女男都是同等的受害者，掩盖了男性从女性从属关系中受益的事实，并给男性借口说牠们被迫成为压迫者。相反，任何男人只要愿意被其牠男人当作女人对待，就可以放弃自己的优越地位。
 {{< card >}}
 We also reject the idea that women consent to or are to blame for their own oppression. Women's submission is not the result of brain-washing, stupidity or mental illness but of continual, daily pressure from men. We do not need to change ourselves, but to change men.
 {{< /card >}}
@@ -74,11 +74,11 @@ The most slanderous evasion of all is that women can oppress men. The basis for 
 {{< card >}}
 Our chief task at present is to develop female class consciousness through sharing experience and publicly exposing the sexist foundation of all our institutions. Consciousness-raising is not "therapy," which implies the existence of individual solutions and falsely assumes that the male-female relationship is purely personal, but the only method by which we can ensure that our program for liberation is based on the concrete realities of our lives.
 {{< /card >}}
-&emsp;&emsp;我们目前的主要任务是通过分享经验和公开揭露所有制度的性别歧视根基，培养女性阶级意识。意识提升不是“治疗”，后者暗示存在个人解决方案，错误地假设男女关系纯粹是个人的，而是我们唯一能确保解放计划基于我们生活中具体现实的方法。
+&emsp;&emsp;我们目前的主要任务是通过分享经验和共开揭露所有制度的性别歧视根基，培养女性阶级意识。意识提升不是“治疗”，后者暗示存在个人解决方案，错误地假设男女关系纯粹是个人的，而是我们唯一能确保解放计划基于我们生活中具体现实的方法。
 {{< card >}}
 The first requirement for raising class consciousness is honesty, in private and in public, with ourselves and other women.
 {{< /card >}}
-&emsp;&emsp;提升阶级意识的首要要求是对自己和其他女性，无论私下还是公开场合，都要诚实。
+&emsp;&emsp;提升阶级意识的首要要求是对自己和其她女性，无论私下还是共开场合，都要诚实。
 
 {{< card >}}
 <span class="dropcap">Ⅵ</span>We identify with all women. We define our best interest as that of the poorest, most brutally exploited woman.

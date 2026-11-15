@@ -72,7 +72,7 @@ license: "该作品版权归原作者所有。"
 - Persistent deficits in social communication and social interaction across multiple contexts.在多种情境中持续存在社会沟通和社会互动方面的缺陷
 - Restricted, repetitive patterns of behavior, interests, or activities, as manifested by at least two of the following, currently or by history. 限制性、重复性的行为模式、兴趣或活动，表现为以下至少两项（例子省略），目前存在或既往曾存在。
 - Symptoms must be present in the early developmental period (but may not become fully manifest until social demands exceed limited capacities, or may be masked by learned strategies in later life). 症状必须存在于早期发育阶段（但可能直到社会需求超过其有限能力时才完全显现，或在后期被习得的应对策略所掩盖。
-- Symptoms cause clinically significant impairment in social, occupational, or other important areas of current functioning. 症状导致当前社会、职业或其他重要功能领域出现临床上显著的损害。
+- Symptoms cause clinically significant impairment in social, occupational, or other important areas of current functioning. 症状导致当前社会、职业或其她重要功能领域出现临床上显著的损害。
 - These disturbances are not better explained by intellectual disability (intellectual developmental disorder) or global developmental delay. Intellectual disability and autism spectrum disorder frequently co-occur; to make comorbid diagnoses of autism spectrum disorder and intellectual disability, social communication should be below that expected for general developmental level.这些障碍不能更好地用智力障碍（智力发育障碍）或全面发育迟缓来解释。智力障碍与自闭症谱系障碍常常同时存在；若要同时诊断自闭症谱系障碍与智力障碍，则社会交往能力应低于其整体发育水平所应达到的程度。
 {{< /hl >}}
 
@@ -99,7 +99,7 @@ license: "该作品版权归原作者所有。"
 
 三是因为，脑神经科学发展不足，尚未能对新现象、新征兆做出更详细的分类和成因定位。
 
-目前医学界认为：ASD是高度遗传相关 + 多基因 + 神经发育早期差异 + 环境因素共同作用的结果。涉及到数百个、上千个基因的累积效果，而不是单一基因导致的。我觉得ASD是一种「礼物（Gift）」，若将生物的变异、变化视为一种大自然的探索，则ASD也是一种探索。有些ASD，有着更敏锐的感官、更特别的社交方式，与大众不同。当环境产生变化时，适者生存，ASD能为人类带来更多可能性和尝试。本条观点为笔者和朋友 “山炉”（公众号：一婋了之）探讨得出。
+目前医学界认为：ASD是高度遗传相关 + 多基因 + 神经发育早期差异 + 环境因素共同作用的结果。涉及到数百个、上千个基因的累积效果，而不是单一基因导致的。我觉得ASD是一种「礼物（Gift）」，若将生物的变异、变化视为一种大自然的探索，则ASD也是一种探索。有些ASD，有着更敏锐的感官、更特别的社交方式，与大众不同。当环境产生变化时，适者生存，ASD能为人类带来更多可能性和尝试。本条观点为笔者和朋友 “山炉”（共众号：一婋了之）探讨得出。
 
 在未来，ASD必将有新的细分和原因研究。
 
@@ -113,6 +113,6 @@ license: "该作品版权归原作者所有。"
 
 我有些异于常人的记忆力和对人的建模、推理方式，这种特质很适合成为刑警；也有些异于常人的感官体验；以及我经常在当事虜很生气的时候滔滔不绝，反而以为这个虜很高兴，直到牠读空气后脑补太多终于大爆发、再加上别人私下告知我“这个虜真的很生气”，我才意识到牠的“反思”、“开放”全是装的。
 
-总之，读不懂别虜的情绪问题不大，影响不到一些关键问题，不足以因此内耗。有了这些迹象，我开始用更个性化的方式生活，目前也还可以，可以参考这篇本公众号上一篇内容：[因脑制宜地照顾自己](https://mp.weixin.qq.com/s?__biz=Mzk0MDYxNjE3MQ==&mid=2247484327&idx=1&sn=b6b3241881597e5a8d101f3b70d935ad&scene=21&poc_token=HDG0ZmqjPTjpMKoM07M3QOfGuxy4q07I6D5HjEd7)
+总之，读不懂别虜的情绪问题不大，影响不到一些关键问题，不足以因此内耗。有了这些迹象，我开始用更个性化的方式生活，目前也还可以，可以参考这篇本共众号上一篇内容：[因脑制宜地照顾自己](https://mp.weixin.qq.com/s?__biz=Mzk0MDYxNjE3MQ==&mid=2247484327&idx=1&sn=b6b3241881597e5a8d101f3b70d935ad&scene=21&poc_token=HDG0ZmqjPTjpMKoM07M3QOfGuxy4q07I6D5HjEd7)
 
 这可能就是自我觉察的意义——接纳自己、顺其自然、发展自身。对我来说，“自我诊断”、“医院正式诊断”没有那么高的意义，也许对一些姐妹来说，这是有意义的。都可以。一切为了自己。毕竟ASD不是什么上纲上线的事情，诊断目的自然是服务于自己而非满足别人的期待，顺其自然就好。

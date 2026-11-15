@@ -48,13 +48,13 @@ The paper actually began as a memo that I wrote in February of 1969 while in Gai
 This was not an unusual reaction to radical feminist ideas in early 1969. WLM groups had been springing up all over the country—and the world. The radical movements of Civil Rights, Anti-Vietnam War, and Old and New Left groups from which many of us sprang were male dominated and very nervous about women’s liberation in general, but especially the spectre of the mushrooming independent women’s liberation movement, of which I was a staunch advocate. Arriving in New York City after ten months in the Mississippi Civil Rights Movement, I had found SCEF to be one of the more mature and better progressive groups around. It had a good record of racial, economic and political justice work since New Deal days, and I joined its staff in 1966 as its New York office manager. SCEF allowed New York Radical Women to meet in its New York office, where I worked, and at my request agreed to explore setting up a women’s liberation project in the South. However, many on the SCEF staff, both men and women, ended up joining the criticism of women getting together in consciousness-raising groups to discuss their own oppression as “naval-gazing” and “personal therapy”—and certainly “not political.”
 {{< /card >}}
 
-这在 1969 年初对激进女权主义思想的反应并不罕见。当时，女性解放组织在美国乃至全球各地迅速涌现。我们许多人都来自民权运动、反越战运动以及旧左翼和新左翼团体，而这些运动大多由蝻性主导，对女性解放普遍抱有戒心，尤其害怕正是我坚定支持的不断壮大的独立女性解放运动。在密西西比民权运动中待了十个月后，我来到纽约市时，发现 SCEF 是更成熟、更优秀的进步团体之一。自新政时期以来，该组织在争取种族平等、经济正义和政治正义方面都有良好的历史记录。我于 1966 年加入其纽约办事处并担任经理。SCEF 允许纽约激进女性组织在其纽约办公室（我所在地）开会，并应我的请求同意探索在南方建立女性解放项目。然而，SCEF 的许多女蝻员工最终加入了对女性意识提升小组的批评。牠们把女性聚在一起讨论自身受压迫经历的做法讥讽为“自我沉溺”和“个人心理治疗”，并坚称这“根本不是政治”。
+这在 1969 年初对激进女权主义思想的反应并不罕见。当时，女性解放组织在美国乃至全球各地迅速涌现。我们许多人都来自民权运动、反越战运动以及旧左翼和新左翼团体，而这些运动大多由蝻性主导，对女性解放普遍抱有戒心，尤其害怕正是我坚定支持的不断壮大的独立女性解放运动。在密西西比民权运动中待了十个月后，我来到纽约市时，发现 SCEF 是更成熟、更优秀的进步团体之一。自新政时期以来，该组织在争取种族平等、经济正义和政治正义方面都有良好的历史记录。我于 1966 年加入其纽约办事处并担任经理。SCEF 允许纽约激进女性组织在其纽约办工室（我所在地）开会，并应我的请求同意探索在南方建立女性解放项目。然而，SCEF 的许多女蝻员工最终加入了对女性意识提升小组的批评。牠们把女性聚在一起讨论自身受压迫经历的做法讥讽为“自我沉溺”和“个人心理治疗”，并坚称这“根本不是政治”。
 
 {{< card >}}
 They could sometimes admit that women were oppressed (but only by “the system”) and said that we should have equal pay for equal work, and some other “rights.” But they belittled us no end for trying to bring our so-called “personal problems” into the public arena—especially “all those body issues” like sex, appearance, and abortion. Our demands that men share the housework and childcare were likewise deemed a personal problem between a woman and her individual man. The opposition claimed if women would just “stand up for themselves” and take more responsibility for their own lives, they wouldn’t need to have an independent movement for women’s liberation. What personal initiative wouldn’t solve, they said, “the revolution” would take care of if we would just shut up and do our part. Heaven forbid that we should point out that men benefit from oppressing women.
 {{< /card >}}
 
-牠们有时会承认女性受到压迫，但那只是被“制度”压迫而已。牠们也赞成同工同酬以及其他一些“权利”。然而，对于我们试图将所谓的“个人问题”带入公共讨论领域，牠们总是百般轻视，尤其是关于性、外貌、堕胎等“身体议题”。我们要求蝻性分担家务和育儿责任，也被视为女性与蝻性之间的私人问题。反对派声称，如果女性学会“为自己站而出”，对自己的生活承担更多责任，就不需要独立的女性解放运动。牠们说，如果个人主动性无法解决问题，那么未来的“革命”自然会解决一切——前提是女性闭嘴，好好完成自己在革命中的任务。更不用说，当我们指出男性其实从压迫女性中获益时，牠们更是无法容忍。
+牠们有时会承认女性受到压迫，但那只是被“制度”压迫而已。牠们也赞成同工同酬以及其她一些“权利”。然而，对于我们试图将所谓的“个人问题”带入工共讨论领域，牠们总是百般轻视，尤其是关于性、外貌、堕胎等“身体议题”。我们要求蝻性分担家务和育儿责任，也被视为女性与蝻性之间的私人问题。反对派声称，如果女性学会“为自己站而出”，对自己的生活承担更多责任，就不需要独立的女性解放运动。牠们说，如果个人主动性无法解决问题，那么未来的“革命”自然会解决一切——前提是女性闭嘴，好好完成自己在革命中的任务。更不用说，当我们指出男性其实从压迫女性中获益时，牠们更是无法容忍。
 
 {{< card >}}
 Recognizing the need to fight male supremacy as a movement instead of blaming the individual woman for her oppression was where the Pro-Woman Line came in. It challenged the old anti-woman line that used spiritual, psychological, metaphysical, and pseudo-historical explanations for women’s oppression with a real, materialist analysis for why women do what we do. (By materialist, I mean in the Marxist materialist (based in reality) sense, not in the “desire for consumer goods” sense.) Taking the position that “women are messed over, not messed up” took the focus off individual struggle and put it on group or class struggle, exposing the necessity for an independent WLM to deal with male supremacy.
@@ -90,7 +90,7 @@ Of course there were women within New York Radical Women and the broader feminis
 In September of 1968—six months before “The Personal Is Political” was written, the Miss America Protest brought home to many why the Pro-Woman Line theory we were developing was so important when it came to taking action outside the group. In another paper entitled “A Critique of the Miss America Protest” I wrote about how the anti-women faction of the protesters detracted from our message that ALL women are oppressed by beauty standards, even the contestants. Signs like “Up Against the Wall, Miss America” and “Miss America Is a Big Falsie” made these contestants out to be our enemy instead of the men and bosses who imposed false beauty standards on women.
 {{< /card >}}
 
-1968年9月——在《个人即政治》写成前六个月，美国小姐抗议让许多人意识到，“亲女性路线”理论对于公共行动为何如此重要。在另一篇题为《美国小姐抗议的批评》的论文中，我写到了抗议者中反女性派如何削弱了我们关于所有女性（甚至包括参赛者本人）都被美丽标准压迫的核心信息。像“靠墙站，美国小姐”和“美国小姐是个大骗子”这样的标语，把这些参赛者描绘成我们的敌人，而不是那些将虚假美貌标准强加给女性的蝻性和权力结构。
+1968年9月——在《个人即政治》写成前六个月，美国小姐抗议让许多人意识到，“亲女性路线”理论对于工共行动为何如此重要。在另一篇题为《美国小姐抗议的批评》的论文中，我写到了抗议者中反女性派如何削弱了我们关于所有女性（甚至包括参赛者本人）都被美丽标准压迫的核心信息。像“靠墙站，美国小姐”和“美国小姐是个大骗子”这样的标语，把这些参赛者描绘成我们的敌人，而不是那些将虚假美貌标准强加给女性的蝻性和权力结构。
 
 {{< card >}}
 Political struggle or debate is the key to good political theory. A theory is just a bunch of words— sometimes interesting to think about, but just words, nevertheless—until it is tested in real life. Many a theory has delivered surprises, both positive and negative, when an attempt has been made to put it into practice.
@@ -114,13 +114,13 @@ The first statement doesn’t mean that women are smart not to struggle at all, 
 On the second point, I have come to agree with Susan B. Anthony that to be free, a woman must have “a purse of her own.” Women can’t be independent without participating in the public workforce. That also means uniting in a fight for public childcare and for a restructuring of the workplace with women’s equality in mind, while insisting men share the housework and childcare on the homefront, so that women don’t end up having to do it all.
 {{< /card >}}
 
-关于第二点，我已经同意Susan B. Anthony的观点，女性要获得自由，必须拥有“属于自己的钱包”。女性若不参与公共劳动市场，就无法真正独立。这意味着，我们不仅要争取公共托育服务和以性别平等为导向的职场改革，也要坚持要求蝻性承担家务和育儿责任，避免女性最终承担全部负担。
+关于第二点，我已经同意Susan B. Anthony的观点，女性要获得自由，必须拥有“属于自己的钱包”。女性若不参与工共劳动市场，就无法真正独立。这意味着，我们不仅要争取工共托育服务和以性别平等为导向的职场改革，也要坚持要求蝻性承担家务和育儿责任，避免女性最终承担全部负担。
 
 {{< card >}}
 I wish we could have anticipated all the ways that “The Personal Is Political” and “The Pro-Woman Line” would be revised and misused. Like most of the theory created by the Pro-Woman Line radical feminists, these ideas have been revised or ripped off or even stood on their head and used against their original, radical intent. While it’s necessary that theories take their knocks in the real world, like everything else, many of us have learned that once they leave our hands, they need to be defended against revisionism and misuse.
 {{< /card >}}
 
-我希望当年能够预见《个人即政治》和“亲女性路线”后来会经历的各种修改和误用。与许多激进女性主义理论一样，这些思想被重新解释、被挪用，甚至被彻底颠倒过来，用于反对它们原本激进的目标。理论必须接受现实世界的检验，这是必要的。但正如其他事物一样，我们许多人后来意识到：一旦理论离开创造者之手，它们同样需要被捍卫，以防止修正主义和误用。
+我希望当年能够预见《个人即政治》和“亲女性路线”后来会经历的各种修改和误用。与许多激进女性主义理论一样，这些思想被重新解释、被挪用，甚至被彻底颠倒过来，用于反对它们原本激进的目标。理论必须接受现实世界的检验，这是必要的。但正如其她事物一样，我们许多人后来意识到：一旦理论离开创造者之手，它们同样需要被捍卫，以防止修正主义和误用。
 
 {{< card >}}
 What follows is the original version of “The Personal Is Political” as edited from the memo for the 1970 anthology, *Notes from the Second Year: Women’s Liberation*, edited by Shulamith Firestone and Anne Koedt. *— Carol Hanisch*
@@ -208,10 +208,10 @@ This has been my experience in groups that are accused of being “therapy” or
 It’s true we all need to learn how to better draw conclusions from the experiences and feelings we talk about and how to draw all kinds of connections. Some of us haven’t done a very good job of communicating them to others.
 {{< /card >}}
 
-的确，我们都需要学习如何更好地从自身经验和感受中提炼结论，学习如何建立不同经验之间的联系。同时，我们中的许多人也没有很好地把这些想法传达给其他女性。
+的确，我们都需要学习如何更好地从自身经验和感受中提炼结论，学习如何建立不同经验之间的联系。同时，我们中的许多人也没有很好地把这些想法传达给其她女性。
 
 {{< card >}}
 One more thing: I think we must listen to what so-called apolitical women have to say—not so we can do a better job of organizing them but because together we are a mass movement. I think we who work full-time in the movement tend to become very narrow. What is happening now is that when non-movement women disagree with us, we assume it’s because they are “apolitical,” not because there might be something wrong with our thinking. Women have left the movement in droves. The obvious reasons are that we are tired of being sex slaves and doing shitwork for men whose hypocrisy is so blatant in their political stance of liberation for everybody (else). But there is really a lot more to it than that. I can’t quite articulate it yet. I think “apolitical” women are not in the movement for very good reasons, and as long as we say “you have to think like us and live like us to join the charmed circle,” we will fail. What I am trying to say is that there are things in the consciousness of “apolitical” women (I find them very political) that are as valid as any political consciousness we think we have. We should figure out why many women don’t want to do action. Maybe there is something wrong with the action or something wrong with why we are doing the action or maybe the analysis of why the action is necessary is not clear enough in our minds.
 {{< /card >}}
 
-最后，我还想补充一点。我认为，我们必须认真倾听那些被称作“非政治女性”（apolitical women）的人在说什么。这并不是为了更有效地组织她们，而是因为：**我们与她们共同构成了这场群众运动。**我觉得，那些全职投入运动的人往往容易变得越来越狭隘。如今的情况是：当运动之外的女性不同意我们的观点时，我们往往立刻认定她们是“缺乏政治意识”的；却很少怀疑，是否是我们的思考本身存在问题。大量女性正在离开这场运动。显而易见的原因是：我们厌倦了充当蝻性的性虜役对象；厌倦了替那些高喊“解放全人类”、却在日常生活中公然压迫女性的蝻人承担琐碎而卑微的劳动。然而，事情远不止如此。我还无法把这种感觉完全表达出来。我认为，那些所谓“非政治”的女性之所以没有加入运动，其实有着充分的理由。只要我们仍然坚持一种态度：“你必须像我们一样思考，像我们一样生活，才有资格进入这个圈子。”那么，我们注定会失败。我真正想表达的是：那些被称为“非政治女性”的人——而我认为她们其实非常政治——其意识和经验中包含着许多重要内容。这些内容与我们自认为拥有的政治意识同样真实、同样重要。因此，我们应该认真思考：为什么那么多女性不愿意参与行动？也许问题出在行动本身；也许问题出在我们采取行动的理由；又或者，我们自己对于为什么必须采取行动，其实还没有想清楚。
+最后，我还想补充一点。我认为，我们必须认真倾听那些被称作“非政治女性”（apolitical women）的人在说什么。这并不是为了更有效地组织她们，而是因为：**我们与她们共同构成了这场群众运动。**我觉得，那些全职投入运动的人往往容易变得越来越狭隘。如今的情况是：当运动之外的女性不同意我们的观点时，我们往往立刻认定她们是“缺乏政治意识”的；却很少怀疑，是否是我们的思考本身存在问题。大量女性正在离开这场运动。显而易见的原因是：我们厌倦了充当蝻性的性虜役对象；厌倦了替那些高喊“解放全人类”、却在日常生活中共然压迫女性的蝻人承担琐碎而卑微的劳动。然而，事情远不止如此。我还无法把这种感觉完全表达出来。我认为，那些所谓“非政治”的女性之所以没有加入运动，其实有着充分的理由。只要我们仍然坚持一种态度：“你必须像我们一样思考，像我们一样生活，才有资格进入这个圈子。”那么，我们注定会失败。我真正想表达的是：那些被称为“非政治女性”的人——而我认为她们其实非常政治——其意识和经验中包含着许多重要内容。这些内容与我们自认为拥有的政治意识同样真实、同样重要。因此，我们应该认真思考：为什么那么多女性不愿意参与行动？也许问题出在行动本身；也许问题出在我们采取行动的理由；又或者，我们自己对于为什么必须采取行动，其实还没有想清楚。

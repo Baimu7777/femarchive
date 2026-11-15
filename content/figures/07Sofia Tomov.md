@@ -16,7 +16,7 @@ license: "该作品版权归原作者所有。"
 
 2018年她开发的可以预测早期心脏病的软件在英特尔国际科学与工程大奖赛（Intel ISEF）翻译医学类别获得第一名。
 
- 12岁时就被大学（UTK）录取。后创立Qardian Labs公司，并成立了Project CS Girls的地方分会组织，教导、鼓励女孩追求计算机科学。
+ 12岁时就被大学（UTK）录取。后创立Qardian Labs工司，并成立了Project CS Girls的地方分会组织，教导、鼓励女孩追求计算机科学。
 
 她的个人网站：[https://sofiatomov.wixsite.com/sofiatomov](https://sofiatomov.wixsite.com/sofiatomov)（主要介绍她的项目、奖项和背景）
 
