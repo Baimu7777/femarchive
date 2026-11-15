@@ -30,3 +30,16 @@ export function groupReports(records) {
   for (const thread of threads) thread.replies.sort((a,b) => time(a)-time(b));
   return threads.sort((a,b) => time(b)-time(a));
 }
+
+// Count only verified parent links. A root ID alone cannot establish a level.
+export function replyDepth(node) {
+  const seen = new Set();
+  let depth = 0;
+  while (node.parentId || node.rootId) {
+    if (!node.parent || seen.has(node)) return null;
+    seen.add(node);
+    node = node.parent;
+    depth++;
+  }
+  return depth;
+}

@@ -28,13 +28,12 @@ test('the policy lets the comment client reach everything the site configures fo
   const config = await read('config/_default/hugo.toml');
   const server = /serverURL = "([^"]+)"/.exec(config)[1];
   assert.ok(allows('connect-src', server), 'comment service');
-  // The comment client fetches <pack>/info.json for each emoji pack; a pack on
-  // a host the policy does not name leaves the emoji panel empty.
-  const emoji = /emoji = \[([^\]]*)\]/s.exec(config)[1].match(/https:\/\/[^"\s]+/g);
-  assert.ok(emoji.length > 0);
-  for (const pack of emoji) {
-    assert.ok(allows('connect-src', pack), `emoji pack ${pack}`);
-    assert.ok(allows('img-src', pack), `emoji images ${pack}`);
+  // The configured preset supplies image codes directly. Only the images
+  // need to be reachable from the browser.
+  const emojiFolders = [...config.matchAll(/^\s*folder = "(https:\/\/[^"]+)"/gm)];
+  assert.ok(emojiFolders.length > 0);
+  for (const [, folder] of emojiFolders) {
+    assert.ok(allows('img-src', folder), `emoji images ${folder}`);
   }
   assert.ok(allows('script-src', 'https://challenges.cloudflare.com/turnstile/v0/api.js'));
   assert.ok(allows('frame-src', 'https://challenges.cloudflare.com/'));

@@ -59,24 +59,23 @@ summaryLength = 28
     provider = "waline"
     serverURL = "https://waline.feminism-nv.top/"
     lang = "zh-CN"
-    # 评论表情包。每个地址下要有 info.json；换来源时记得同步 vercel.json 里
-    # Content-Security-Policy 的 connect-src（test/site-headers.test.mjs 会检查）。
-    emoji = [
-      "https://cdn.jsdelivr.net/gh/norevi/blob-emoji-for-waline@2.0/blobs-png",
-      "https://cdn.jsdelivr.net/gh/norevi/blob-emoji-for-waline@2.0/blobs-gif",
-      "https://cdn.jsdelivr.net/gh/norevi/waline-blobcatemojis@1.0/blobs",
-      "https://unpkg.com/@waline/emojis@1.4.0/tw-emoji",
-      "https://unpkg.com/@waline/emojis@1.4.0/tw-sport",
-      "https://unpkg.com/@waline/emojis@1.4.0/tw-body",
-      "https://unpkg.com/@waline/emojis@1.4.0/tw-travel",
-      "https://unpkg.com/@waline/emojis@1.4.0/tw-natural",
-      "https://unpkg.com/@waline/emojis@1.4.0/tw-weather",
-      "https://unpkg.com/@waline/emojis@1.4.0/tw-symbol"
-    ]
     # 阅读量统计每次打开页面都要调用 Waline，暂时关闭以节省 Vercel 函数用量。
     pageview = false
     reaction = false
     turnstileKey = "0x4AAAAAAC1QJzPCJtEGCRGL"
+    # 常用黄脸表情来自 Google Noto Emoji。
+    [[params.comments.emoji]]
+      name = "常用表情"
+      folder = "https://fonts.gstatic.com/s/e/notoemoji/latest"
+      icon = "1f603/128"
+      type = "png"
+      items = [
+        "1f600/128", "1f601/128", "1f602/128", "1f603/128", "1f604/128", "1f605/128", "1f606/128", "1f609/128",
+        "1f60a/128", "1f60b/128", "1f60c/128", "1f60d/128", "1f60e/128", "1f612/128", "1f613/128", "1f614/128",
+        "1f615/128", "1f618/128", "1f61b/128", "1f61d/128", "1f621/128", "1f622/128", "1f624/128", "1f628/128",
+        "1f62d/128", "1f62e/128", "1f631/128", "1f633/128", "1f634/128", "1f637/128", "1f641/128", "1f642/128",
+        "1f643/128", "1f644/128", "1f914/128", "1f917/128", "1f923/128", "1f92d/128", "1f970/128", "1f97a/128"
+      ]
 
 [related]
   includeNewer = true

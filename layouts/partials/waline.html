@@ -30,7 +30,7 @@
   if (walineRoot) {
     try {
       prepareAnonymousIdentity(window.localStorage, '{{ site.Params.comments.serverURL }}', () => crypto.randomUUID());
-      const { init } = await import('/vendor/waline.js?v=attachments-1');
+      const { init } = await import('/vendor/waline.js?v={{ readFile "static/vendor/waline.js" | md5 }}');
 
       const isLocal =
         window.location.hostname === 'localhost' ||
