@@ -98,8 +98,8 @@
                   {{ partial "card.html" (dict "page" .) }}
                 {{ else }}
                   <article class="entry-card entry-card--empty">
-                    <h3 class="entry-card__title">这里先放最近更新</h3>
-                    <p class="entry-card__summary">你把文章放进 content/posts 后，这里会自动抓取最新内容。</p>
+                    <h3 class="entry-card__title">暂时还没有文章</h3>
+                    <p class="entry-card__summary">新文章发布后会显示在这里。</p>
                   </article>
                 {{ end }}
               </div>
@@ -133,10 +133,10 @@
                   </article>
                 {{ else }}
                   <article class="news-card news-card--stacked">
-                    <div class="news-card__date">03.09</div>
+                    <div class="news-card__date">—</div>
                     <div class="news-card__body">
-                      <h3 class="news-card__title">女性新闻占位</h3>
-                      <p class="news-card__summary">这里显示标题和一行小字摘要，超出后自动省略。</p>
+                      <h3 class="news-card__title">暂时还没有新闻</h3>
+                      <p class="news-card__summary">新闻发布后会显示在这里。</p>
                     </div>
                   </article>
                 {{ end }}
@@ -163,8 +163,8 @@
                 </article>
               {{ else }}
                 <article class="woman-card">
-                  <h3 class="woman-card__name">这里放每周女性人物</h3>
-                  <p class="woman-card__summary">把人物内容放进 content/figures 后，这里会自动显示最新一位。</p>
+                  <h3 class="woman-card__name">暂时还没有人物</h3>
+                  <p class="woman-card__summary">人物介绍发布后会显示在这里。</p>
                 </article>
               {{ end }}
             </section>

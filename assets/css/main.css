@@ -3154,7 +3154,10 @@ body.home-hero-dismissed .home-hero {
     min-width: 0;
   }
 
+  /* The sidebar wrapper has to dissolve too, or it stays one block with no
+     order of its own and the info card lands above the article. */
   .article-column,
+  .article-sidebar:not(.rules-sidebar),
   .sidebar-stack {
     display: contents;
   }
