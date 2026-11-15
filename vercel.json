@@ -31,8 +31,16 @@
           "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
         },
         {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin-allow-popups"
+        },
+        {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; img-src 'self' data: https:; font-src 'self' data:; style-src 'self' 'unsafe-inline' https://unpkg.com https://*.doubanio.com; script-src 'self' 'unsafe-inline' https://unpkg.com https://challenges.cloudflare.com; connect-src 'self' https://waline.feminism-nv.top https://challenges.cloudflare.com; frame-src https://docs.google.com https://challenges.cloudflare.com; form-action 'self'; upgrade-insecure-requests"
+          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; img-src 'self' data: https:; font-src 'self' data:; style-src 'self' 'unsafe-inline' https://*.doubanio.com; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; connect-src 'self' https://waline.feminism-nv.top https://challenges.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; frame-src https://docs.google.com https://challenges.cloudflare.com; form-action 'self'; upgrade-insecure-requests"
         }
       ]
     }

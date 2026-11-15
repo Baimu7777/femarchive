@@ -5,4 +5,4 @@
 <div data-report-list aria-live="polite"></div><button type="button" data-report-more hidden>加载更多申报</button><p data-report-list-status role="status"></p>
 <script type="application/json" data-report-catalog>[{"path":"","title":"网站整体建议"}{{ range $items }},{"path":{{ .RelPermalink | jsonify | safeJS }},"title":{{ .Title | jsonify | safeJS }}}{{ end }}]</script>
 </div>
-<script type="module" src="{{ "/js/feedback.js" | relURL }}?v={{ now.Unix }}"></script>
+<script type="module" src="{{ "/js/feedback.js" | relURL }}?v={{ readFile "static/js/feedback.js" | md5 }}"></script>

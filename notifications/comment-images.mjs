@@ -35,12 +35,15 @@ export function createImageUpload({config, origin, store, fetch:transport = fetc
       const bytes = Buffer.from(body.data,'base64');
       if (!bytes.length || bytes.length > 2 * 1024 * 1024) return json({error:'图片不能超过 2MB。'},413);
       const ip = createHmac('sha256',config.apiSecret).update(trustedIp).digest('hex');
-      // Atomic storage counters span all serverless instances. Count attempts,
-      // including failed verification, and cap total upstream spending per day.
-      if (!await reserve(store,`image-limits/ip/${ip}/${Math.floor(now()/3600000)}`,10) || !await reserve(store,`image-limits/day/${Math.floor(now()/86400000)}`,200)) return json({error:'图片上传次数已达限额，请稍后重试。'},429);
+      // Atomic storage counters span all serverless instances. Every attempt
+      // counts against its own address, verified or not. The shared daily
+      // budget is only spent once verification has passed, so requests that
+      // never solve the challenge cannot use up everyone's uploads for the day.
+      if (!await reserve(store,`image-limits/ip/${ip}/${Math.floor(now()/3600000)}`,10)) return json({error:'图片上传次数已达限额，请稍后重试。'},429);
       const verification = await transport('https://challenges.cloudflare.com/turnstile/v0/siteverify',{method:'POST',body:new URLSearchParams({secret:config.turnstileSecret,response:body.token,remoteip:trustedIp}),signal:AbortSignal.timeout(10000)});
       const verified = await verification.json();
       if (!verification.ok || verified.success !== true || verified.action !== 'comment_image' || verified.hostname !== new URL(origin).hostname) return json({error:'图片上传验证未通过，请重试。'},403);
+      if (!await reserve(store,`image-limits/day/${Math.floor(now()/86400000)}`,200)) return json({error:'今天的图片上传名额已用完，请明天再试，或先发表文字评论。'},429);
       let output;
       try {
         const image = sharp(bytes,{limitInputPixels:16000000,animated:false,failOn:'warning'});

@@ -5932,3 +5932,25 @@ html.skip-home-intro .home-content { margin-top: 0; }
   font-weight: 600;
   white-space: nowrap;
 }
+
+/* 404 页面的入口链接 */
+.not-found-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin: 20px 0 0;
+}
+
+.not-found-links a {
+  padding: 8px 18px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  color: var(--accent-deep);
+  text-decoration: none;
+}
+
+.not-found-links a:hover,
+.not-found-links a:focus-visible {
+  background: var(--accent-deep);
+  color: #fff;
+}

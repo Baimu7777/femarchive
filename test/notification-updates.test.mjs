@@ -4,3 +4,11 @@ test('first visit sets baseline without historical unread',()=>{const state=upda
 test('all three update kinds notify and content edits do not duplicate',()=>{let s=updatePublicState(null,[item('1')],1);s=updatePublicState(s,[item('1'),item('2'),item('3','lexicon'),item('4','news')],2);assert.equal(s.items.length,3);s.items[0].read=true;s=updatePublicState(s,[item('1'),{...item('2'),title:'changed'},item('3','lexicon'),item('4','news')],3);assert.equal(s.items.length,3);assert.equal(s.items.filter(x=>x.read).length,1)});
 test('unsafe jump urls excluded',()=>{for(const url of ['javascript:alert(1)','//evil.test/','/admin/','/posts/../secrets'])assert.equal(safeNoticeURL(url),null)});
 test('damaged cached items cannot inject links or break updates',()=>{const s=updatePublicState({known:[],items:[null,{id:'evil',title:'bad',href:'//evil.test/'}]},[item('1')],1);assert.equal(s.items.length,1);assert.equal(s.items[0].id,'1')});
+
+test('a newly tracked kind starts from a baseline instead of announcing its whole back catalogue',()=>{
+  const legacy={known:['1'],items:[],checked:1};
+  let s=updatePublicState(legacy,[item('1'),item('f1','figures'),item('f2','figures')],2);
+  assert.equal(s.items.length,0);assert.ok(s.known.includes('f1')&&s.known.includes('f2'));assert.ok(s.kinds.includes('figures'));
+  s=updatePublicState(s,[item('1'),item('f1','figures'),item('f2','figures'),item('f3','figures')],3);
+  assert.equal(s.items.length,1);assert.equal(s.items[0].message,'新人物');assert.equal(safeNoticeURL(s.items[0].href),'/figures/f3/');
+});

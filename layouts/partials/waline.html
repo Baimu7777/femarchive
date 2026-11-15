@@ -50,18 +50,7 @@
         requiredMeta: [],
         turnstileKey: '{{ site.Params.comments.turnstileKey }}',
 
-        emoji: [
-          'https://cdn.jsdelivr.net/gh/norevi/blob-emoji-for-waline@2.0/blobs-png',
-          'https://cdn.jsdelivr.net/gh/norevi/blob-emoji-for-waline@2.0/blobs-gif',
-          'https://cdn.jsdelivr.net/gh/norevi/waline-blobcatemojis@1.0/blobs',
-          'https://unpkg.com/@waline/emojis@1.4.0/tw-emoji',
-          'https://unpkg.com/@waline/emojis@1.4.0/tw-sport',
-          'https://unpkg.com/@waline/emojis@1.4.0/tw-body',
-          'https://unpkg.com/@waline/emojis@1.4.0/tw-travel',
-          'https://unpkg.com/@waline/emojis@1.4.0/tw-natural',
-          'https://unpkg.com/@waline/emojis@1.4.0/tw-weather',
-          'https://unpkg.com/@waline/emojis@1.4.0/tw-symbol'
-        ],
+        emoji: {{ site.Params.comments.emoji | default slice | jsonify | safeJS }},
         locale: {
           placeholder: '欢迎补充资料、勘误或继续讨论。评论功能无需登录，昵称栏留空默认显示“匿名”。'
         }
@@ -69,7 +58,7 @@
       mountCommentControls(walineRoot, document.getElementById('comment-header-login'));
     } catch (error) {
       console.error('Waline failed to initialize:', error);
-      showWalineStatus('评论组件加载失败。请检查 Waline 的 serverURL、Waline 服务本身是否可访问，以及博客正式域名是否被 Waline 服务允许访问。');
+      showWalineStatus('评论区暂时无法加载，请稍后刷新页面再试。');
     }
   }
 </script>

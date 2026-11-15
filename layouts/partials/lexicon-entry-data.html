@@ -1,4 +1,7 @@
 {{- /* One entry as the hover preview and automatic links need it. The heading
-     "解释" opens every entry, so the preview starts after it. */ -}}
-{{- $text := replaceRE `^\s*解释\s*` "" (htmlUnescape (htmlUnescape .Plain)) | replaceRE `\s+` " " | strings.TrimSpace -}}
+     "解释" opens every entry, so the preview starts after it. .Plain keeps its
+     entities, so it is decoded once; `truncate` escapes again, hence the
+     second decode on the way out. Decoding twice up front turned text that
+     was written as &amp;lt;x&amp;gt; into markup-looking <x>. */ -}}
+{{- $text := replaceRE `^\s*解释\s*` "" (htmlUnescape .Plain) | replaceRE `\s+` " " | strings.TrimSpace -}}
 {{- return (dict "title" .Title "polarity" (.Params.polarity | default "") "event" (eq .Params.event true) "aliases" (.Params.aliases | default slice) "url" .RelPermalink "text" (htmlUnescape (truncate 400 $text))) -}}

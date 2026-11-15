@@ -6,32 +6,51 @@ GO_VERSION=1.26.1
 HUGO_VERSION=0.148.1
 NODE_VERSION=24.14.0
 
+# Pinned SHA-256 digests of the four toolchain archives below. A download that
+# does not match is refused, so a replaced release asset, a tampering proxy or
+# a truncated transfer cannot run inside the build. Update these together with
+# the versions above, from the vendors' own published checksums.
+DART_SASS_SHA256=63340034916b39088e81008e77a93057f88013ea842821babdbb9979751de847
+GO_SHA256=031f088e5d955bab8657ede27ad4e3bc5b7c1ba281f05f245bcc304f327c987a
+HUGO_SHA256=7059e6037aacd7530482985db89420f22a554138a38b748c887873827a8447d5
+NODE_SHA256=41cd79bb7877c81605a9e68ec4c91547774f46a40c67a17e34d7179ef11729df
+
 export TZ=Asia/Kuala_Lumpur
 mkdir -p "${HOME}/.local"
 
+# Download to a filename we choose (never the remote Content-Disposition name)
+# and verify the digest before anything is unpacked.
+fetch() {
+  local url="$1" file="$2" expected="$3"
+  curl -sSL --proto '=https' --tlsv1.2 --fail --max-time 600 -o "${file}" "${url}"
+  echo "${expected}  ${file}" | sha256sum -c -
+}
+
 # Install Dart Sass
-curl -sLJO "https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
-tar -C "${HOME}/.local" -xf "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
-rm "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
+fetch "https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz" \
+  "dart-sass.tar.gz" "${DART_SASS_SHA256}"
+tar -C "${HOME}/.local" -xf "dart-sass.tar.gz"
+rm "dart-sass.tar.gz"
 export PATH="${HOME}/.local/dart-sass:${PATH}"
 
 # Install Go
-curl -sLJO "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz"
-tar -C "${HOME}/.local" -xf "go${GO_VERSION}.linux-amd64.tar.gz"
-rm "go${GO_VERSION}.linux-amd64.tar.gz"
+fetch "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" "go.tar.gz" "${GO_SHA256}"
+tar -C "${HOME}/.local" -xf "go.tar.gz"
+rm "go.tar.gz"
 export PATH="${HOME}/.local/go/bin:${PATH}"
 
 # Install Hugo (match local version)
-curl -sLJO "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
+fetch "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz" \
+  "hugo.tar.gz" "${HUGO_SHA256}"
 mkdir -p "${HOME}/.local/hugo"
-tar -C "${HOME}/.local/hugo" -xf "hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
-rm "hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
+tar -C "${HOME}/.local/hugo" -xf "hugo.tar.gz"
+rm "hugo.tar.gz"
 export PATH="${HOME}/.local/hugo:${PATH}"
 
 # Install Node.js
-curl -sLJO "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz"
-tar -C "${HOME}/.local" -xf "node-v${NODE_VERSION}-linux-x64.tar.xz"
-rm "node-v${NODE_VERSION}-linux-x64.tar.xz"
+fetch "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" "node.tar.xz" "${NODE_SHA256}"
+tar -C "${HOME}/.local" -xf "node.tar.xz"
+rm "node.tar.xz"
 export PATH="${HOME}/.local/node-v${NODE_VERSION}-linux-x64/bin:${PATH}"
 
 # Refuse to build two pages under one public number, or a hand-numbered page

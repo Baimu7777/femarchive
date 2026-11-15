@@ -4,10 +4,18 @@ const mac=(secret,text)=>createHmac('sha256',secret).update(text).digest('hex');
 export function canonical(x){if(Array.isArray(x))return '['+x.map(canonical).join(',')+']';if(x&&typeof x==='object')return '{'+Object.keys(x).sort().map(k=>JSON.stringify(k)+':'+canonical(x[k])).join(',')+'}';return JSON.stringify(x);}
 export const signEvent=(secret,time,payload)=>mac(secret,time+'.'+canonical(payload));
 function equal(a,b){return typeof a==='string'&&typeof b==='string'&&a.length===b.length&&timingSafeEqual(Buffer.from(a),Buffer.from(b));}
-export function validPath(path){return typeof path==='string'&&path.length<300&&!path.includes('..')&&/^\/(?:feedback\/(?:posts\/[a-zA-Z0-9-]+\/|news\/\d+\/|lexicon\/[a-f0-9-]+\/)?|posts\/[a-zA-Z0-9-]+\/|news\/\d+\/|lexicon\/[a-f0-9-]+\/)$/u.test(path);}
+export function validPath(path){return typeof path==='string'&&path.length<300&&!path.includes('..')&&/^\/(?:feedback\/(?:posts\/[a-zA-Z0-9-]+\/|news\/\d+\/|figures\/[a-zA-Z0-9-]+\/|lexicon\/[a-f0-9-]+\/)?|posts\/[a-zA-Z0-9-]+\/|news\/\d+\/|figures\/[a-zA-Z0-9-]+\/|lexicon\/[a-f0-9-]+\/)$/u.test(path);}
 const safeId=x=>typeof x==='string'&&/^[a-zA-Z0-9_-]{1,100}$/.test(x);
 const plain=(x,n)=>typeof x==='string'?x.replace(/<[^>]*>/g,'').slice(0,n):'';
+// A free first line of defence: a fixed window per warm instance, no storage
+// read. It bounds how fast one address can make this function read the bucket.
+export function createWindowLimiter(limit,windowMs,now=Date.now){const hits=new Map();return key=>{const slot=Math.floor(now()/windowMs);if(hits.size>5000)for(const [k,v] of hits)if(v.slot!==slot)hits.delete(k);const entry=hits.get(key);if(!entry||entry.slot!==slot){hits.set(key,{slot,count:1});return true;}return ++entry.count<=limit;};}
+// A counter shared by every instance, for the rare operations worth one
+// storage round trip: issuing an identity, sending a comment.
+export async function reserveCount(store,key,limit){for(let i=0;i<5;i++){const record=await store.read(key),count=record?.value.count||0;if(count>=limit)return false;if(await store.write(key,{count:count+1},record?.etag??null))return true;}return false;}
+export const addressKey=(secret,ip)=>createHmac('sha256',secret).update('address|'+ip).digest('hex');
 export function createNotificationService({store,secret,eventSecret,origin,now=Date.now}){
+ const readLimit=createWindowLimiter(60,60000,now);
  const configured=store&&secret?.length>=32&&eventSecret?.length>=32&&secret!==eventSecret&&/^https:\/\/[^/?#]+$/.test(origin||'');
  const json=(data,status=200,headers={})=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff',...headers}});
  function identity(cookie){const token=(cookie||'').split(';').map(x=>x.trim()).find(x=>x.startsWith('archive_notice='))?.slice(15);if(!token)return null;const [id,signature]=token.split('.');return /^[a-f0-9-]{36}$/.test(id||'')&&equal(mac(secret,id),signature)?digest(id):null;}
@@ -27,7 +35,9 @@ export function createNotificationService({store,secret,eventSecret,origin,now=D
    box.items.push({id:++box.seq,eventId,kind:report?'report-reply':'comment-reply',title:report?'你的申报有新回应':'你的评论有新回复',message:plain(payload.text,600),href,time:now(),read:false});return box;});
   await store.write(delivery,{time:now()},null);return json({ok:true});
  }
- async function handler(req){
+ // `ip` is the address the platform vouches for, or null where there is none
+ // (tests, a host without a trusted proxy header); the limits then do not apply.
+ async function handler(req,ip=null){
   if(!configured)return json({error:'互动通知尚未配置。'},503);
   try{
    const url=new URL(req.url),op=url.searchParams.get('operation');
@@ -38,8 +48,13 @@ export function createNotificationService({store,secret,eventSecret,origin,now=D
     return await deliver(payload);
    }
    if(new URL(req.url).origin!==origin)return json({error:'来源无效。'},403);
+   if(ip&&!readLimit(ip))return json({error:'请求过于频繁，请稍后再试。'},429,{'retry-after':'60'});
    if(req.method==='GET'&&op==='session'){
-    if(identity(req.headers.get('cookie')))return json({ok:true,scope:identity(req.headers.get('cookie'))});const id=randomUUID();return json({ok:true,scope:digest(id)},200,{'set-cookie':`archive_notice=${id}.${mac(secret,id)}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=31536000`});
+    if(identity(req.headers.get('cookie')))return json({ok:true,scope:identity(req.headers.get('cookie'))});
+    // Every identity is a fresh rate-limit allowance for comments, so the
+    // number one address may be issued is itself bounded.
+    if(ip&&!await reserveCount(store,'limits/session/'+addressKey(secret,ip)+'/'+Math.floor(now()/3600000),10))return json({error:'请求过于频繁，请稍后再试。'},429,{'retry-after':'3600'});
+    const id=randomUUID();return json({ok:true,scope:digest(id)},200,{'set-cookie':`archive_notice=${id}.${mac(secret,id)}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=31536000`});
    }
    const owner=identity(req.headers.get('cookie'));if(!owner)return json({error:'通知身份已失效。'},401);
    if(req.method==='GET'){

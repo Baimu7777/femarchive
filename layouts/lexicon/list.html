@@ -4,9 +4,12 @@
 {{ range split "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "" }}{{ $letters = $letters | append . }}{{ end }}
 {{/* Entries published before the index letter existed carry none; keep them
      reachable by treating them as the numeric group. */}}
+{{/* Only what the directory itself needs is embedded. An entry's body is read
+     from its own page when its card is opened (static/js/lexicon.js), so this
+     page does not grow by a whole article for every entry published. */}}
 {{ $entries := slice }}
 {{ range $pages }}
-  {{ $entries = $entries | append (merge (partial "lexicon-entry-data.html" .) (dict "initial" (.Params.initial | default "#") "html" (printf "%s%s" .Content (partial "publication-term-articles.html" .)))) }}
+  {{ $entries = $entries | append (merge (partial "lexicon-entry-data.html" .) (dict "initial" (.Params.initial | default "#"))) }}
 {{ end }}
 {{ $used := slice }}
 {{ range $entries }}{{ $used = $used | append .initial }}{{ end }}
@@ -81,13 +84,14 @@
         <div data-lexicon-waline data-comment-ui="{{ "/js/comment-ui.js" | relURL }}?v={{ readFile "static/js/comment-ui.js" | md5 }}"
              data-server="{{ site.Params.comments.serverURL }}"
              data-lang="{{ site.Params.comments.lang | default "zh-CN" }}"
-             data-turnstile="{{ site.Params.comments.turnstileKey }}"></div>
+             data-turnstile="{{ site.Params.comments.turnstileKey }}"
+             data-emoji="{{ site.Params.comments.emoji | default slice | jsonify }}"></div>
         <noscript><p class="muted">当前浏览器禁用了 JavaScript，评论组件无法显示。</p></noscript>
       </details>
 {{ end }}    </div>
   </dialog>
   <script type="application/json" data-lexicon-data>{{ $entries | jsonify | safeJS }}</script>
-  <script src="{{ "js/lexicon.js" | relURL }}?v={{ now.Unix }}" defer></script>
+  <script src="{{ "js/lexicon.js" | relURL }}?v={{ readFile "static/js/lexicon.js" | md5 }}" defer></script>
   {{ else }}
     <p class="empty-state">词条正在整理中。</p>
   {{ end }}

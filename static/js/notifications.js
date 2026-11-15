@@ -1,4 +1,4 @@
-import {updatePublicState,safeNoticeURL} from './notification-state.js';
+import {updatePublicState,safeNoticeURL,sessionWanted,wantSession} from './notification-state.js';
 const dialog=document.querySelector('[data-notice-dialog]');
 if(dialog){
  const list=dialog.querySelector('[data-notice-list]'),status=dialog.querySelector('[data-notice-status]'),unread=dialog.querySelector('[data-notice-unread]'),all=dialog.querySelector('[data-notice-read-all]'),more=dialog.querySelector('[data-notice-more]');
@@ -22,12 +22,12 @@ if(dialog){
  async function refresh(force=false,before=null){
   if(busy||document.visibilityState==='hidden'||(!force&&Date.now()-lastCheck<60000))return;busy=true;lastCheck=Date.now();
   try{
-   if(!before&&(!updates||Date.now()-updates.checked>=60000)){const r=await fetch('/notifications.json',{cache:'no-cache',signal:AbortSignal.timeout(15000)});if(!r.ok)throw Error('文库更新暂时无法读取。');const feed=await r.json();updates=updatePublicState(updates,feed.items);write(publicKey,updates);}
-   if(enabled){if(!scope){const session=await api('?operation=session');scope=session.scope;if(scope){const saved=read('archive-notice-inbox:'+scope);if(saved){personal=saved;personalReady=true;}render();}}const data=await api(before?'?before='+before:'');personal={...data,items:before?[...personal.items,...data.items.filter(x=>!personal.items.some(y=>y.id===x.id))]:data.items};nextCursor=data.nextCursor;personalReady=true;if(scope)write('archive-notice-inbox:'+scope,personal);}
+   if(!before&&(!updates||Date.now()-updates.checked>=600000)){const r=await fetch('/notifications.json',{cache:'no-cache',signal:AbortSignal.timeout(15000)});if(!r.ok)throw Error('文库更新暂时无法读取。');const feed=await r.json();updates=updatePublicState(updates,feed.items);write(publicKey,updates);}
+   if(enabled&&sessionWanted(localStorage)){if(!scope){const session=await api('?operation=session');scope=session.scope;if(scope){const saved=read('archive-notice-inbox:'+scope);if(saved){personal=saved;personalReady=true;}render();}}const data=await api(before?'?before='+before:'');personal={...data,items:before?[...personal.items,...data.items.filter(x=>!personal.items.some(y=>y.id===x.id))]:data.items};nextCursor=data.nextCursor;personalReady=true;if(scope)write('archive-notice-inbox:'+scope,personal);}
    error='';
   }catch(e){error=e.message;}finally{busy=false;render();}
  }
- for(const trigger of document.querySelectorAll('[data-notice-open]'))trigger.addEventListener('click',()=>{dialog.showModal();render();refresh();});
+ for(const trigger of document.querySelectorAll('[data-notice-open]'))trigger.addEventListener('click',()=>{dialog.showModal();const first=enabled&&!sessionWanted(localStorage);if(first)wantSession(localStorage);render();refresh(first||(enabled&&!personalReady));});
  dialog.querySelector('[data-notice-close]').addEventListener('click',()=>dialog.close());dialog.addEventListener('click',e=>{if(e.target===dialog){const rect=dialog.getBoundingClientRect();if(e.clientX<rect.left||e.clientX>rect.right||e.clientY<rect.top||e.clientY>rect.bottom)dialog.close();}});
  for(const button of dialog.querySelectorAll('[data-notice-tab]'))button.addEventListener('click',()=>{tab=button.dataset.noticeTab;for(const other of dialog.querySelectorAll('[data-notice-tab]'))other.setAttribute('aria-selected',String(other===button));dialog.querySelector('[role=tabpanel]').setAttribute('aria-labelledby',button.id);render();});
  all.addEventListener('click',async()=>{if(tab==='updates'){updates.items=updates.items.map(x=>({...x,read:true}));write(publicKey,updates);render();return;}if(busy)return;busy=true;const through=personal.through;try{await api('',{method:'PATCH',headers:{'content-type':'application/json'},body:JSON.stringify({through})});personal.items=personal.items.map(x=>x.id<=through?{...x,read:true}:x);personal=await api('');nextCursor=personal.nextCursor;write('archive-notice-inbox:'+scope,personal);}catch(e){error=e.message;}finally{busy=false;render();}});

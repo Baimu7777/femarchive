@@ -52,8 +52,18 @@ test('persistent atomic limits reject the eleventh attempt and global quota acro
   const f=fixture({success:false});
   for(let i=0;i<10;i++)assert.equal((await f.handler(request(),'1.2.3.4')).status,403);
   assert.equal((await f.handler(request(),'1.2.3.4')).status,429);
+  // Attempts that never pass verification leave the shared daily budget alone.
+  assert.equal(f.records.has('image-limits/day/1'),false);
   f.records.set('image-limits/day/1',{value:{count:200},etag:'1'});
+  assert.equal((await f.handler(request(),'2.3.4.5')).status,403);
+});
+test('the shared daily budget is spent only by verified uploads and then refuses before the image host',async()=>{
+  const f=fixture();
+  assert.equal((await f.handler(request(),'1.2.3.4')).status,200);
+  assert.equal(f.records.get('image-limits/day/1').value.count,1);
+  f.records.set('image-limits/day/1',{value:{count:200},etag:'9'});
   assert.equal((await f.handler(request(),'2.3.4.5')).status,429);
+  assert.equal(f.calls.filter(x=>x.url.includes('cloudinary')).length,1);
 });
 test('verification token replay cannot trigger another Cloudinary upload',async()=>{
   let redeemed=false, uploads=0;

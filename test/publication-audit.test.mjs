@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { fileURLToPath } from 'node:url';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { deflateSync } from 'node:zlib';
 let auditPublication, renderAuditMarkdown;
@@ -13,7 +15,7 @@ test('website provides a local read-only publication auditor', () => {
 });
 
 async function fixture(t, values = ['private-audit-canary.invalid']) {
-  const root = await mkdtemp('/private/tmp/website-audit-test-');
+  const root = await mkdtemp(join(tmpdir(), 'website-audit-test-'));
   t.after(() => rm(root, { recursive: true, force: true }));
   const directory = join(root, 'public'), forbiddenFile = join(root, 'private.json');
   await mkdir(directory);
@@ -174,7 +176,7 @@ check('deleted Git blobs and commit identities are audited without changing hist
 });
 
 check('local CLI requires explicit inputs and returns only sanitized JSON', async t => {
-  const f = await fixture(t), cli = new URL('../scripts/audit-publication.mjs', import.meta.url).pathname;
+  const f = await fixture(t), cli = fileURLToPath(new URL('../scripts/audit-publication.mjs', import.meta.url));
   const run = args => spawnSync(process.execPath, [cli, ...args], { encoding: 'utf8' });
   assert.equal(run([]).status, 1);
   assert.equal(run(['--directory', f.directory, '--forbidden-file', f.forbiddenFile, '--unknown']).status, 1);

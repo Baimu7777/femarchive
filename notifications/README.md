@@ -28,7 +28,7 @@
 
 把 `deploy/waline-notifications/index.cjs` 安装到现有 Waline 服务。保留它已有的 hooks，组合执行 `notifyPublished(comment)`：新评论在 `postSave` 调用，通过审核或修改公开评论在 `afterUpdate` 调用。具体 hook 名称以实际部署的 Waline 版本为准，安装前核对。
 
-设置 `ARCHIVE_NOTIFICATIONS_ENABLED=false`、`ARCHIVE_NOTIFICATIONS_ENDPOINT=https://<网站>/api/notifications?operation=event`、`ARCHIVE_NOTIFICATIONS_EVENT_SECRET`（与网站事件密钥一致）。调好后再启用。事件只发已审核通过的回复；请求包含时间戳和 HMAC，固定 commentId 作为重复投递键。失效或认证失败不写收件箱。适配器失败时应在 Waline 内保存待处理事件并由维护者重放；本安装包不擅自修改现有 Waline 的任务/重试机制，尚未配置持久重放时不能承诺断线事件必达。不要让通知 hook 的异常诱导用户重复发布已经保存的评论。
+设置 `ARCHIVE_NOTIFICATIONS_ENABLED=false`、`ARCHIVE_NOTIFICATIONS_ENDPOINT=https://<网站>/api/notifications?operation=event`、`ARCHIVE_NOTIFICATIONS_EVENT_SECRET`（与网站事件密钥一致）。调好后再启用。事件只发已审核通过的回复；请求包含时间戳和 HMAC，固定 commentId 作为重复投递键。失效或认证失败不写收件箱。适配器失败时应在 Waline 内保存待处理事件并由维护者重放；本安装包不擅自修改现有 Waline 的任务/重试机制，尚未配置持久重放时不能承诺断线事件必达。不要让通知 hook 的异常诱导用户重复发布已经保存的评论。为此 `notifyPublished` 自身不再抛出异常：投递失败时返回 `{delivered:false}`，并在 Waline 日志里写一行 `[archive-notifications] delivery failed`（只含评论编号、父评论编号和路径，不含正文），维护者可据此重放。
 
 先部署服务器和 hook，再将 `config/_default/hugo.toml` 的 `params.notifications.bridge` 改为 `true`，构建部署网站。桥接只改变创建评论的 POST 传输；Waline 原有登录、编辑、删除、审核、验证码仍由原评论服务执行。网络不确定时不会后台重发。
 
@@ -39,3 +39,7 @@ Node 24：`node --test test/notification-*.test.mjs test/notifications.test.mjs`
 Hugo 0.148.1 构建验证 `/notifications.json` 只含公开内容。测试应使用独立桶、专用合成评论和受控目标。完整真实验收还需检查：两浏览器互相回复、申报回应、审核后才投递、单条/全部已读、并发新消息、跳转、清除身份和手机端触摸。真实服务没有通过这些检查前，不将互动通知描述为已正式可用。
 
 本地完整回归还复现了未修改基线已有的 28 项图片发布相关失败；不在本次通知改动内修复。通知专项结果不能替代这些基线问题的单独处理。
+
+## 限流
+
+在 Vercel 上，`/api/community` 与 `/api/notifications` 按平台提供的访客地址限流（地址只以 HMAC 形式出现在键名里）：每个地址每小时最多领取 10 个通知身份，每 10 分钟最多提交 30 条评论，读取类请求每个实例每分钟 60 次。计数记录在 `notifications/v1/limits/` 下，可设置短期生命周期。浏览器只有在访客点开铃铛或发表评论后才会领取通知身份。

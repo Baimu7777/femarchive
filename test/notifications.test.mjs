@@ -17,3 +17,22 @@ test('read-through does not mark arrivals after displayed upper bound',async()=>
 test('validly signed old events are still rejected',async()=>{const f=fixture(),time=String(Date.now()-600000),payload={id:'old'};const r=await f.service(new Request(origin+'/api/notifications?operation=event',{method:'POST',headers:{'x-notification-time':time,'x-notification-signature':signEvent(eventSecret,time,payload)},body:JSON.stringify(payload)}));assert.equal(r.status,401)});
 test('parallel duplicate events yield a single inbox message',async()=>{const f=fixture(),cookie=await session(f.service);await f.service.bind(cookie,{id:'p',path:'/feedback/posts/261041/'});const payload={id:'reply-one',commentId:'r',parentId:'p',path:'/feedback/posts/261041/',text:'合成申报回应'};const results=await Promise.all([event(f,payload),event(f,payload),event(f,payload)]);assert.ok(results.every(r=>r.status===200));const box=await(await f.service(req(cookie))).json();assert.equal(box.items.length,1);assert.equal(box.items[0].kind,'report-reply');assert.equal(box.items[0].href,'/#feedback')});
 test('event for different parent path cannot route a message',async()=>{const f=fixture(),cookie=await session(f.service);await f.service.bind(cookie,{id:'p',path:'/posts/261041/'});await event(f,{id:'wrong-path',commentId:'r',parentId:'p',path:'/news/262007/',text:'合成'});assert.equal((await(await f.service(req(cookie))).json()).unread,0)});
+
+test('one address is issued a bounded number of identities and figure pages are valid comment paths',async()=>{
+  const f=fixture();
+  const ask=()=>f.service(new Request(origin+'/api/notifications?operation=session'),'1.2.3.4');
+  for(let i=0;i<10;i++)assert.equal((await ask()).status,200);
+  const refused=await ask();assert.equal(refused.status,429);assert.equal(refused.headers.get('set-cookie'),null);
+  assert.ok([...f.objects.keys()].every(key=>!key.includes('1.2.3.4')));
+  // An existing identity is still recognised, and another address is unaffected.
+  const cookie=await session(f.service);
+  assert.equal((await f.service(new Request(origin+'/api/notifications?operation=session',{headers:{cookie}}),'1.2.3.4')).status,200);
+  assert.equal((await f.service(new Request(origin+'/api/notifications?operation=session'),'5.6.7.8')).status,200);
+  const {validPath}=await import('../notifications/service.mjs');
+  assert.equal(validPath('/figures/263001/'),true);assert.equal(validPath('/figures/../posts/1/'),false);assert.equal(validPath('/admin/'),false);
+});
+test('reads from one address are bounded per instance without touching storage',async()=>{
+  const f=fixture(),cookie=await session(f.service);let reads=0;const read=f.store.read;f.store.read=async key=>{reads++;return read(key);};
+  let limited=0;for(let i=0;i<70;i++)if((await f.service(req(cookie),'9.9.9.9')).status===429)limited++;
+  assert.equal(limited,10);assert.equal(reads,60);
+});

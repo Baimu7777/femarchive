@@ -1,5 +1,6 @@
 // 词条目录：字母与立场筛选、词语卡片、词条之间的自动互链与返回。
-// 行为对齐论坛的词条页；数据由页面内嵌的 JSON 提供，无需额外请求。
+// 行为对齐论坛的词条页；目录数据由页面内嵌的 JSON 提供，词条正文在打开卡片时
+// 才从词条自己的页面读取，目录页不随词条数量变成一整本书。
 // 自动互链与悬停预览在 lexicon-peek.js 里，和单独的词条页、文章共用。
 (function () {
   var root = document.querySelector('.lexicon-directory');
@@ -70,6 +71,9 @@
     Promise.all([import('/js/comment-avatars.js'), import(walineHost.getAttribute('data-comment-ui') || '/js/comment-ui.js')]).then(function (helpers) {
       helpers[0].prepareAnonymousIdentity(window.localStorage, walineHost.getAttribute('data-server'), function () { return crypto.randomUUID(); });
       return import('/vendor/waline.js?v=attachments-1').then(function (mod) {
+      // The same emoji packs as the article pages, from the site configuration.
+      var emoji;
+      try { emoji = JSON.parse(walineHost.getAttribute('data-emoji') || 'null'); } catch (e) { emoji = null; }
 
       waline = mod.init({
         el: walineHost,
@@ -82,6 +86,7 @@
         search: false,
         meta: ['nick'],
         requiredMeta: [],
+        emoji: Array.isArray(emoji) && emoji.length ? emoji : undefined,
         locale: { placeholder: '添加讨论', submit: '发布' },
       });
       helpers[1].mountCommentControls(walineHost, dialog.querySelector('[data-lexicon-login]'));
@@ -90,6 +95,50 @@
       walineHost.textContent = '评论组件暂时无法加载。';
     }).then(function () { walineLoading = false; });
   }
+
+  // An entry's body lives on its own page. It is fetched once, when its card
+  // is first opened, and kept for the rest of the visit.
+  var bodies = Object.create(null);
+  function loadBody(entry) {
+    if (!bodies[entry.url]) {
+      bodies[entry.url] = fetch(entry.url, { credentials: 'same-origin' }).then(function (response) {
+        if (!response.ok) throw new Error('unavailable');
+        return response.text();
+      }).then(function (text) {
+        var page = new DOMParser().parseFromString(text, 'text/html');
+        var body = page.querySelector('.article-content');
+        if (!body) throw new Error('unavailable');
+        var related = page.querySelector('.publication-term-articles');
+        return body.innerHTML + (related ? related.outerHTML : '');
+      });
+      // A failed read is not remembered, so opening the card again retries.
+      bodies[entry.url].catch(function () { delete bodies[entry.url]; });
+    }
+    return bodies[entry.url];
+  }
+  function showBody(entry, html) {
+    contentNode.removeAttribute('aria-busy');
+    contentNode.innerHTML = html;
+    contentNode.querySelectorAll('a[href]').forEach(function (link) {
+      if (!byUrl[link.getAttribute('href')]) { link.target = '_blank'; link.rel = 'noopener noreferrer nofollow'; }
+      else link.setAttribute('data-lexicon-entry', link.getAttribute('href'));
+    });
+    autoLink(contentNode, entry.url);
+  }
+  function showBodyFailure(entry) {
+    contentNode.removeAttribute('aria-busy');
+    contentNode.textContent = '';
+    var note = document.createElement('p');
+    note.className = 'muted';
+    note.textContent = '词条内容暂时没有读取到。';
+    var link = document.createElement('a');
+    link.href = entry.url;
+    link.textContent = '打开词条页面';
+    note.appendChild(document.createTextNode(' '));
+    note.appendChild(link);
+    contentNode.appendChild(note);
+  }
+  var shown = '';
 
   function render(entry) {
     var report = dialog.querySelector("[data-feedback-editor]");
@@ -103,12 +152,16 @@
       aliasNode.textContent = aliases.length ? '又称：' + aliases.join('、') : '';
       aliasNode.hidden = !aliases.length;
     }
-    contentNode.innerHTML = entry.html;
-    contentNode.querySelectorAll('a[href]').forEach(function (link) {
-      if (!byUrl[link.getAttribute('href')]) { link.target = '_blank'; link.rel = 'noopener noreferrer nofollow'; }
-      else link.setAttribute('data-lexicon-entry', link.getAttribute('href'));
-    });
-    autoLink(contentNode, entry.url);
+    shown = entry.url;
+    contentNode.setAttribute('aria-busy', 'true');
+    contentNode.innerHTML = '<p class="muted">正在读取词条…</p>';
+    // Only the card still on screen is filled in: a slow answer for an entry
+    // the reader has already left must not replace the one she is reading.
+    loadBody(entry).then(function (html) {
+      if (shown !== entry.url) return;
+      showBody(entry, html);
+      toTopSoon();
+    }, function () { if (shown === entry.url) showBodyFailure(entry); });
     backButton.hidden = stack.length < 2;
     if (window.LexiconPeek) window.LexiconPeek.hide();
     showComments(entry);
@@ -150,7 +203,7 @@
   });
   backButton.addEventListener('click', function () { stack.pop(); open(stack[stack.length - 1], false); backButton.hidden = stack.length < 2; });
   closeButton.addEventListener('click', function () { dialog.close(); });
-  dialog.addEventListener('close', function () { stack = []; backButton.hidden = true; });
+  dialog.addEventListener('close', function () { stack = []; shown = ''; backButton.hidden = true; });
   dialog.addEventListener('click', function (event) { if (event.target === dialog) dialog.close(); });
 
   // Filters and paging. The directory is laid out in two columns, so a page

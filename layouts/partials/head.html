@@ -1,8 +1,8 @@
-{{ if eq .Section "lexicon" }}<meta name="robots" content="noindex, nofollow">{{ end }}
+{{ if or (eq .Section "lexicon") (eq .Kind "404") }}<meta name="robots" content="noindex, nofollow">{{ end }}
 <meta charset="utf-8">
 <link rel="stylesheet" href="{{ "/css/notifications.css" | relURL }}">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
+<title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ if eq .Kind "404" }}没有找到这个页面{{ else }}{{ .Title }}{{ end }} · {{ site.Title }}{{ end }}</title>
 <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ site.Params.description }}{{ end }}">
 <link rel="canonical" href="{{ .Permalink }}">
 <link rel="icon" type="image/svg+xml" href="{{ "/pen.svg" | relLangURL }}">
@@ -15,7 +15,8 @@
 {{- $css := resources.Get "css/main.css" | fingerprint -}}
 <link rel="stylesheet" href="{{ $css.RelPermalink }}">
 {{- if site.Params.comments.enable }}
-<link rel="stylesheet" href="https://unpkg.com/@waline/client@v3/dist/waline.css">
+{{- /* Served from this site and kept at the version of static/vendor/waline.js. */}}
+<link rel="stylesheet" href="{{ "/vendor/waline.css" | relURL }}?v={{ readFile "static/vendor/waline.css" | md5 }}">
 {{- end }}
 
 <script>

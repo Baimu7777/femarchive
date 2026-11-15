@@ -92,7 +92,7 @@
       targets.forEach(watchCommentCount);
 
       try {
-        walineCommentModulePromise ||= import('https://unpkg.com/@waline/client@v3/dist/comment.js');
+        walineCommentModulePromise ||= import('/vendor/waline.js?v=attachments-1');
         const { commentCount } = await walineCommentModulePromise;
 
         if (typeof walineCommentAbort === 'function') {
@@ -117,7 +117,7 @@
       if (!targets.length) return;
 
       try {
-        walinePageviewModulePromise ||= import('https://unpkg.com/@waline/client@v3/dist/pageview.js');
+        walinePageviewModulePromise ||= import('/vendor/waline.js?v=attachments-1');
         const { pageviewCount } = await walinePageviewModulePromise;
 
         if (typeof walinePageviewAbort === 'function') {

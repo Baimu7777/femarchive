@@ -13,9 +13,10 @@
   </main>
 {{ partial "footer.html" . }}
 {{ partial "notification-center.html" . }}
-<script src="{{ "js/site.js" | relURL }}?v={{ now.Unix }}" defer></script>
-<script src="{{ "js/code-copy.js" | relURL }}" defer></script>
-<script src="{{ "js/lexicon-peek.js" | relURL }}?v={{ now.Unix }}" defer data-lexicon-index="{{ "lexicon/index.json" | relURL }}"></script>
+{{- /* Versioned by content, so an unchanged script stays cached across builds. */}}
+<script src="{{ "js/site.js" | relURL }}?v={{ readFile "static/js/site.js" | md5 }}" defer></script>
+<script src="{{ "js/code-copy.js" | relURL }}?v={{ readFile "static/js/code-copy.js" | md5 }}" defer></script>
+<script src="{{ "js/lexicon-peek.js" | relURL }}?v={{ readFile "static/js/lexicon-peek.js" | md5 }}" defer data-lexicon-index="{{ "lexicon/index.json" | relURL }}"></script>
   {{ block "scripts" . }}{{ end }}
 
 </body>

@@ -1,0 +1,28 @@
+{{ define "main" }}
+  <main class="archive-page">
+    <div class="shell archive-shell">
+      <section class="archive-panel">
+        <div class="archive-heading">
+          <span class="archive-heading__kicker">404</span>
+          <h1 class="archive-heading__title">没有找到这个页面</h1>
+          <p class="archive-heading__desc">链接可能已经更换，或者内容已被移走。可以从下面的入口继续浏览，或直接搜索。</p>
+        </div>
+
+        <section class="list-filter">
+          <form class="local-filter" action="{{ "/search/" | relLangURL }}" method="get" role="search">
+            <label class="sr-only" for="not-found-search">搜索全部文章与新闻</label>
+            <input id="not-found-search" name="q" type="search" placeholder="搜索标题、摘要、正文、标签">
+          </form>
+        </section>
+
+        <p class="not-found-links">
+          <a href="{{ "/" | relLangURL }}">回到主页</a>
+          <a href="{{ "/posts/" | relLangURL }}">全部文章</a>
+          <a href="{{ "/lexicon/" | relLangURL }}">词条</a>
+          <a href="{{ "/news/" | relLangURL }}">新闻</a>
+          <a href="{{ "/categories/" | relLangURL }}">分类</a>
+        </p>
+      </section>
+    </div>
+  </main>
+{{ end }}

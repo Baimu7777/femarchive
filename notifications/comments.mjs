@@ -1,7 +1,9 @@
-import {validPath} from './service.mjs';
-export function createCommentBridge({service,store,origin,waline,fetch:transport=fetch,now=Date.now}){
+import {validPath,reserveCount,addressKey,createWindowLimiter} from './service.mjs';
+export function createCommentBridge({service,store,origin,waline,secret,fetch:transport=fetch,now=Date.now}){
+ const burst=createWindowLimiter(30,60000,now);
  const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json','cache-control':'private, no-store'}});
- return async req=>{
+ // `ip` is the address the platform vouches for; null skips the address limits.
+ return async (req,ip=null)=>{
   if(req.method!=='POST')return json({errno:1,errmsg:'方法不支持。'},405);
   if(req.headers.get('origin')!==origin)return json({errno:1,errmsg:'请求来源无效。'},403);
   const cookie=req.headers.get('cookie'),owner=service.identity(cookie);if(!owner)return json({errno:1,errmsg:'通知身份失效，请刷新页面后重试。'},401);
@@ -10,6 +12,13 @@ export function createCommentBridge({service,store,origin,waline,fetch:transport
    const target=new URL(waline);if(target.protocol!=='https:'||target.username||target.password||target.search||target.hash||target.pathname!=='/'||target.port)return json({errno:1,errmsg:'评论服务配置无效。'},503);
    const raw=await req.text();if(raw.length>16000)return json({errno:1,errmsg:'评论内容过长。'},413);const body=JSON.parse(raw);
    if(!validPath(body.url)||typeof body.comment!=='string'||body.comment.length>10000)return json({errno:1,errmsg:'评论格式无效。'},400);
+   // An identity costs nothing to obtain, so it cannot be the only thing that
+   // is counted: the address is limited first, in memory and then in storage,
+   // before this request reaches the comment service at all.
+   if(ip){
+    if(!burst(ip))return json({errno:1,errmsg:'发送过于频繁，请稍后重试。'},429);
+    if(secret&&!await reserveCount(store,'limits/address/'+addressKey(secret,ip)+'/'+Math.floor(now()/600000),30))return json({errno:1,errmsg:'发送过于频繁，请稍后重试。'},429);
+   }
    const rateKey=`limits/${owner}/${Math.floor(now()/60000)}`;let allowed=false;
    for(let i=0;i<5;i++){const record=await store.read(rateKey),count=record?.value.count||0;if(count>=20)return json({errno:1,errmsg:'发送过于频繁，请稍后重试。'},429);if(await store.write(rateKey,{count:count+1},record?.etag??null)){allowed=true;break;}}
    if(!allowed)return json({errno:1,errmsg:'暂时无法发送。'},503);
