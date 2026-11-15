@@ -11,7 +11,21 @@
   const indexUrl = page.dataset.indexUrl || '/index.json';
 
   const params = new URLSearchParams(window.location.search);
-  let currentScope = params.get('scope') || 'all';
+  const scopes = scopeButtons.map((button) => button.dataset.searchScope);
+  let currentScope = scopes.includes(params.get('scope')) ? params.get('scope') : 'all';
+  // The index is read once per visit, not again for every search.
+  let indexPromise = null;
+  const loadIndex = () => {
+    indexPromise ||= fetch(indexUrl).then((response) => {
+      if (!response.ok) throw new Error(`Search index request failed: ${response.status}`);
+      return response.json();
+    });
+    indexPromise.catch(() => { indexPromise = null; });
+    return indexPromise;
+  };
+  const showFailure = () => {
+    meta.textContent = '搜索暂时无法使用，请检查网络后刷新页面再试。';
+  };
   input.value = params.get('q') || '';
 
   const escapeHtml = (text = '') =>
@@ -94,7 +108,9 @@
 
   const setScopeUI = () => {
     scopeButtons.forEach((button) => {
-      button.classList.toggle('is-active', button.dataset.searchScope === currentScope);
+      const active = button.dataset.searchScope === currentScope;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', String(active));
     });
   };
 
@@ -124,8 +140,7 @@
     const keyword = input.value.trim();
     const lower = keyword.toLowerCase();
 
-    const response = await fetch(indexUrl);
-    const data = await response.json();
+    const data = await loadIndex();
 
     const scoped = data.filter((item) => currentScope === 'all' || item.section === currentScope);
     const filtered = keyword
@@ -156,23 +171,17 @@
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
-    runSearch().catch(() => {
-      meta.textContent = '搜索索引载入失败，请检查 index.json 是否已生成。';
-    });
+    runSearch().catch(showFailure);
   });
 
   scopeButtons.forEach((button) => {
     button.addEventListener('click', () => {
       currentScope = button.dataset.searchScope;
       setScopeUI();
-      runSearch().catch(() => {
-        meta.textContent = '搜索索引载入失败，请检查 index.json 是否已生成。';
-      });
+      runSearch().catch(showFailure);
     });
   });
 
   setScopeUI();
-  runSearch().catch(() => {
-    meta.textContent = '搜索索引载入失败，请检查 index.json 是否已生成。';
-  });
+  runSearch().catch(showFailure);
 })();

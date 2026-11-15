@@ -14,5 +14,8 @@ export function configuredNotifications(env=process.env){
 // Vercel overwrites this header at its edge. A client-supplied
 // x-forwarded-for is never trusted; other hosts need their own adapter.
 export const trustedAddress=(req,env=process.env)=>env.VERCEL==='1'?req.headers['x-vercel-forwarded-for']?.split(',')[0].trim()||null:null;
-export async function webRequest(req){let raw='';if(req.body!==undefined)raw=typeof req.body==='string'?req.body:JSON.stringify(req.body);else for await(const chunk of req){raw+=chunk;if(Buffer.byteLength(raw)>20000)throw Error('body limit');}if(Buffer.byteLength(raw)>20000)throw Error('body limit');return new Request('https://'+req.headers.host+req.url,{method:req.method,headers:req.headers,body:['GET','HEAD'].includes(req.method)?undefined:raw});}
+export async function webRequest(req){let raw='';if(req.body!==undefined)raw=typeof req.body==='string'?req.body:JSON.stringify(req.body);else{
+ // Collected as bytes and decoded once: appending chunks as text split a
+ // Chinese character that happened to fall across two chunks.
+ const chunks=[];let size=0;for await(const chunk of req){const bytes=Buffer.from(chunk);size+=bytes.length;if(size>20000)throw Error('body limit');chunks.push(bytes);}raw=Buffer.concat(chunks).toString('utf8');}if(Buffer.byteLength(raw)>20000)throw Error('body limit');return new Request('https://'+req.headers.host+req.url,{method:req.method,headers:req.headers,body:['GET','HEAD'].includes(req.method)?undefined:raw});}
 export async function send(res,response){res.statusCode=response.status;for(const [k,v]of response.headers)res.setHeader(k,v);res.end(await response.text());}

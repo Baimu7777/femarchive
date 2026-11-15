@@ -49,8 +49,10 @@
       if (watchedCommentCounts.has(target)) return;
       watchedCommentCounts.add(target);
       const container = target.closest('.card-comment-count');
-      const badge = container ? document.createElement('span') : null;
-      if (badge) {
+      // A list restored after a search already carries the badge element.
+      const existingBadge = container?.nextElementSibling?.classList.contains('comment-unread-badge') ? container.nextElementSibling : null;
+      const badge = existingBadge || (container ? document.createElement('span') : null);
+      if (badge && !existingBadge) {
         badge.className = 'comment-unread-badge';
         badge.hidden = true;
         container.after(badge);
@@ -82,14 +84,28 @@
       }
     }
 
-    const refreshWalineCommentCounts = async (root = document) => {
+    // Several callers ask for a refresh in the same moment (page load, the
+    // list filter, a search result). They share one request to the comment
+    // service instead of each starting one and cancelling the one before.
+    let commentCountQueued = false;
+    const refreshWalineCommentCounts = (root = document) => {
       if (!walineServerURL) return;
 
-      const selector = '.waline-comment-count';
       const scope = root && typeof root.querySelectorAll === 'function' ? root : document;
-      const targets = Array.from(scope.querySelectorAll(selector)).filter((item) => item.dataset.path);
+      const targets = Array.from(scope.querySelectorAll('.waline-comment-count')).filter((item) => item.dataset.path);
       if (!targets.length) return;
       targets.forEach(watchCommentCount);
+
+      if (commentCountQueued) return;
+      commentCountQueued = true;
+      setTimeout(() => {
+        commentCountQueued = false;
+        loadWalineCommentCounts();
+      }, 0);
+    };
+
+    const loadWalineCommentCounts = async () => {
+      const selector = '.waline-comment-count';
 
       try {
         walineCommentModulePromise ||= import('/vendor/waline.js?v=attachments-1');
@@ -405,7 +421,17 @@
         if (searchPaginationControls) searchPaginationControls.hidden = true;
       };
 
+      let showingSearchResults = false;
+
       const restoreOriginalList = () => {
+        // Nothing was replaced: the list on the page is still the original
+        // one, so it is neither rebuilt nor counted a second time.
+        if (!showingSearchResults) {
+          setSearchingState(false);
+          if (empty) empty.hidden = true;
+          return;
+        }
+        showingSearchResults = false;
         target.innerHTML = originalMarkup;
         setSearchingState(false);
         hideSearchResultTools();
@@ -473,6 +499,7 @@
       };
 
       const renderLimitedSearchResults = () => {
+        showingSearchResults = true;
         const totalCount = currentSearchResults.length;
         const hasLimit = initialSearchLimit > 0;
 

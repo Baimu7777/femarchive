@@ -1,10 +1,22 @@
-{{ if or (eq .Section "lexicon") (eq .Kind "404") }}<meta name="robots" content="noindex, nofollow">{{ end }}
 <meta charset="utf-8">
-<link rel="stylesheet" href="{{ "/css/notifications.css" | relURL }}">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+{{ if or (eq .Section "lexicon") (eq .Kind "404") }}<meta name="robots" content="noindex, nofollow">{{ end }}
+<link rel="stylesheet" href="{{ "/css/notifications.css" | relURL }}?v={{ readFile "static/css/notifications.css" | md5 }}">
 <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ if eq .Kind "404" }}没有找到这个页面{{ else }}{{ .Title }}{{ end }} · {{ site.Title }}{{ end }}</title>
-<meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ site.Params.description }}{{ end }}">
+{{- /* An article without a description of its own is described by its opening
+     lines, not by the sentence every other page of the site carries. */ -}}
+{{- $description := site.Params.description -}}
+{{- if .Description }}{{ $description = .Description }}
+{{- else if and .IsPage (in (slice "posts" "news" "figures" "lexicon") .Section) -}}
+  {{- with partial "preview-text.html" (dict "page" . "limit" 120) }}{{ $description = . }}{{ end -}}
+{{- end }}
+<meta name="description" content="{{ $description }}">
 <link rel="canonical" href="{{ .Permalink }}">
+<meta property="og:site_name" content="{{ site.Title }}">
+<meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+<meta property="og:title" content="{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }}{{ end }}">
+<meta property="og:description" content="{{ $description }}">
+<meta property="og:url" content="{{ .Permalink }}">
 <link rel="icon" type="image/svg+xml" href="{{ "/pen.svg" | relLangURL }}">
 <link rel="shortcut icon" href="{{ "/pen.svg" | relLangURL }}">
 

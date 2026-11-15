@@ -3163,6 +3163,13 @@ body.home-hero-dismissed .home-hero {
     order: 1;
   }
 
+  /* Without an order of its own the report entry came first, above the
+     article it is about. It follows the article, as on wide screens. */
+  .article-layout .feedback-entry {
+    order: 1;
+    margin: 0;
+  }
+
   .toc-card {
     display: none;
   }

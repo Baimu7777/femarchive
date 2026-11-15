@@ -1,4 +1,5 @@
-{{- $pages := where site.RegularPages.ByDate.Reverse "Section" "in" (slice "posts" "news") -}}
+{{- $pages := where site.RegularPages.ByDate.Reverse "Section" "in" (slice "posts" "news" "figures") -}}
+{{- $types := dict "posts" "文章" "news" "新闻" "figures" "人物" -}}
 [
 {{- range $index, $page := $pages -}}
   {{- if $index }},{{ end }}
@@ -12,7 +13,7 @@
     "title": {{ $page.Title | jsonify }},
     "url": {{ $page.RelPermalink | jsonify }},
     "section": {{ $page.Section | jsonify }},
-    "type": {{ cond (eq $page.Section "news") "新闻" "文章" | jsonify }},
+    "type": {{ index $types $page.Section | jsonify }},
     "author": {{ $authorText | jsonify }},
     "date": {{ $page.Date.Format "2006.01.02" | jsonify }},
     "description": {{ ($page.Description | default "") | plainify | jsonify }},

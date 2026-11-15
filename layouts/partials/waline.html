@@ -44,7 +44,9 @@
         path: {{ with .Params.comment_path }}{{ . }}{{ else }}window.location.pathname{{ end }},
         pageview: enablePageview && !isLocal,
         reaction: false,
-        comment: '.waline-comment-count',
+        // static/js/site.js already fills every .waline-comment-count on the
+        // page; counting here as well asked the comment service twice.
+        comment: false,
         search: false,
         meta: ['nick'],
         requiredMeta: [],

@@ -11,9 +11,9 @@ summaryLength = 28
   pagerSize = 12
 
 [permalinks]
-  posts = "/posts/:slugorfilename/"
-  news = "/news/:slugorfilename/"
-  figures = "/figures/:slugorfilename/"
+  posts = "/posts/:slugorcontentbasename/"
+  news = "/news/:slugorcontentbasename/"
+  figures = "/figures/:slugorcontentbasename/"
 
 [taxonomies]
   category = "categories"
@@ -132,4 +132,4 @@ summaryLength = 28
   notAlternative = true
 
 [params.notifications]
-  bridge = false
+  bridge = true
