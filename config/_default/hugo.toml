@@ -51,6 +51,14 @@ summaryLength = 28
   submitURL = "/submission-guidelines/"
   mainSections = ["posts", "news"]
 
+  # 在线投稿。endpoint 留空时投稿页保持原样（邮箱 + 表单）。
+  # 填写接收端地址后还要把同一地址加进 vercel.json 的 connect-src，
+  # 见 deploy/submission-worker/README.md。
+  [params.submission]
+    endpoint = ""
+    # 留空则沿用评论区的 Turnstile sitekey。
+    turnstileKey = ""
+
   [params.author]
     name = ""
 

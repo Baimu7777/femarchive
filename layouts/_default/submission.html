@@ -1,0 +1,90 @@
+{{ define "main" }}
+  {{- $endpoint := "" -}}
+  {{- $sitekey := site.Params.comments.turnstileKey | default "" -}}
+  {{- with site.Params.submission -}}
+    {{- $endpoint = .endpoint | default "" -}}
+    {{- with .turnstileKey }}{{ $sitekey = . }}{{ end -}}
+  {{- end -}}
+  <link rel="stylesheet" href="{{ "/css/submission.css" | relURL }}?v={{ readFile "static/css/submission.css" | md5 }}">
+  <main class="article-page">
+    <div class="shell submission-shell">
+      <article class="article-main">
+        <header class="article-hero">
+          <h1 class="article-hero__title">{{ .Title }}</h1>
+        </header>
+        <div class="article-content prose">
+          {{ .Content }}
+        </div>
+
+        {{ if $endpoint }}
+          {{/* The form posts to a separate receiver; see deploy/submission-worker/README.md. */}}
+          <section class="submission" data-submission data-endpoint="{{ $endpoint }}" data-turnstile-key="{{ $sitekey }}" aria-labelledby="submission-title">
+            <h2 id="submission-title" class="submission__title">在线投稿</h2>
+            <p class="submission__notice" data-submission-closed hidden>在线投稿入口暂时关闭。可以稍后再来，或把稿件发送到上面的邮箱。</p>
+            <noscript><p class="submission__notice">在线投稿需要打开 JavaScript；也可以把稿件发送到上面的邮箱。</p></noscript>
+
+            <form class="submission__form" data-submission-form novalidate>
+              <label class="submission__field">
+                <span>标题 <em>必填</em></span>
+                <input name="title" type="text" maxlength="200" required autocomplete="off">
+              </label>
+              <div class="submission__row">
+                <label class="submission__field">
+                  <span>作者或署名</span>
+                  <input name="author" type="text" maxlength="100" autocomplete="off" placeholder="不填则按匿名投稿处理">
+                </label>
+                <label class="submission__field">
+                  <span>原文出处</span>
+                  <input name="origin" type="text" maxlength="2000" autocomplete="off" placeholder="搬运请填写原作者与原文链接">
+                </label>
+              </div>
+
+              <div class="submission__field">
+                <span id="submission-body-label">正文 <em>文字、图片至少一项</em></span>
+                <div class="rich-editor" data-submission-editor aria-labelledby="submission-body-label"></div>
+                <p class="submission__meta">
+                  <span data-submission-count>0 字</span>
+                  <span>可以直接粘贴或拖入图片；图片在提交时才会上传。</span>
+                  <span data-submission-images-paused hidden>目前暂停接收图片，文字投稿不受影响。</span>
+                </p>
+              </div>
+
+              <label class="submission__field">
+                <span>投稿说明</span>
+                <textarea name="note" rows="3" maxlength="2000" placeholder="想对审核成员说的话，例如为什么推荐这篇、需要注意的地方。"></textarea>
+              </label>
+              <label class="submission__field">
+                <span>联系方式</span>
+                <input name="contact" type="text" maxlength="200" autocomplete="off" placeholder="选填，只有审核成员能看到，用于必要时与你确认">
+              </label>
+              <label class="submission__field" data-submission-code-field hidden>
+                <span>投稿码</span>
+                <input name="code" type="text" maxlength="100" autocomplete="off" placeholder="在豆瓣小组内获取">
+              </label>
+
+              <div data-submission-verification class="submission__verification"></div>
+              <p class="submission__status" data-submission-status role="status" aria-live="polite" hidden></p>
+              <div class="submission__actions">
+                <button type="submit" class="submission__submit">提交投稿</button>
+                <button type="button" class="submission__link" data-submission-code-toggle>我有投稿码</button>
+              </div>
+              <p class="submission__hint">投稿不会直接公开：审核成员阅读、整理后才会发布到文库，可能会调整排版或与你确认内容。投稿不保存你的 IP 地址，只保存一个无法还原的标识，用于限制滥用。</p>
+            </form>
+
+            <div class="submission__done" data-submission-done tabindex="-1" hidden>
+              <h3>投稿已收到</h3>
+              <p>回执编号：<strong data-submission-receipt></strong></p>
+              <p>审核成员阅读后会整理发布。如果留了联系方式，必要时会与你确认。</p>
+              <button type="button" class="submission__link" data-submission-again>再投一篇</button>
+            </div>
+          </section>
+          <script src="{{ "/js/submission.js" | relURL }}?v={{ readFile "static/js/submission.js" | md5 }}" defer></script>
+        {{ else }}
+          <div class="article-content prose">
+            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeWkDUxAJ3jMPSuS2rifhgoAFeBEGSKV3aSvEEnjZiffOyyUA/viewform?embedded=true" width="960" height="1335" frameborder="0" marginheight="0" marginwidth="0">正在加载…</iframe>
+          </div>
+        {{ end }}
+      </article>
+    </div>
+  </main>
+{{ end }}

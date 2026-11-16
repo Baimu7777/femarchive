@@ -1,0 +1,38 @@
+# Public submission receiver. Deployed separately from the archive (Vercel)
+# and the forum (VPS): see README.md in this directory.
+name = "archive-submissions"
+main = "worker.mjs"
+compatibility_date = "2026-10-01"
+workers_dev = true
+
+# Daily sweep at 19:17 UTC (03:17 Beijing): abandoned uploads, submissions past
+# their retention, expired counters and bans. One invocation a day.
+[triggers]
+crons = ["17 19 * * *"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "archive-submissions"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "archive-submissions"
+
+[vars]
+# The archive's own origin(s), comma separated, no trailing slash. Requests
+# from any other site are refused.
+ALLOWED_ORIGINS = "https://REPLACE_WITH_ARCHIVE_DOMAIN"
+# Hostnames the Turnstile token must have been issued for.
+TURNSTILE_HOSTNAMES = "REPLACE_WITH_ARCHIVE_DOMAIN"
+
+# Every limit has a default in worker.mjs; set one here only to change it.
+# LIMIT_SUBMISSIONS_PER_DAY = "30"
+# LIMIT_IMAGE_MB_PER_DAY = "300"
+# LIMIT_TOTAL_MB = "2048"
+
+# Secrets, set with `wrangler secret put NAME` and never written here:
+#   ADMIN_TOKEN        the forum's pull credential, 32+ characters
+#   SOURCE_HASH_KEY    keys the address hash, 32+ characters; changing it lifts every ban
+#   SESSION_KEY        signs upload sessions, 32+ characters
+#   TURNSTILE_SECRET   the secret of the Turnstile widget on the submission page

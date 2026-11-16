@@ -9,7 +9,8 @@
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "build:vendor": "node scripts/build-vendor.mjs",
-    "audit:publication": "node scripts/audit-publication.mjs"
+    "audit:publication": "node scripts/audit-publication.mjs",
+    "build:submission": "node scripts/build-submission.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1124.0",
@@ -19,6 +20,11 @@
     "sharp": "0.35.5"
   },
   "devDependencies": {
+    "@tiptap/core": "3.32.1",
+    "@tiptap/extension-image": "3.32.1",
+    "@tiptap/extension-link": "3.32.1",
+    "@tiptap/pm": "3.32.1",
+    "@tiptap/starter-kit": "3.32.1",
     "esbuild": "0.28.2",
     "sanitize-html": "2.18.1"
   }
