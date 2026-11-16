@@ -1,0 +1,7 @@
+{{- $entry := partial "lexicon-entry-data.html" . -}}
+<article class="home-lexicon-card">
+  <a class="home-lexicon-card__link" data-no-lexicon-peek href="{{ .RelPermalink }}" aria-label="阅读词条：{{ .Title }}">
+    <h3 class="home-lexicon-card__title">{{ .Title }}</h3>
+    <p class="home-lexicon-card__summary">{{ $entry.text | truncate 80 }}</p>
+  </a>
+</article>

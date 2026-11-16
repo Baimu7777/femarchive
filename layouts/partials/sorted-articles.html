@@ -1,0 +1,10 @@
+{{- $pinned := slice -}}
+{{- $regular := slice -}}
+{{- range .ByLastmod.Reverse -}}
+  {{- if .Params.pinned -}}
+    {{- $pinned = $pinned | append . -}}
+  {{- else -}}
+    {{- $regular = $regular | append . -}}
+  {{- end -}}
+{{- end -}}
+{{- return ($pinned | append $regular) -}}

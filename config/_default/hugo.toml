@@ -130,5 +130,11 @@ summaryLength = 28
   isPlainText = true
   notAlternative = true
 
+[outputFormats.ArticleCards]
+  mediaType = "application/json"
+  baseName = "article-cards"
+  isPlainText = true
+  notAlternative = true
+
 [params.notifications]
   bridge = true

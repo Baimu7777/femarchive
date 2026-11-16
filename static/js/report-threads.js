@@ -43,3 +43,11 @@ export function replyDepth(node) {
   }
   return depth;
 }
+
+// Numbers identify messages in this thread, never anonymous people's identities.
+export function reportFloors(thread) {
+  const floors = new Map();
+  if (!thread.parentId && !thread.rootId) floors.set(thread, 0);
+  thread.replies.forEach((reply, index) => floors.set(reply, index + 1));
+  return floors;
+}

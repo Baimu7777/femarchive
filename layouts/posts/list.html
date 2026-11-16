@@ -1,6 +1,7 @@
 {{ define "main" }}
-  {{ $pages := sort .RegularPages "Date" "desc" }}
-  {{ $paginator := .Paginate $pages }}
+  {{ $pages := partial "sorted-articles.html" .RegularPages }}
+  {{ $articleLimit := 12 }}
+  {{ $paginator := .Paginate $pages $articleLimit }}
   <main class="archive-page archive-page--posts">
     <div class="shell archive-shell posts-layout">
       <section class="archive-panel posts-main">
@@ -14,9 +15,12 @@
             data-pagination="#postsPagination"
             data-index-url="{{ "/index.json" | relLangURL }}"
             data-filter-section="posts"
-            data-search-limit="12"
-            data-search-step="12"
+            data-search-limit="{{ $articleLimit }}"
+            data-search-step="{{ $articleLimit }}"
             data-search-mode="paginate"
+            data-article-cards-url="{{ "/posts/article-cards.json" | relLangURL }}"
+            data-article-page="{{ $paginator.PageNumber }}"
+            data-article-limit="{{ $articleLimit }}"
           >
             <label class="sr-only" for="post-filter-input">搜索文章</label>
             <div class="search-box__field">

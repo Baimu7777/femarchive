@@ -1,4 +1,4 @@
-import {groupReports, replyDepth} from './report-threads.js?v=2';
+import {groupReports, reportFloors} from './report-threads.js?v=3';
 import {loadTurnstile as captchaReady} from './turnstile-loader.js';
 import {submitComment} from './notification-transport.js';
 import {prepareAnonymousIdentity} from './comment-avatars.js';
@@ -112,7 +112,10 @@ async function mountHome(root){
     cancel.className='report-item__reply-action';
     cancel.textContent='取消回应';
     cancel.addEventListener('click',()=>{if(!activeReply?.controller.isSending())closeReply(true);});
-    host.append(editor,cancel);
+    const targetLabel=document.createElement('p');
+    targetLabel.className='report-item__editor-target';
+    targetLabel.textContent='回复 '+item.querySelector('.report-item__reply-context > span').textContent;
+    host.append(targetLabel,editor,cancel);
     item.querySelector(':scope > .report-item__meta').after(host);
     const controller=mountEditor(editor,{onSubmitted:()=>{
       closeReply(true);
@@ -135,35 +138,39 @@ async function mountHome(root){
   }
   expand.addEventListener('click',()=>{expanded=!expanded;updateVisibility();});
   const lookup=new Map(catalog.map(source=>[source.path,source]));
-  function renderItem(node,source,target=list,isReply=false){
+  function renderItem(node,source,target=list,isReply=false,floors=reportFloors(node)){
     const {comment}=node;
     const item=document.createElement('article');item.className='report-item'+(isReply?' report-item--reply':'');item.dataset.time=String(new Date(comment.time).getTime());
+    const floor=floors.get(node);
+    item.id=`report-${encodeURIComponent(JSON.stringify([node.path,node.id]))}`;
     const author=value=>value?.nick?.startsWith('匿名·')?'匿名':value?.nick||'匿名';
     const plain=value=>typeof value?.orig==='string'
       ? value.orig
       : new DOMParser().parseFromString(value?.comment||'','text/html').body.textContent;
-    if(isReply){
-      const parent=node.parent;
-      const context=document.createElement('div');
-      context.className='report-item__reply-context';
-      const label=document.createElement('span');
-      const depth=replyDepth(node);
-      if(parent&&(parent.parentId||parent.rootId)){
-        label.textContent=depth===null
-          ? `回应 ${author(parent.comment)}`
-          : `第 ${depth} 层 · 回应 ${author(parent.comment)}`;
-        const excerpt=document.createElement('q');
-        const original=plain(parent.comment).replace(/\s+/gu,' ').trim();
-        excerpt.textContent=original.length>56?original.slice(0,56)+'…':original;
-        if(original)context.append(excerpt);
+    if(!isReply){
+      const heading=document.createElement('a');heading.textContent=source.title;heading.href=source.path||'/#feedback';item.append(heading);
+    }
+    const context=document.createElement('div');context.className='report-item__reply-context';
+    const label=document.createElement('span');
+    const floorName=floor===0?'主楼':floor!=null?`${floor} 楼`:'回应';
+    label.textContent=`${floorName} · ${author(comment)}`;context.append(label);
+    if(node.parentId||node.rootId){
+      const parentFloor=floors.get(node.parent);
+      if(parentFloor!=null){
+        const targetLink=document.createElement('a');
+        targetLink.href=`#report-${encodeURIComponent(JSON.stringify([node.parent.path,node.parent.id]))}`;
+        targetLink.textContent=`回复 ${parentFloor===0?'主楼':`${parentFloor} 楼`}`;
+        context.append(targetLink);
       }else{
-        label.textContent=depth===1?'回应原申报':'回应对象暂不可见';
+        const missing=document.createElement('small');missing.textContent='回复对象暂不可见';context.append(missing);
       }
-      context.prepend(label);
-      item.append(context);
-    }else{
-      if(node.parentId||node.rootId){const label=document.createElement('small');label.className='report-item__reply-label';label.textContent='回应（原申报暂未加载或不可见）';item.append(label);}
-      else{const heading=document.createElement('a');heading.textContent=source.title;heading.href=source.path||'/#feedback';item.append(heading);}
+    }
+    item.append(context);
+    if(isReply&&node.parent){
+      const excerpt=document.createElement('blockquote');excerpt.className='report-item__quote';
+      const original=plain(node.parent.comment).replace(/\s+/gu,' ').trim();
+      excerpt.textContent=original.length>36?original.slice(0,36)+'…':original;
+      if(original)item.append(excerpt);
     }
     const text=document.createElement('p');text.className='report-item__text';text.id=`report-text-${++sequence}`;
     text.textContent=plain(comment);item.append(text);
@@ -173,7 +180,7 @@ async function mountHome(root){
     footer.className='report-item__meta';
     item.append(footer);
     const meta=document.createElement('small');
-    meta.textContent=`${author(comment)} · ${new Date(comment.time).toLocaleDateString('zh-CN')}`;
+    meta.textContent=new Date(comment.time).toLocaleDateString('zh-CN');
     footer.append(meta);
     if(editorTemplate&&comment.objectId){
       const reply=document.createElement('button');
@@ -187,7 +194,7 @@ async function mountHome(root){
     }
     target.append(item);
     requestAnimationFrame(()=>{toggle.hidden=text.scrollHeight<=text.clientHeight+1;});
-    if(node.replies.length){const replies=document.createElement('section');replies.className='report-replies';replies.setAttribute('aria-label','申报回应');item.append(replies);for(const child of node.replies)renderItem(child,source,replies,true);}
+    if(node.replies.length){const replies=document.createElement('section');replies.className='report-replies';replies.setAttribute('aria-label','申报回应');item.append(replies);for(const child of node.replies)renderItem(child,source,replies,true,floors);}
   }
   function draw(){
     if(activeReply){redrawPending=true;return;}

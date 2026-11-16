@@ -1057,6 +1057,7 @@ body.home-hero-dismissed .home-hero {
 }
 
 .archive-card__inner {
+  position: relative;
   display: flex;
   flex-direction: column;
   min-height: 240px;
@@ -1069,6 +1070,7 @@ body.home-hero-dismissed .home-hero {
 .archive-card__inner--plain {
   min-height: 100%;
 }
+
 
 .archive-card__head {
   display: flex;
@@ -5964,3 +5966,12 @@ html.skip-home-intro .home-content { margin-top: 0; }
   background: var(--accent-deep);
   color: #fff;
 }
+
+/* Home entries use natural height rather than the profile card layout. */
+.home-lexicon-card + .home-lexicon-card { border-top: 1px solid #d4e3dc; }
+.home-lexicon-card__link { display: block; padding: 16px 0; color: inherit; text-decoration: none; }
+.home-lexicon-card:first-child .home-lexicon-card__link { padding-top: 0; }
+.home-lexicon-card:last-child .home-lexicon-card__link { padding-bottom: 0; }
+.home-lexicon-card__title { margin: 0; font-size: 1rem; line-height: 1.5; }
+.home-lexicon-card__summary { margin: 8px 0 0; color: #608477; font-size: .88rem; line-height: 1.65; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+.home-lexicon-card__link:hover .home-lexicon-card__title { color: #285b4c; text-decoration: underline; text-underline-offset: 4px; }

@@ -11,12 +11,15 @@
 .report-item__reply-action{border:0;background:none;color:#285b4c;font:inherit;padding:2px 0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .report-item > .report-item__expand{margin:0 0 6px;font-size:.8rem}
 [data-report-list] > .report-item {
-  margin-block: 16px;
-  padding: clamp(14px, 2.5vw, 24px);
-  border: 1px solid #becfc6;
-  border-left: 4px solid #4d806c;
-  border-radius: 14px;
-  background: #fff;
+  margin-block: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+[data-report-list] > .report-item + .report-item {
+  padding-top: 28px;
+  border-top: 1px solid #e0e9e4;
 }
 [data-report-list] > .report-item > a {
   color: #285b4c;
@@ -48,4 +51,20 @@
 .report-item__reply-context q { overflow-wrap: anywhere; }
 .report-item__editor{margin-top:12px;padding-top:8px;border-top:1px solid #bdd6cc}
 .report-item__reply-label{font-size:.8rem;color:#586b63}
+</style>
+
+<style>
+.report-item { scroll-margin-top: 90px; }
+.report-item__reply-context { justify-content: space-between; gap: 6px 12px; margin: 12px 0 8px; }
+.report-item__reply-context > span { color: #253f35; }
+.report-item__reply-context > a { font-size: .76rem; text-underline-offset: 3px; }
+.report-item__meta { justify-content: space-between; margin-top: 8px; }
+.report-replies { gap: 0; margin-top: 16px; padding: 0 12px; border-radius: 10px; background: #f3f8f5; }
+.report-replies > .report-item--reply { min-width: 0; padding: 14px 0; border: 0; border-radius: 0; background: transparent; }
+.report-replies > .report-item--reply + .report-item--reply { border-top: 1px solid #d2e2d8; }
+.report-item--reply .report-item__reply-context { margin-top: 0; }
+.report-item__quote { margin: 0 0 10px; padding: 0 0 0 8px; border-left: 2px solid #bdd6cc; color: #687e73; font-size: .78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.report-item__editor-target { margin: 0; font-size: .8rem; color: #315d4e; }
+.report-item:target { outline: none; }
+.report-item:target > .report-item__reply-context { background: #e2f0e8; border-radius: 5px; }
 </style>

@@ -174,7 +174,7 @@
   function linkFrom(target) {
     var link = target && target.closest ? target.closest('a[href]') : null;
     // The directory's own list of names already says what each one is.
-    if (!link || link.closest('.lexicon-list') || peek.contains(link)) return null;
+    if (!link || link.closest('.lexicon-list, [data-no-lexicon-peek]') || peek.contains(link)) return null;
     return entryPath(link) ? link : null;
   }
 

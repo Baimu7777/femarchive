@@ -1,0 +1,14 @@
+{{- $cards := slice -}}
+{{- range partial "sorted-articles.html" .RegularPages -}}
+  {{- $path := "" -}}
+  {{- if and site.Params.comments.enable (ne .Params.comments false) -}}
+    {{- $path = .Params.comment_path | default .RelPermalink -}}
+  {{- end -}}
+  {{- $cards = $cards | append (dict
+    "url" .RelPermalink
+    "commentPath" $path
+    "updatedAt" (mul .Lastmod.Unix 1000)
+    "pinned" (or .Params.pinned false)
+    "html" (partial "card.html" (dict "page" . "compact" true))) -}}
+{{- end -}}
+{{- $cards | jsonify -}}

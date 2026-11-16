@@ -390,7 +390,9 @@
       };
 
       const originalMarkup = target.innerHTML;
+      let activityMarkup = null;
       const items = Array.from(target.querySelectorAll('[data-filter-item]'));
+      let browseLinks = items.map(item => item.querySelector('.archive-card__inner')?.getAttribute('href'));
       let indexPromise = null;
       let latestRequest = 0;
 
@@ -432,11 +434,48 @@
           return;
         }
         showingSearchResults = false;
-        target.innerHTML = originalMarkup;
+        target.innerHTML = activityMarkup ?? originalMarkup;
         setSearchingState(false);
         hideSearchResultTools();
         if (empty) empty.hidden = true;
         refreshDynamicCounts();
+      };
+
+      const loadArticleActivity = async () => {
+        const manifestURL = form.dataset.articleCardsUrl;
+        const limit = Number(form.dataset.articleLimit);
+        const page = Number(form.dataset.articlePage);
+        if (!manifestURL || !Number.isSafeInteger(limit) || limit < 1 || !Number.isSafeInteger(page) || page < 1) return;
+
+        try {
+          const signal = AbortSignal.timeout(12000);
+          const readJSON = async (url) => {
+            const response = await fetch(url, { signal });
+            if (!response.ok) throw new Error('Article activity unavailable');
+            return response.json();
+          };
+          const [{ rankArticleCards }, cards, times] = await Promise.all([
+            import('/js/article-activity.js'),
+            readJSON(manifestURL),
+            readJSON('/api/article-activity'),
+          ]);
+          if (!Array.isArray(cards) || !times || typeof times !== 'object' || Array.isArray(times)) return;
+
+          const start = (page - 1) * limit;
+          const ranked = rankArticleCards(cards, times).slice(start, start + limit);
+          if (!ranked.length || ranked.some(card => typeof card.html !== 'string')) return;
+          if (ranked.length === browseLinks.length && ranked.every((card, i) => card.url === browseLinks[i])) return;
+
+          browseLinks = ranked.map(card => card.url);
+          activityMarkup = ranked.map(card => card.html).join('');
+          // An activity refresh can arrive while the reader is using search.
+          // Apply it to the browse view after they clear their query.
+          if (input.value.trim() || showingSearchResults) return;
+          target.innerHTML = activityMarkup;
+          refreshDynamicCounts();
+        } catch {
+          // The pre-rendered list remains usable if live comment data is unavailable.
+        }
       };
 
       const getIndex = async () => {
@@ -664,6 +703,12 @@
 
       syncClearButton();
       applyFilter();
+      if (form.dataset.articleCardsUrl) {
+        loadArticleActivity();
+        window.addEventListener('pageshow', (event) => {
+          if (event.persisted) loadArticleActivity();
+        });
+      }
     });
 
     const mobileTocs = document.querySelectorAll('[data-mobile-toc]');

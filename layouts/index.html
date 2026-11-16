@@ -1,6 +1,11 @@
 {{ define "main" }}
-  {{ $recentPages := first 4 (sort (where .Site.RegularPages "Section" "eq" "posts") "Date" "desc") }}
+  {{ $articleLimit := 5 }}
+  {{ $recentPages := first $articleLimit (partial "sorted-articles.html" (where .Site.RegularPages "Section" "eq" "posts")) }}
   {{ $newsPages := first 3 (sort (where .Site.RegularPages "Section" "eq" "news") "Date" "desc") }}
+  {{ $lexiconPages := slice }}
+  {{ with .Site.GetPage "section" "lexicon" }}
+    {{ $lexiconPages = first 3 (sort .RegularPages "Lastmod" "desc") }}
+  {{ end }}
   {{ $figurePages := first 1 (sort (where .Site.RegularPages "Section" "eq" "figures") "Date" "desc") }}
   {{ $figureSection := .Site.GetPage "section" "figures" }}
   {{ $allsisSection := .Site.GetPage "section" "allsis" }}
@@ -62,9 +67,9 @@
           <div class="home-main">
             <section class="section-card section-card--latest">
               <div class="section-heading">
-                <span class="section-heading__kicker">LATEST</span>
+                <span class="section-heading__kicker">ARTICLES</span>
                 <div class="section-heading__row">
-                  <h2 class="section-heading__title">最近更新</h2>
+                  <h2 class="section-heading__title">文章</h2>
                   <a class="section-heading__more" href="{{ "/posts/" | relLangURL }}">更多 →</a>
                 </div>
               </div>
@@ -77,8 +82,11 @@
                   data-empty="#homeSearchEmpty"
                   data-index-url="{{ "/index.json" | relLangURL }}"
                   data-filter-section="posts"
-                  data-search-limit="4"
-                  data-search-step="4"
+                  data-search-limit="{{ $articleLimit }}"
+                  data-search-step="{{ $articleLimit }}"
+                  data-article-cards-url="{{ "/posts/article-cards.json" | relLangURL }}"
+                  data-article-page="1"
+                  data-article-limit="{{ $articleLimit }}"
                 >
                   <label class="sr-only" for="home-filter-input">搜索文章</label>
                   <div class="search-box__field">
@@ -111,11 +119,35 @@
           </div>
 
           <aside class="home-side">
+            <section class="section-card section-card--lexicon">
+              <div class="section-heading section-heading--compact">
+                <span class="section-heading__kicker">LEXICON</span>
+                <div class="section-heading__row">
+                  <h2 class="section-heading__title">词条</h2>
+                  <a class="section-heading__more" href="{{ "/lexicon/" | relLangURL }}">更多 →</a>
+                </div>
+              </div>
+              <div class="home-lexicon-list" data-home-lexicon-list>
+                {{ range $lexiconPages }}
+                  {{ partial "home-lexicon-card.html" . }}
+                {{ else }}
+                  <p class="empty-state">词条正在整理中。</p>
+                {{ end }}
+              </div>
+            </section>
+            {{ $lexiconCards := slice }}
+            {{ with .Site.GetPage "section" "lexicon" }}
+              {{ range sort .RegularPages "Lastmod" "desc" }}
+                {{ $lexiconCards = $lexiconCards | append (dict "url" .RelPermalink "commentPath" (.Params.comment_path | default .RelPermalink) "updatedAt" (mul .Lastmod.Unix 1000) "html" (partial "home-lexicon-card.html" .)) }}
+              {{ end }}
+            {{ end }}
+            <script type="application/json" data-home-lexicon-cards>{{ $lexiconCards | jsonify | safeJS }}</script>
+            <script type="module" src="{{ "/js/home-lexicon.js" | relURL }}?v={{ readFile "static/js/home-lexicon.js" | md5 }}"></script>
             <section class="section-card section-card--news">
               <div class="section-heading section-heading--compact">
                 <span class="section-heading__kicker">NEWS</span>
                 <div class="section-heading__row">
-                  <h2 class="section-heading__title">女性新闻</h2>
+                  <h2 class="section-heading__title">新闻</h2>
                   <a class="section-heading__more" href="{{ "/news/" | relLangURL }}">更多 →</a>
                 </div>
               </div>
@@ -145,9 +177,9 @@
 
             <section class="section-card section-card--woman">
               <div class="section-heading section-heading--compact">
-                <span class="section-heading__kicker">WOMAN OF THE WEEK</span>
+                <span class="section-heading__kicker">FIGURES</span>
                 <div class="section-heading__row">
-                  <h2 class="section-heading__title">每周女性人物</h2>
+                  <h2 class="section-heading__title">人物</h2>
                   <a class="section-heading__more" href="{{ with $figureSection }}{{ .RelPermalink }}{{ else }}{{ "/figures/" | relLangURL }}{{ end }}">更多 →</a>
                 </div>
               </div>
