@@ -34,6 +34,7 @@
     let walinePageviewModulePromise = null;
 
     const watchedCommentCounts = new WeakSet();
+    const loadedCommentCounts = new WeakMap();
     const readCountTarget = document.querySelector('[data-comment-read-count]');
     let commentHeadingVisible = false;
     const recordReadCount = () => {
@@ -57,8 +58,7 @@
         badge.hidden = true;
         container.after(badge);
       }
-      new MutationObserver(() => {
-        if (target === readCountTarget) recordReadCount();
+      const updateBadge = () => {
         if (!badge) return;
         try {
           const current = target.textContent.trim();
@@ -70,6 +70,12 @@
           badge.hidden = unread <= 0;
           badge.textContent = unread > 0 ? unread + ' 条新回应' : '';
         } catch {}
+      };
+      new MutationObserver(() => {
+        if (target === readCountTarget) recordReadCount();
+        if (!badge) return;
+        loadedCommentCounts.set(target, updateBadge);
+        updateBadge();
       }).observe(target, { childList: true, characterData: true, subtree: true });
     };
 
@@ -155,7 +161,11 @@
     window.refreshWalinePageviewCounts = refreshWalinePageviewCounts;
     refreshWalineCommentCounts();
     window.addEventListener('pageshow', (event) => {
-      if (event.persisted) refreshWalineCommentCounts();
+      if (!event.persisted) return;
+      for (const target of document.querySelectorAll('.waline-comment-count')) {
+        loadedCommentCounts.get(target)?.();
+      }
+      refreshWalineCommentCounts();
     });
     refreshWalinePageviewCounts();
 

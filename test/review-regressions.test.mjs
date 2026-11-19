@@ -7,10 +7,10 @@ import { createGitHubRepository } from '../publishing/lib/github.mjs';
 import { createReceipts } from '../publishing/lib/receipts.mjs';
 import { token, catalog, fixture, request, memoryObjects, gitService } from './helpers.mjs';
 
-function setup() {
+function setup(forumOrigins) {
   const remote = gitService(), objects = memoryObjects(), receipts = createReceipts(objects);
   const repository = createGitHubRepository({ token: 'synthetic', owner: 'site-owner', repo: 'site-repo', branch: 'main', publicOrigin: 'https://website.example', fetch: remote.fetch });
-  const receive = createReceiver({ token, catalog, repository, receipts });
+  const receive = createReceiver({ token, catalog, repository, receipts, forumOrigins });
   return { remote, objects, receipts, repository, receive };
 }
 const publish = (s, value = fixture(), key = randomUUID()) => s.receive(request('publish', value, key));
@@ -77,6 +77,32 @@ test('finding2: encoded private values in preserved YAML are rejected before rep
       await rejectWithoutWrites(s, { ...fixture(), articleId: initial.articleId, expectedRevision: s.remote.files().get(path).sha }, key);
     }
   }
+});
+
+test('refuses a private forum citation in a source or displayed comment before saving public content', async () => {
+  const origin = 'https://private-forum.example.org', s = setup([origin]);
+  const privateUrl = `${origin}/topics/fixture`;
+  await rejectWithoutWrites(s, { ...fixture(), sourceUrl: privateUrl });
+  await rejectWithoutWrites(s, { ...fixture(), comments: [`讨论见 ${privateUrl}`] });
+});
+
+test('checks preserved Hugo metadata for the private forum before a single or batch update', async () => {
+  const origin = 'https://private-forum.example.org', s = setup([origin]);
+  const initial = await (await publish(s)).json();
+  const path = `content/lexicon/${initial.articleId}.md`;
+  s.remote.edit(path, `---\ntitle: Existing\noriginal_url:\n  - ${origin}/topics/fixture\n---\nExisting body\n`);
+  const update = { ...fixture(), articleId: initial.articleId, expectedRevision: s.remote.files().get(path).sha };
+  await rejectWithoutWrites(s, update);
+  const head = s.remote.head;
+  const batch = await s.receive(request('publish-batch', { version: 1, confirmed: true, items: [update, fixture()] }));
+  assert.equal(batch.status, 400);
+  assert.equal(s.remote.head, head);
+  assert.equal(s.remote.files().has(path), true);
+  assert.match(s.remote.text(path), /private-forum\.example\.org/);
+  await rejectWithoutWrites(s, { ...update, sourceUrl: null });
+  const fixed = await publish(s, { ...update, sourceUrl: 'https://public.example.org/replacement' });
+  assert.equal(fixed.status, 200);
+  assert.doesNotMatch(s.remote.text(path), /private-forum\.example\.org/);
 });
 
 test('finding2: reversible-view exhaustion rejects without public or private writes', async () => {

@@ -74,7 +74,7 @@ export function validateArticle(value, catalog) {
     if (value.commentOrphans.some((flag, index) => flag && value.commentKinds[index] !== 'reply')) fail();
   } else if ('commentKinds' in value || 'commentOrphans' in value) fail();
   if ('originalDate' in value && (!text(value.originalDate, 100, true) || /[\r\n]/.test(value.originalDate))) fail();
-  if ('sourceUrl' in value && (!text(value.sourceUrl, 2048, true) || safeLink(value.sourceUrl) !== value.sourceUrl)) fail();
+  if ('sourceUrl' in value && value.sourceUrl !== null && (!text(value.sourceUrl, 2048, true) || safeLink(value.sourceUrl) !== value.sourceUrl)) fail();
   if (!Array.isArray(value.assets) || value.assets.length > 50 || !value.assets.every(uuid) || new Set(value.assets).size !== value.assets.length) fail();
   if ('articleId' in value || 'expectedRevision' in value) { if (!uuid(value.articleId) || !sha(value.expectedRevision)) fail(); }
   return value;
@@ -443,22 +443,26 @@ export function writeDocument(value, body, previous, plan) {
   if (['positive', 'negative', 'unmarked'].includes(value.polarity)) managed.polarity = value.polarity;
   if (typeof value.isEvent === 'boolean') managed.event = value.isEvent;
   if (Array.isArray(value.aliases)) managed.aliases = value.aliases;
+  // The editor has one URL field. A blank field cannot clear a legacy list
+  // it never showed, but a supplied source can explicitly replace that list.
+  const editSource = 'sourceUrl' in value && (value.sourceUrl !== null || typeof document.metadata.original_url === 'string');
   if (datedSection(value.section)) {
-    if ('sourceUrl' in value || 'sourceName' in value) managed.original_url = newsSource(value.sourceName, value.sourceUrl);
+    if (editSource || 'sourceName' in value) managed.original_url = newsSource(value.sourceName, value.sourceUrl) || undefined;
     if ('publishDate' in value) managed.date = value.publishDate;
-  } else if ('sourceUrl' in value) managed.original_url = value.sourceUrl;
+  } else if (editSource) managed.original_url = value.sourceUrl ?? undefined;
   if ('originalDate' in value) managed.original_date = value.originalDate;
   if (value.replaceCategories === true) managed.categories = value.categories;
   for (const [key, keyValue] of Object.entries(managed)) {
     const pattern = new RegExp(`^(?:${key}|"${key}"|'${key}')\\s*:`);
     const found = lines.map((line, index) => pattern.test(line) ? index : -1).filter(index => index !== -1);
     if (found.length > 1 || (Object.hasOwn(document.metadata, key) && found.length !== 1)) fail(409, 'LEGACY_MARKUP');
-    const encoded = `${key}: ${JSON.stringify(keyValue)}`;
+    // An explicitly cleared field should be absent from the Hugo front matter.
+    const encoded = keyValue === undefined ? [] : [`${key}: ${JSON.stringify(keyValue)}`];
     if (found.length) {
       const start = found[0]; let end = start + 1;
       while (end < lines.length && (/^[ \t]+\S/.test(lines[end]) || (/^\s*$/.test(lines[end]) && /^\s+\S/.test(lines[end + 1] ?? '')))) end++;
-      lines.splice(start, end - start, encoded);
-    } else lines = [encoded, ...lines];
+      lines.splice(start, end - start, ...encoded);
+    } else lines = [...encoded, ...lines];
   }
   const raw = lines.join(newline);
   // Anchors, merge keys or unusual scalar syntax must never change other fields.
@@ -467,7 +471,7 @@ export function writeDocument(value, body, previous, plan) {
   const oldFields = { ...document.metadata }, newFields = { ...updated };
   for (const key of Object.keys(managed)) { delete oldFields[key]; delete newFields[key]; }
   // Deep comparison: a managed key may hold a list, not just a scalar.
-  if (Object.entries(managed).some(([key, keyValue]) => !isDeepStrictEqual(updated[key], keyValue)) || !isDeepStrictEqual(oldFields, newFields)) fail(409, 'LEGACY_MARKUP');
+  if (Object.entries(managed).some(([key, keyValue]) => keyValue === undefined ? Object.hasOwn(updated, key) : !isDeepStrictEqual(updated[key], keyValue)) || !isDeepStrictEqual(oldFields, newFields)) fail(409, 'LEGACY_MARKUP');
   const prefix = document.source.startsWith('\uFEFF') ? '\uFEFF' : '';
   return Buffer.from(`${prefix}---${newline}${raw}${newline}---${newline}${newline}${body}`);
 }

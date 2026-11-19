@@ -16,6 +16,7 @@ Configure server-side variables in the deployment platform:
 - `WEBSITE_GITHUB_OWNER`, `WEBSITE_GITHUB_REPO`, `WEBSITE_GITHUB_BRANCH`: one fixed existing target.
 - `WEBSITE_GITHUB_STAGING_BRANCH` (optional, default `publishing`): publications are committed to this branch, which `vercel.json` keeps from deploying, and the forum calls `operation=release` once per batch (or right after a single publication) to move the production branch to it in one push, so the site builds once. `off` writes straight to the production branch. Reads (`catalog`, `terms`, `articles`, `article`) answer from this same branch, not from the production branch: a read is the baseline for the next publication, so it has to show the copies already committed and still waiting for release, or every later update of them is refused as a version conflict.
 - `WEBSITE_PUBLIC_ORIGIN`: canonical HTTPS origin, no trailing slash, path or port. The build script uses this for Hugo when set.
+- `WEBSITE_PUBLISHING_FORUM_ORIGINS`: comma-separated private forum origins. Set the same value on the receiver and sender to reject private addresses in generated files, including from preserved source metadata.
 - `WEBSITE_R2_ENDPOINT`: dedicated account HTTPS S3 endpoint, no trailing slash.
 - `WEBSITE_R2_BUCKET`: private receipt bucket; public access and public domains stay disabled.
 - `WEBSITE_R2_ACCESS_KEY_ID`, `WEBSITE_R2_SECRET_ACCESS_KEY`: permissions scoped to this bucket.

@@ -41,6 +41,55 @@ test('a new article takes the next number after the registry, in the same commit
   assert.equal(s.remote.calls.filter(call => call.method === 'POST' && call.url.endsWith('git/commits')).length, 1);
 });
 
+test('omission preserves an existing source and explicit clearing removes it from public content', async () => {
+  const s = setup(), sourceUrl = 'https://private-forum.example.org/topics/fixture';
+  const initial = await (await s.receive(request('publish', { ...post(), sourceUrl }))).json();
+  const path = `content/posts/${initial.articleId}.md`;
+  const withoutSource = await s.receive(request('publish', { ...post('改标题'), articleId: initial.articleId, expectedRevision: initial.revision }));
+  assert.equal(withoutSource.status, 200);
+  assert.match(s.remote.text(path), /private-forum\.example\.org/);
+
+  const { revision } = await withoutSource.json();
+  const cleared = await s.receive(request('publish', { ...post('清空来源'), sourceUrl: null, articleId: initial.articleId, expectedRevision: revision }));
+  assert.equal(cleared.status, 200);
+  assert.doesNotMatch(s.remote.text(path), /original_url|private-forum\.example\.org/);
+});
+
+test('a batch removes dated source links and leaves a supplied source name as text', async () => {
+  const s = setup(), sourceUrl = 'https://private-forum.example.org/topics/fixture';
+  const initial = await s.receive(request('publish-batch', { version: 1, confirmed: true, items: [news({ sourceUrl }), news({ section: 'figures', sourceUrl })] }));
+  assert.equal(initial.status, 200);
+  const [newsArticle, figure] = (await initial.json()).items;
+  const update = news({ articleId: newsArticle.articleId, expectedRevision: newsArticle.revision, sourceUrl: null });
+  const clear = news({ section: 'figures', articleId: figure.articleId, expectedRevision: figure.revision, sourceUrl: null });
+  delete clear.sourceName;
+  const response = await s.receive(request('publish-batch', { version: 1, confirmed: true, items: [update, clear] }));
+  assert.equal(response.status, 200);
+  const newsOutput = s.remote.text(`content/news/${newsArticle.articleId}.md`);
+  assert.equal(readDocument(Buffer.from(newsOutput)).metadata.original_url, '新华网');
+  assert.doesNotMatch(newsOutput, /private-forum\.example\.org/);
+  assert.doesNotMatch(s.remote.text(`content/figures/${figure.articleId}.md`), /original_url|private-forum\.example\.org/);
+});
+
+test('a blank source field preserves legacy source lists the editor cannot display', async () => {
+  const s = setup();
+  const initial = await (await s.receive(request('publish', post()))).json();
+  const path = `content/posts/${initial.articleId}.md`;
+  const sources = ['https://public.example.org/first', '[另一份公开来源](https://public.example.org/second)'];
+  s.remote.edit(path, `---\ntitle: Existing\noriginal_url:\n  - ${sources[0]}\n  - '${sources[1]}'\n---\nExisting body\n`);
+  const target = { articleId: initial.articleId, expectedRevision: s.remote.files().get(path).sha };
+
+  const response = await s.receive(request('publish', { ...post('保留两项来源'), ...target, sourceUrl: null }));
+  assert.equal(response.status, 200);
+  assert.deepEqual(readDocument(Buffer.from(s.remote.text(path))).metadata.original_url, sources);
+
+  const { revision } = await response.json();
+  const replacement = 'https://public.example.org/replacement';
+  const changed = await s.receive(request('publish', { ...post(), ...target, expectedRevision: revision, sourceUrl: replacement }));
+  assert.equal(changed.status, 200);
+  assert.equal(readDocument(Buffer.from(s.remote.text(path))).metadata.original_url, replacement);
+});
+
 test('a retry keeps its number, an update never renumbers, and a removed number is not reused', async () => {
   const s = setup(), key = randomUUID();
   const first = await (await s.receive(request('publish', post('甲'), key))).json();

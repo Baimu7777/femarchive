@@ -21,7 +21,8 @@ export function createConfiguredReceiver(env, { fetch: transport = globalThis.fe
     const endpoint = new URL(env.WEBSITE_R2_ENDPOINT);
     if (endpoint.origin !== env.WEBSITE_R2_ENDPOINT || endpoint.protocol !== 'https:' || endpoint.port || endpoint.username || endpoint.password || !/^[a-z0-9-]+\.r2\.cloudflarestorage\.com$/.test(endpoint.hostname) || !/^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$/.test(env.WEBSITE_R2_BUCKET)) return () => failure(503);
     const client = new S3Client({ endpoint: endpoint.origin, region: 'auto', maxAttempts: 1, followRegionRedirects: false, credentials: { accessKeyId: env.WEBSITE_R2_ACCESS_KEY_ID, secretAccessKey: env.WEBSITE_R2_SECRET_ACCESS_KEY }, requestHandler: { connectionTimeout: 5000, requestTimeout: 20000 } });
-    return createReceiver({ importedArticles, importedPosts: existingPosts, token: env.WEBSITE_PUBLISHING_TOKEN, catalog, repository: createGitHubRepository({ ...config, token: env.WEBSITE_GITHUB_TOKEN, fetch: transport }), receipts: createReceipts(createR2Objects({ client, bucket: env.WEBSITE_R2_BUCKET })) });
+    const forumOrigins = env.WEBSITE_PUBLISHING_FORUM_ORIGINS?.split(',').map(origin => origin.trim());
+    return createReceiver({ importedArticles, importedPosts: existingPosts, token: env.WEBSITE_PUBLISHING_TOKEN, catalog, forumOrigins, repository: createGitHubRepository({ ...config, token: env.WEBSITE_GITHUB_TOKEN, fetch: transport }), receipts: createReceipts(createR2Objects({ client, bucket: env.WEBSITE_R2_BUCKET })) });
   } catch { return () => failure(503); }
 }
 
